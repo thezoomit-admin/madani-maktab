@@ -14,10 +14,22 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('phone', 15)->unique();
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();
+            $table->enum('user_type', ['employee', 'customer'])->nullable()->comment('1= Employee, 2= Customer');
+            $table->string('profile_image')->nullable();
+            $table->enum('marital_status', ['married', 'unmarried', 'divorced'])->nullable();
+            $table->date('dob')->nullable();
+            $table->string('finger_id')->nullable();
+            $table->enum('religion', ['Islam', 'Christianity', 'Hinduism', 'Buddhism', 'Judaism', 'Sikhism', 'Jainism', 'Baháulláh', 'Confucianism', 'Others'])->nullable();
+            $table->enum('blood_group', ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])->nullable();
+            $table->enum('gender', ['male', 'female', 'others'])->nullable();
+
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
