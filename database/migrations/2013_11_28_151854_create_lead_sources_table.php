@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('unions', function (Blueprint $table) {
+        Schema::create('lead_sources', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('upazila_id')->constrained();
             $table->string('name');
-            $table->string('bn_name');
-            $table->string('url');    
-            $table->timestamps(); 
+            $table->string('slug');
+            $table->timestamps();
         });
     }
 
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('unions');
+        Schema::dropIfExists('lead_sources');
     }
 };

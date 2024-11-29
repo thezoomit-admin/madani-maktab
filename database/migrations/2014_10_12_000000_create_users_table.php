@@ -24,7 +24,11 @@ return new class extends Migration
             $table->string('finger_id')->nullable();
             $table->enum('religion', ['Islam', 'Christianity', 'Hinduism', 'Buddhism', 'Judaism', 'Sikhism', 'Jainism', 'Baháulláh', 'Confucianism', 'Others'])->nullable();
             $table->enum('blood_group', ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])->nullable();
-            $table->enum('gender', ['male', 'female', 'others'])->nullable();
+            $table->enum('gender', ['male', 'female', 'others'])->nullable(); 
+            $table->json('senior_user')->nullable(); 
+            $table->json('junior_user')->nullable();
+
+            $table->foreignId('role_id')->constrained();
 
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();

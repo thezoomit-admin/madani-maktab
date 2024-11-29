@@ -20,9 +20,8 @@ return new class extends Migration
             $table->string('primary_color')->nullable(); 
             $table->string('secondary_color')->nullable();  
             $table->date('founded_date')->nullable();  
-            $table->boolean('is_active')->default(true);  
-        
-            // Foreign key for category
+            $table->boolean('is_active')->default(true);
+         
             $table->foreignId('category_id')->constrained('company_categories')->onDelete('cascade');
         
             $table->timestamps(); 

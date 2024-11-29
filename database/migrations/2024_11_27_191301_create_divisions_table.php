@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('divisions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('country_id')->default(18)->constrained();
+            $table->string('name');
+            $table->string('bn_name');
+            $table->string('url');
             $table->timestamps();
         });
     }

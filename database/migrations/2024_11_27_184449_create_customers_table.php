@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
+            $table->foreignId('lead_source_id')->constrained();
             $table->string('visitor_id')->nullable()->comment('VIS-001'); 
-            $table->string('customer_id')->nullable()->comment("CUS-001");  
+            $table->string('customer_id')->nullable()->comment("CUS-001");              
             $table->tinyInteger('customer_type')->default(1)->comment('1= Company, 0= Personal');
             $table->foreignId('ref_id')->nullable()->constrained('users'); 
             

@@ -15,10 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->string('employee_id')->uniqid();
-            $table->string('signature')->nullable();
-            
+            $table->string('signature')->nullable(); 
 
-            $table->foreignId('ref_id')->nullable()->constrained('users'); 
+            $table->foreignId('ref_id')->nullable()->constrained('users');  
 
             $table->tinyInteger('status')->default(1)->comment('1= Active, 0= Inactive'); 
             $table->unsignedBigInteger('created_by')->nullable();

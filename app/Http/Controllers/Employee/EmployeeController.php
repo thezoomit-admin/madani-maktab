@@ -1,46 +1,38 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Employee;
 
-use App\Helpers\LoginService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\RegisterRequest;
-use App\Models\Company;
+use App\Http\Requests\EmployeeStoreResource;
 use App\Models\Employee;
 use App\Models\EmployeeDesignation;
 use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\UserContact;
+use App\Models\UserReporting;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
-class AuthController extends Controller
+class EmployeeController extends Controller
 {
-    public function login(LoginRequest $request)
-    {  
-        $request->authenticate(); 
-        $user = Auth::user();  
-        return LoginService::createResponse($user);
-    } 
-
-    public function register(RegisterRequest $request){  
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        //
+    }
+ 
+    public function store(EmployeeStoreResource $request)
+    {
         DB::beginTransaction();  
-        try { 
-            $logoPath = null;
-            if ($request->hasFile('logo')) {
-                $logoPath = $request->file('logo')->store('logos', 'public');
-            }
-
+        try {  
             $profilePicPath = null;
             if ($request->hasFile('profile_image')) {
                 $profilePicPath = $request->file('profile_image')->store('profile_images', 'public');
             }
-
-            // Create User
+ 
             $user = User::create([
                 'name' => $request->user_name,
                 'email' => $request->user_email,
@@ -49,22 +41,8 @@ class AuthController extends Controller
                 'user_type' => 'employee',  
                 'profile_image' => $profilePicPath, 
                 'role_id' => $request->role_id,
-            ]);
-
-            // Create Company
-            $company = Company::create([
-                'name' => $request->company_name,
-                'website' => $request->website,
-                'address' => $request->address,
-                'logo' => $logoPath,
-                'primary_color' => $request->primary_color,
-                'secondary_color' => $request->secondary_color,
-                'founded_date' => $request->founded_date,
-                'category_id' => $request->category_id,
-                'is_active' => $request->has('is_active') ? $request->is_active : true,
-            ]);
-
-            // Create User Contact
+            ]); 
+ 
             UserContact::create([
                 'user_id' => $user->id,
                 'name' => $request->name ?? $request->user_name,
@@ -75,8 +53,7 @@ class AuthController extends Controller
                 'emergency_contact_number' => $request->emergency_contact_number,
                 'emergency_contact_person' => $request->emergency_contact_person,
             ]);
-
-            // Create User Address
+ 
             UserAddress::create([
                 'user_id' => $user->id,
                 'country_id' => $request->country_id,
@@ -85,13 +62,12 @@ class AuthController extends Controller
                 'upazila_id' => $request->upazila_id,
                 'address' => $request->address,
             ]);
-
-            // Create Employee record
+ 
             $employee = Employee::create([
                 'user_id' => $user->id,
                 'employee_id' => 111,
                 'status' => 1,
-            ]);  
+            ]); 
 
             // Create Employee Designation
             EmployeeDesignation::create([
@@ -99,14 +75,37 @@ class AuthController extends Controller
                 'employee_id' => $employee->id,
                 'designation_id' => $request->designation_id,
                 'start_date' => now() 
-            ]);  
+            ]); 
+
+            UserReporting::create([
+                'user_id' => $user->id, 
+                'reporting_user_id' => $request->reporting_user_id,
+                'start_date' => now() 
+            ]);
             
-            DB::commit(); 
-            Auth::login($user); 
-            return LoginService::createResponse($user); 
+            DB::commit();  
+            return api_response(null,'Employee has been created'); 
+
         } catch (\Exception $e) { 
             DB::rollBack();  
-            return api_response(null, 'Error creating company and user', $e->getMessage(), 500);
+            return api_response(null, 'Error creating employee', $e->getMessage(), 500);
         }
-    } 
+    }
+
+    public function show(string $id)
+    {
+        //
+    }
+
+    
+    public function update(Request $request, string $id)
+    {
+        //
+    }
+
+    
+    public function destroy(string $id)
+    {
+        //
+    }
 }

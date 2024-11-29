@@ -1,6 +1,15 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Common\CompanyCategoryApiController;
+use App\Http\Controllers\Common\CountryApiController;
+use App\Http\Controllers\Common\DesignationApiController;
+use App\Http\Controllers\Common\DistrictApiController;
+use App\Http\Controllers\Common\DivisionApiController;
+use App\Http\Controllers\Common\RoleApiController;
+use App\Http\Controllers\Common\UnionApiController;
+use App\Http\Controllers\Common\UpazilaApiController;
+use App\Http\Controllers\Employee\EmployeeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,7 +24,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::post('login', [AuthController::class, 'login']); 
+Route::post('register', [AuthController::class, 'register']);
+Route::get('roles',RoleApiController::class);
+Route::get('designations',DesignationApiController::class);
+Route::get('company-categories',CompanyCategoryApiController::class);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Location 
+Route::get('countries',CountryApiController::class);
+Route::get('divisions',DivisionApiController::class);
+Route::get('districts',DistrictApiController::class);
+Route::get('upazilas',UpazilaApiController::class);
+Route::get('unions',UnionApiController::class);
+
+Route::middleware(['auth:api'])->group(function () {  
+    Route::resource('employee', EmployeeController::class); 
 });
+
+ 

@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('unions', function (Blueprint $table) {
+        Schema::create('role_permissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('upazila_id')->constrained();
-            $table->string('name');
-            $table->string('bn_name');
-            $table->string('url');    
-            $table->timestamps(); 
+            $table->foreignId('role_id')->constrained()->onDelete('cascade');
+            $table->foreignId('permission_id')->constrained()->onDelete('cascade');
+            $table->timestamps();
+
+            $table->unique(['role_id', 'permission_id']);
         });
     }
 
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('unions');
+        Schema::dropIfExists('role_permissions');
     }
 };

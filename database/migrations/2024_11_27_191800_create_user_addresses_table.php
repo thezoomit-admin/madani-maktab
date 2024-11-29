@@ -21,7 +21,8 @@ return new class extends Migration
             $table->foreignId('union_id')->nullable()->constrained();
             $table->foreignId('village_id')->nullable()->constrained();
             $table->string('post_code')->nullable();  
-            $table->string('address', 250)->nullable();  
+            $table->string('address', 250)->nullable(); 
+            $table->timestamps(); 
         });
     }
 

@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('unions', function (Blueprint $table) {
+        Schema::create('permissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('upazila_id')->constrained();
-            $table->string('name');
-            $table->string('bn_name');
-            $table->string('url');    
-            $table->timestamps(); 
+            $table->string('name')->unique();
+            $table->string('slug')->unique();
+            $table->string('guard_name')->default('web');
+            $table->timestamps();
         });
     }
 
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('unions');
+        Schema::dropIfExists('permissions');
     }
 };

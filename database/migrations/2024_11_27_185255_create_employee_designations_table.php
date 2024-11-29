@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('employee_designations', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('employee_id')->constrained()->onDelete('cascade');
             $table->foreignId('designation_id')->constrained()->onDelete('cascade');
             $table->timestamp('start_date')->nullable();
