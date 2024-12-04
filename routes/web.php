@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\ReportingService;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
+Route::get('/', function () {  
+    $allJuniors = ReportingService::getJunior(1);
+dd($allJuniors);
+
     return view('welcome');
 });

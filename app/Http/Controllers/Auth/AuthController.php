@@ -21,7 +21,7 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     public function login(LoginRequest $request)
-    {  
+    {   
         $request->authenticate(); 
         $user = Auth::user();  
         return LoginService::createResponse($user);
@@ -40,17 +40,6 @@ class AuthController extends Controller
                 $profilePicPath = $request->file('profile_image')->store('profile_images', 'public');
             }
 
-            // Create User
-            $user = User::create([
-                'name' => $request->user_name,
-                'email' => $request->user_email,
-                'phone' => $request->user_phone,
-                'password' => Hash::make($request->password),
-                'user_type' => 'employee',  
-                'profile_image' => $profilePicPath, 
-                'role_id' => $request->role_id,
-            ]);
-
             // Create Company
             $company = Company::create([
                 'name' => $request->company_name,
@@ -62,7 +51,21 @@ class AuthController extends Controller
                 'founded_date' => $request->founded_date,
                 'category_id' => $request->category_id,
                 'is_active' => $request->has('is_active') ? $request->is_active : true,
+            ]); 
+
+            // Create User
+            $user = User::create([
+                'name' => $request->user_name,
+                'email' => $request->user_email,
+                'phone' => $request->user_phone,
+                'password' => Hash::make($request->password),
+                'user_type' => 'employee',  
+                'profile_image' => $profilePicPath, 
+                'role_id' => $request->role_id,
+                'company_id' =>  $company->id,
             ]);
+
+            
 
             // Create User Contact
             UserContact::create([
@@ -89,7 +92,7 @@ class AuthController extends Controller
             // Create Employee record
             $employee = Employee::create([
                 'user_id' => $user->id,
-                'employee_id' => 111,
+                'employee_id' => Employee::generateNextEmployeeId(),
                 'status' => 1,
             ]);  
 
@@ -100,7 +103,7 @@ class AuthController extends Controller
                 'designation_id' => $request->designation_id,
                 'start_date' => now() 
             ]);  
-            
+
             DB::commit(); 
             Auth::login($user); 
             return LoginService::createResponse($user); 

@@ -14,6 +14,8 @@ class DatabaseSeeder extends Seeder
     {  
         $this->call(RoleSeeder::class);
         $this->call(RolePermissionSeeder::class); 
+        $this->call(CompanyCategorySeeder::class);  
+        $this->call(CompanySeeder::class); 
         $this->call(UserSeeder::class); 
         $this->call(PermissionSeeder::class);    
         $this->call(CountrySeeder::class);        
@@ -21,7 +23,6 @@ class DatabaseSeeder extends Seeder
         $this->call(DistrictSeeder::class);  
         $this->call(UpazilaSeeder::class);  
         $this->call(UnionSeeder::class);  
-        $this->call(CompanyCategorySeeder::class);  
         $this->call(DesignationSeeder::class);  
     }
 }

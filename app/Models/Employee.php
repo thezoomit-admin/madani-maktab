@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Employee extends Model
 {
@@ -19,7 +20,7 @@ class Employee extends Model
         'deleted_by',
     ];
 
-    public static function generateNextEmployeeId(){
+    public static function generateNextEmployeeId(){ 
         $largest_employee_id = Employee::where('employee_id', 'like', 'EMP-%') 
         ->pluck('employee_id')
                 ->map(function ($id) {
@@ -30,5 +31,15 @@ class Employee extends Model
         $new_employee_id = 'EMP-' . str_pad($largest_employee_id, 6, '0', STR_PAD_LEFT);
         return $new_employee_id;
     } 
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function employeeDesignations()
+    {
+        return $this->hasMany(EmployeeDesignation::class);
+    }
     
 }

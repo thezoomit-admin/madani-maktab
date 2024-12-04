@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('phone', 15)->unique();
             $table->string('email')->unique();
             $table->string('password');
-            $table->enum('user_type', ['employee', 'customer'])->nullable()->comment('1= Employee, 2= Customer');
+            $table->enum('user_type', ['employee', 'affiliate', 'customer'])->nullable();
             $table->string('profile_image')->nullable();
             $table->enum('marital_status', ['married', 'unmarried', 'divorced'])->nullable();
             $table->date('dob')->nullable();
@@ -29,6 +29,7 @@ return new class extends Migration
             $table->json('junior_user')->nullable();
 
             $table->foreignId('role_id')->constrained();
+            $table->foreignId('company_id')->constrained();
 
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();

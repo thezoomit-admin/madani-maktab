@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Common;
 use App\Http\Controllers\Controller;
 use App\Models\Country;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CountryApiController extends Controller
 {
     public function __invoke(Request $request)
-    {
+    { 
         try { 
             $keyword = $request->input('keyword', ''); 
             $data = Country::select('id', 'name', 'nationality')

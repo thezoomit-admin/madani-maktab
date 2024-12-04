@@ -31,6 +31,7 @@ class User extends Authenticatable
         'blood_group',
         'gender',
         'role_id',
+        'company_id',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -59,5 +60,14 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class, 'role_id', 'id');
+    }  
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
+    }
+
+    public function employeeDesignations()
+    {
+        return $this->hasMany(EmployeeDesignation::class);
     }
 }

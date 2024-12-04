@@ -13,3 +13,4 @@ if (!function_exists('api_response')) {
         return response()->json($responseData, $statusCode);
     }
 }
+
