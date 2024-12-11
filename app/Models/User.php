@@ -22,20 +22,19 @@ class User extends Authenticatable
         'phone',
         'email',
         'password',
-        'user_type',
         'profile_image',
-        'marital_status',
         'dob',
-        'finger_id',
-        'religion',
+        'dob_hijri',
         'blood_group',
         'gender',
+        'senior_user',
+        'junior_user',
         'role_id',
-        'company_id',
         'created_by',
         'updated_by',
         'deleted_by',
     ];
+    
 
     /**
      * The attributes that should be hidden for serialization.
@@ -57,17 +56,30 @@ class User extends Authenticatable
         'password' => 'hashed',
     ]; 
 
+    
     public function role()
     {
-        return $this->belongsTo(Role::class, 'role_id', 'id');
-    }  
-    public function employee()
-    {
-        return $this->hasOne(Employee::class);
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
-    public function employeeDesignations()
+    public function students()
     {
-        return $this->hasMany(EmployeeDesignation::class);
+        return $this->hasMany(Student::class, 'user_id');
     }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
+    }
+
 }

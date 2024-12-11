@@ -19,7 +19,7 @@ class EmployeeController extends Controller
 { 
     public function index()
     {
-        try {  
+        try {
             $data = DB::table('users')
                 ->leftJoin('employees', 'users.id', '=', 'employees.user_id')  
                 ->leftJoin('employee_designations', function ($join) {

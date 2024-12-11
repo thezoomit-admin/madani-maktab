@@ -19,6 +19,11 @@ class RoleSeeder extends Seeder
             'slug' => 'admin', 
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
+        ],[
+            'name' => 'Student',
+            'slug' => 'student', 
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ]);
 
         $this->command->info('Admin role created successfully!');

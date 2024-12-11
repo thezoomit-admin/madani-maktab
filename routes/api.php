@@ -11,6 +11,8 @@ use App\Http\Controllers\Common\UnionApiController;
 use App\Http\Controllers\Common\UpazilaApiController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Product\ProductCategoryController;
+use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\Student\StudentRegisterController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +41,10 @@ Route::get('unions',UnionApiController::class);
 
 Route::resource('employee', EmployeeController::class); 
 Route::resource('product-category', ProductCategoryController::class); 
+Route::resource('product', ProductController::class); 
+
+// Student Register 
+Route::post('student-register-first-step',[StudentRegisterController::class,'firstStep']);
 
 Route::middleware(['auth:api'])->group(function () {  
     // Route::resource('employee', EmployeeController::class); 
