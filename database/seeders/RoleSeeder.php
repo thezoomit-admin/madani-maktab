@@ -15,17 +15,21 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         DB::table('roles')->insert([
-            'name' => 'Admin',
-            'slug' => 'admin', 
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ],[
-            'name' => 'Student',
-            'slug' => 'student', 
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            [
+                'name' => 'Admin',
+                'slug' => 'admin', 
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'name' => 'Student',
+                'slug' => 'student', 
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
         ]);
-
-        $this->command->info('Admin role created successfully!');
+        
+        $this->command->info('Roles created successfully!');
+        
     }
 }
