@@ -117,26 +117,8 @@ class StudentRegisterController extends Controller
     }
 
 
-    public function lastStep(Request $request){ 
-       $validator = Validator::make($request->all(), [
-            'user_id' => 'required|integer|exists:users,id',
-            'deeni_steps' => 'required|string|max:255',
-            'is_follow_porada' => 'required|boolean',
-            'is_shariah_compliant' => 'required|boolean',
-            'motivation' => 'required|string|max:255',
-            'info_src' => 'required|string|max:255',
-            'first_contact' => 'required|date',
-            'preparation' => 'nullable|string|max:255',
-            'is_clean_lang' => 'required|boolean',
-            'future_plan' => 'nullable|string|max:255',
-            'years_at_inst' => 'required|integer|min:0',
-            'reason_diff_edu' => 'nullable|string|max:2048',
-        ]);  
-
-        if ($validator->fails()) {
-            return api_response(null, 'Validation failed', false, 422, $validator->errors());
-        }
- 
+    public function lastStep(Request $request){  
+        DB::beginTransaction();
         try {
             UserFamily::create([
                 'user_id' => $request->input('user_id'),
@@ -152,8 +134,11 @@ class StudentRegisterController extends Controller
                 'years_at_inst' => $request->input('years_at_inst'),
                 'reason_diff_edu' => $request->input('reason_diff_edu'),
             ]); 
+
+            DB::commit();
             return api_response(null, 'Congratulations! Your registration was successfully completed.', true, 201);
         } catch (\Exception $e) {
+            DB::rollBack();
             return api_response(null, 'Something went wrong: ' . $e->getMessage(), false, 500);
         }
     }

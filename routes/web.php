@@ -14,9 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {  
-    $allJuniors = ReportingService::getJunior(1);
-dd($allJuniors);
+Route::get('/', function () {   
 
     return view('welcome');
 });
