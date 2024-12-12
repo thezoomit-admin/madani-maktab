@@ -45,6 +45,7 @@ Route::resource('product', ProductController::class);
 
 // Student Register 
 Route::post('student-register-first-step',[StudentRegisterController::class,'firstStep']);
+Route::post('student-register-last-step',[StudentRegisterController::class,'lastStep']);
 
 Route::middleware(['auth:api'])->group(function () {  
     // Route::resource('employee', EmployeeController::class); 

@@ -29,6 +29,7 @@ class User extends Authenticatable
         'gender',
         'senior_user',
         'junior_user',
+        'user_type',
         'role_id',
         'created_by',
         'updated_by',

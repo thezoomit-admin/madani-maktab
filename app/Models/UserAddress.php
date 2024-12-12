@@ -10,13 +10,23 @@ class UserAddress extends Model
     use HasFactory; 
     protected $fillable = [
         'user_id',
-        'country_id',
-        'division_id',
-        'district_id',
-        'upazila_id',
-        'union_id',
-        'village_id',
-        'post_code',
-        'address',
+        'student_id',
+        'address_type',
+        'house_or_state',
+        'post_office',
+        'upazila',
+        'district',
+        'division',
+        'thana'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
 }

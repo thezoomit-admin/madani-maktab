@@ -13,15 +13,14 @@ return new class extends Migration
     {
         Schema::create('user_addresses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
-            $table->foreignId('student_id');
+            $table->foreignId('user_id'); 
             $table->enum('address_type', ['permanent', 'temporary']);
             $table->string('house_or_state')->nullable();
             $table->string('post_office')->nullable();
-            $table->integer('upazila')->nullable();
-            $table->integer('district')->nullable();
-            $table->integer('division')->nullable();
-            $table->integer('division')->nullable();
+            $table->string('upazila')->nullable();
+            $table->string('district')->nullable();
+            $table->string('division')->nullable(); 
+            $table->string('thana')->nullable(); 
             $table->timestamps();
         });
     }

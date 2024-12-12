@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('guardians', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('student_id')->constrained();  
+            $table->foreignId('user_id')->constrained();  
             $table->string('guardian_name');
             $table->string('guardian_relation');
             $table->string('guardian_occupation');
