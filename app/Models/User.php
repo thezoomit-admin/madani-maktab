@@ -68,6 +68,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(StudentRegister::class, 'user_id');
     }
+    public function admissionProgress()
+    {
+        return $this->hasOne(AdmissionProgressStatus::class, 'user_id');
+    }
 
     public function guardian()
     {

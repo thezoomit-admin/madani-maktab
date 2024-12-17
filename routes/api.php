@@ -1,7 +1,9 @@
-<?php
-
+<?php 
 use App\Http\Controllers\Admin\Admission\InterviewController;
+use App\Http\Controllers\Admin\Admission\InterviewStudentListController;
+use App\Http\Controllers\Admin\Admission\PreAdmissionTrialController;
 use App\Http\Controllers\Admin\Admission\RegisterStudentListController;
+use App\Http\Controllers\Admin\Admission\TrialStudentListController;
 use App\Http\Controllers\AdminEmployee\EmployeeController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Common\CompanyCategoryApiController;
@@ -45,10 +47,16 @@ Route::post('student-register-first-step',[StudentRegisterController::class,'fir
 Route::post('student-register-last-step',[StudentRegisterController::class,'lastStep']);
  
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::resource('employee', EmployeeController::class); 
-    Route::get('students', RegisterStudentListController::class);
+    Route::resource('employee', EmployeeController::class);  
     Route::resource('interview-schedule', InterviewController::class);
     Route::post('interview-result',[InterviewController::class,'result']);
+    Route::resource('pre-admission-trial', PreAdmissionTrialController::class); 
+    Route::post('pre-trial-attend',[PreAdmissionTrialController::class,'attend']);
+    Route::post('pre-trial-result',[PreAdmissionTrialController::class,'result']);
+
+    Route::get('registerd-students', RegisterStudentListController::class); 
+    Route::get('interview-students', InterviewStudentListController::class); 
+    Route::get('trial-students', TrialStudentListController::class); 
 });
 
 

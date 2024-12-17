@@ -12,7 +12,8 @@ class InterviewSchedule extends Model
     protected $fillable = [
         'candidate_id',
         'interviewer_id',
-        'interview_date',
+        'requested_at',
+        'attended_at',
         'location',
         'status',
         'meeting_link',
