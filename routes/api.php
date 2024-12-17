@@ -43,12 +43,10 @@ Route::get('unions',UnionApiController::class);
 // Student Register 
 Route::post('student-register-first-step',[StudentRegisterController::class,'firstStep']);
 Route::post('student-register-last-step',[StudentRegisterController::class,'lastStep']);
-
-Route::get('students', RegisterStudentListController::class);
-
+ 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('employee', EmployeeController::class); 
-    
+    Route::get('students', RegisterStudentListController::class);
     Route::resource('interview-schedule', InterviewController::class);
 });
 
