@@ -21,12 +21,12 @@ class CountryApiController extends Controller
                 ->take(10)
                 ->get();  
             if ($data->isEmpty()) {
-                return api_response(null, 'No countries found', false, 404);
+                return error_response('No countries found', 404);
             } 
-            return api_response($data);  
+            return success_response($data);  
             
         } catch (\Exception $e) { 
-            return api_response(null, 'An error occurred while fetching countries', false, 500, ['exception' => $e->getMessage()]);
+            return error_response($e->getMessage(),500);
         }
     }
 

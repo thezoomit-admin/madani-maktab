@@ -43,11 +43,11 @@ class EmployeeController extends Controller
                 ->where('users.user_type', 'employee') // Filter only employee users
                 ->get();
 
-            return api_response($data);
+            return success_response($data);
 
 
         } catch (\Exception $e) {   
-            return api_response(null, 'An error occurred while fetching designations', false, 500, ['exception' => $e->getMessage()]);
+            return error_response($e->getMessage(), 500);
         }
     }
  
@@ -117,11 +117,11 @@ class EmployeeController extends Controller
             $user->save();
             
             DB::commit();  
-            return api_response(null,'Employee has been created'); 
+            return success_response(null,'Employee has been created'); 
 
         } catch (\Exception $e) { 
             DB::rollBack();  
-            return api_response(null, 'An error occurred while fetching designations', false, 500, $e->getMessage());
+            return error_response($e->getMessage(), 500);
         }
     }
 

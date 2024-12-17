@@ -13,12 +13,12 @@ class DesignationApiController extends Controller
         try { 
             $data = Designation::select('id','title','slug')->get(); 
             if ($data->isEmpty()) {
-                return api_response(null, 'No designation found', false, 404);
+                return error_response('No designation found', 404);
             } 
-            return api_response($data);
+            return success_response($data);
             
         } catch (\Exception $e) {   
-            return api_response(null, 'An error occurred while fetching designations', false, 500, ['exception' => $e->getMessage()]);
+            return error_response($e->getMessage(),500);
         }
     }
 }

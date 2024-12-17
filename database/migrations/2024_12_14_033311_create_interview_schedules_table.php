@@ -18,6 +18,7 @@ return new class extends Migration
             $table->dateTime('interview_date');
             $table->enum('location', ['online', 'office', 'offsite'])->default('online'); 
             $table->enum('status', ['pending', 'completed', 'canceled'])->default('pending');
+            $table->string('meeting_link')->nullable();
             $table->text('notes')->nullable(); 
             $table->timestamps();
         });

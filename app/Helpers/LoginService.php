@@ -30,7 +30,7 @@ class LoginService {
             ],
             'permissions' => $permissions,
         ];   
-        return api_response($data, 'User authenticated successfully.'); 
+        return success_response($data, 'User authenticated successfully.'); 
     }
 
 }

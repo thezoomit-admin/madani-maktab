@@ -48,6 +48,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('employee', EmployeeController::class); 
     Route::get('students', RegisterStudentListController::class);
     Route::resource('interview-schedule', InterviewController::class);
+    Route::post('interview-result',[InterviewController::class,'result']);
 });
 
 

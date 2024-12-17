@@ -25,11 +25,11 @@ class UpazilaApiController extends Controller
                 ->get();  
  
             if ($data->isEmpty()) {
-                return api_response(null, 'No upazila found', false, 404);
+                return error_response('No upazila found', 404);
             }  
-            return api_response($data);   
+            return success_response($data);   
         } catch (\Exception $e) {  
-            return api_response(null, 'An error occurred while fetching districts', false, 500, ['exception' => $e->getMessage()]);
+            return error_response($e->getMessage(),500);
         }
     }
 }

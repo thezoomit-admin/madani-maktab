@@ -109,7 +109,7 @@ class AuthController extends Controller
             return LoginService::createResponse($user); 
         } catch (\Exception $e) { 
             DB::rollBack();  
-            return api_response(null, 'Error creating company and user', $e->getMessage(), 500);
+            return error_response($e->getMessage(), 500);
         }
     } 
 }
