@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('students', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->string('student_id')->nullable();
+        Schema::create('student_registers', function (Blueprint $table) {
+            $table->id(); 
+            $table->foreignId('user_id')->constrained(); 
+            $table->string('reg_id')->nullable(); 
+            
             $table->string('name');
             $table->string('father_name'); 
             $table->integer('department_id');
@@ -22,9 +23,10 @@ return new class extends Migration
             $table->string('bangla_others_study')->nullable();
             $table->string('arabi_study_status')->nullable();
             $table->string('arabi_others_study')->nullable();
-            $table->text('study_info_after_seven')->nullable();
-            $table->string('handwriting_image')->nullable();
-            $table->string('profile_image')->nullable();
+            $table->text('study_info_after_seven')->nullable();  
+
+            $table->json('handwriting_images')->nullable();
+            
             
             // For Maktab-specific data
             $table->string('previous_institution')->nullable();
@@ -34,8 +36,7 @@ return new class extends Migration
             $table->integer('is_other_kitab_study')->nullable();
             $table->string('kitab_jamat')->nullable();
             $table->integer('is_bangla_handwriting_clear')->nullable();
-            $table->string('kitab_read')->nullable();
-
+            $table->string('kitab_read')->nullable(); 
             $table->timestamps();
         });
     }
@@ -45,6 +46,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('students');
+        Schema::dropIfExists('student_registers');
     }
 };

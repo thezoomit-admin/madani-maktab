@@ -25,6 +25,7 @@ class User extends Authenticatable
         'profile_image',
         'dob',
         'dob_hijri',
+        'age',
         'blood_group',
         'gender',
         'senior_user',
@@ -63,9 +64,19 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class, 'role_id');
     }
 
-    public function students()
+    public function studentRegister()
     {
-        return $this->hasMany(Student::class, 'user_id');
+        return $this->hasOne(StudentRegister::class, 'user_id');
+    }
+
+    public function guardian()
+    {
+        return $this->hasOne(Guardian::class, 'user_id');
+    }
+
+    public function address()
+    {
+        return $this->hasMany(UserAddress::class, 'user_id');
     }
 
     public function createdBy()
@@ -82,5 +93,6 @@ class User extends Authenticatable
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }
+ 
 
 }

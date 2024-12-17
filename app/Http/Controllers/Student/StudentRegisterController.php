@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\FirstStepRegistrationRequst;
 use App\Models\Guardian;
 use App\Models\Student;
+use App\Models\StudentRegister;
 use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\UserFamily;
@@ -17,35 +18,43 @@ use Illuminate\Support\Facades\Validator;
 class StudentRegisterController extends Controller
 {
     public function firstStep(FirstStepRegistrationRequst $request)
-    {   
- 
+    {    
         DB::beginTransaction();
-        try {
+        try { 
             $is_existing = User::where('phone', $request->phone)->orWhere('email', $request->email)->first(); 
-
             if (!$is_existing) { 
-                $profileImagePath = $request->hasFile('profile_image') 
-                    ? $request->file('profile_image')->store('uploads/images', 'public')
-                    : null;
+                if ($request->hasFile('profile_image')) {
+                    $profileImagePath = $request->file('profile_image')->store('uploads/profile_images', 'public'); 
+                }   
 
-                $handwritingImagePath = $request->hasFile('handwriting_image') 
-                    ? $request->file('handwriting_image')->store('uploads/images', 'public')
-                    : null;
+                $handwritingImagesPaths = [];
+                if ($request->hasFile('handwriting_images')) {
+                    foreach ($request->file('handwriting_images') as $image) {
+                        $path = $image->store('uploads/handwriting_images', 'public');
+                        $handwritingImagesPaths[] = $path;
+                    } 
+                }
+
+                $dob = Carbon::parse($request->input('dob')); 
+                $currentDate = Carbon::now();  
+                $ageMonths = $dob->diffInMonths($currentDate);
 
                 $user = User::create([
                     'name' => $request->input('name'),
                     'phone' => $request->input('contact_number_1'),
                     'email' => $request->input('email'),
                     'password' => bcrypt($request->input('password', '123456')),
-                    'profile_image' => $profileImagePath,
+                    'profile_image' => $profileImagePath??null,
                     'dob' => $request->input('dob'),
+                    'age' => $ageMonths,
                     'dob_hijri' => $request->input('dob_hijri'),
                     'user_type' => 'student',
                     'role_id' => 2,
                 ]);
 
-                Student::create([
+                StudentRegister::create([
                     'user_id' => $user->id,
+                    'reg_id' => "REG-".$user->id,
                     'name' => $request->input('name'),
                     'father_name' => $request->input('father_name'),
                     'department_id' => $request->input('department_id'),
@@ -54,7 +63,7 @@ class StudentRegisterController extends Controller
                     'arabi_study_status' => $request->input('arabi_study_status'),
                     'arabi_others_study' => $request->input('arabi_others_study'),
                     'study_info_after_seven' => $request->input('study_info_after_seven'),
-                    'handwriting_image' => $handwritingImagePath, 
+                    // 'handwriting_images' => $handwritingImagesPaths, 
                     'previous_institution' => $request->input('previous_institution'),
                     'hifz_para' => $request->input('hifz_para'),
                     'is_other_kitab_study' => $request->input('is_other_kitab_study'),
@@ -99,20 +108,19 @@ class StudentRegisterController extends Controller
                         'division'          => $request->input('temporary_division'),
                     ]);
                 }
-            } else { 
+            } else {
                 $user = $is_existing; 
             } 
-
-            $age = Carbon::parse($user->dob)->age;  
-            $passing_status = $age < 8;
+ 
+            $passing_status = $ageMonths > 53 && $ageMonths < 90;
             DB::commit();
-            return api_response([
+            return success_response([
                 'passing_status' => $passing_status,
                 'user_id' => $user->id,
-            ], 'Congratulations! Your registration was successfully completed.', true, 201); 
+            ], 'Congratulations! Your registration was successfully completed.',  201); 
         } catch (\Exception $e) {
             DB::rollback();
-            return api_response(null, 'Something went wrong: ' . $e->getMessage(), false, 500);
+            return error_response($e->getMessage(), 500);
         }
     }
 

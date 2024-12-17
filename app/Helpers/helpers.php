@@ -1,19 +1,34 @@
 <?php  
 use Illuminate\Support\Str;
-if (!function_exists('api_response')) { 
-    function api_response($data = null, $message = 'Success', $success = true, $statusCode = 200, $errors = null)
-    { 
-        $responseData = [
-            'success' => $success,
+if (!function_exists('success_response')) {
+    function success_response($data = null, $message = 'Success', $statusCode = 200)
+    {
+        return response()->json([
+            'success' => true,
             'message' => $message,
             'data' => $data,
-            'errors' => $errors,  
-            'timestamp' => now()->toIso8601String(),  
-            'request_id' => request()->header('X-Request-ID') ?: uniqid(),  
-        ]; 
-        return response()->json($responseData, $statusCode);
+            'errors' => null,
+            'timestamp' => now()->toIso8601String(),
+            'request_id' => request()->header('X-Request-ID') ?: uniqid(),
+        ], $statusCode);
     }
-} 
+}
+
+if (!function_exists('error_response')) {
+    function error_response( $errors = null, $statusCode = 400, $message = 'An error occurred')
+    {
+        return response()->json([
+            'success' => false,
+            'message' => $message,
+            'data' => null,
+            'errors' => $errors,
+            'timestamp' => now()->toIso8601String(),
+            'request_id' => request()->header('X-Request-ID') ?: uniqid(),
+        ], $statusCode);
+    }
+}
+
+
 
 if (!function_exists('getSlug')) {
     function getSlug($model, $title, $column = 'slug', $separator = '-') {

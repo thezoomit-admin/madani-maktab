@@ -20,11 +20,12 @@ return new class extends Migration
             $table->string('profile_image')->nullable(); 
             $table->date('dob')->nullable();
             $table->string('dob_hijri')->nullable();
+            $table->integer('age')->nullable()->comment('Month');
             $table->enum('blood_group', ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])->nullable();
-            $table->enum('gender', ['male', 'female', 'others'])->nullable(); 
+            $table->enum('gender', ['male', 'female', 'others'])->nullable();
             $table->enum('user_type', ['student', 'teacher', 'staff'])->nullable(); 
             $table->json('senior_user')->nullable(); 
-            $table->json('junior_user')->nullable();  
+            $table->json('junior_user')->nullable();
 
             $table->foreignId('role_id')->nullable()->constrained();  
             $table->unsignedBigInteger('created_by')->nullable();

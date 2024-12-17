@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Employee;
+namespace App\Http\Controllers\AdminEmployee;
 
 use App\Helpers\ReportingService;
 use App\Http\Controllers\Controller;

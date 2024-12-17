@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Student extends Model
+class StudentRegister extends Model
 {
     use HasFactory; 
-
     protected $fillable = [
-        'user_id',
-        'student_id',
+        'user_id', 
+        'reg_id', 
+        'handwriting_images',
         'name',
         'father_name',
         'department_id',
@@ -19,9 +19,7 @@ class Student extends Model
         'bangla_others_study',
         'arabi_study_status',
         'arabi_others_study',
-        'study_info_after_seven',
-        'handwriting_image',
-        'profile_image',
+        'study_info_after_seven', 
         'previous_institution',
         'hifz_para',
         'is_other_kitab_study',
@@ -32,7 +30,8 @@ class Student extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
-    
+
+     
 }
