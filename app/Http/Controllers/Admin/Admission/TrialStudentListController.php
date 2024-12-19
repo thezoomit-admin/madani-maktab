@@ -27,7 +27,7 @@ class TrialStudentListController extends Controller
         })
         ->when($status=="requested",function($q){
             $q->whereHas('admissionProgress',function($q){
-                $q->where('is_invited_for_trial',1);
+                $q->where('is_invited_for_trial',1)->where('is_passed_trial',null);
             });
         }) 
         ->when($status=="pass",function($q){
