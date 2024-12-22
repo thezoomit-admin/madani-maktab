@@ -26,13 +26,9 @@ class StudentRegisterController extends Controller
                 $profileImagePath = $request->file('profile_image')->store('uploads/profile_images', 'public'); 
             }   
 
-            $handwritingImagesPaths = [];
             if ($request->hasFile('handwriting_images')) {
-                foreach ($request->file('handwriting_images') as $image) {
-                    $path = $image->store('uploads/handwriting_images', 'public');
-                    $handwritingImagesPaths[] = $path;
-                } 
-            }
+                $handwritingImagesPaths = $request->file('handwriting_images')->store('uploads/handwriting_images', 'public'); 
+            }  
 
             $dob = Carbon::parse($request->input('dob')); 
             $currentDate = Carbon::now();  
@@ -62,7 +58,7 @@ class StudentRegisterController extends Controller
                 'arabi_study_status' => $request->input('arabi_study_status'),
                 'arabi_others_study' => $request->input('arabi_others_study'),
                 'study_info_after_seven' => $request->input('study_info_after_seven'),
-                // 'handwriting_images' => $handwritingImagesPaths, 
+                'handwriting_images' => $handwritingImagesPaths??null, 
                 'previous_institution' => $request->input('previous_institution'),
                 'hifz_para' => $request->input('hifz_para'),
                 'is_other_kitab_study' => $request->input('is_other_kitab_study'),
