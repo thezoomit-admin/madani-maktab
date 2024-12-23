@@ -47,7 +47,7 @@ class StudentRegisterController extends Controller
                 'role_id' => 2,
             ]);
 
-            StudentRegister::create([
+            $student = StudentRegister::create([
                 'user_id' => $user->id,
                 'reg_id' => "REG-".$user->id,
                 'name' => $request->input('name'),
@@ -102,30 +102,66 @@ class StudentRegisterController extends Controller
                     'district'          => $request->input('temporary_district'),
                     'division'          => $request->input('temporary_division'),
                 ]);
-            }
-            $passing_status = $ageMonths > 53 && $ageMonths < 90; 
+            } 
+
+            $passing_status = false;
+
+            if ($student->department_id == 1) { 
+                if ($ageMonths < 78) {
+                    $student->note = "বয়স ৭৮ মাসের চেয়ে কম।";
+                } elseif ($ageMonths > 102) {
+                    $student->note = "বয়স ১০২ মাসের চেয়ে বেশি।";
+                } else {
+                    $passing_status = true;
+                } 
+                if ($student->bangla_study_status == 1) {
+                    $passing_status = false;
+                    $student->note = "বাংলা পড়তে পারে না।";
+                }
+            } else { 
+                if ($student->arabi_study_status == 1) {
+                    $student->note = "নাজেরা বিভাগ নির্বাচন করেছে।";
+                } elseif ($student->arabi_study_status == 2 && ($ageMonths >= 78 && $ageMonths <= 138)) {
+                    $passing_status = true;
+                } elseif ($student->arabi_study_status == 3 && ($ageMonths >= 78 && $ageMonths <= 162)) {
+                    $passing_status = true;
+                } elseif ($student->arabi_study_status == 4) {
+                    $student->note = "আংশিক হেফজ বিভাগ নির্বাচন করেছে।";
+                } elseif ($student->arabi_study_status == 5) {
+                    $student->note = "আরবি পড়া-লেখার জন্য অন্যান্য বিভাগ নির্বাচন করেছে।";
+                }
+             
+                if ($student->is_other_kitab_study) {
+                    $passing_status = false;
+                    $student->note = "অন্য কোথাও কিতাব বিভাগে পড়েছে।";
+                }
+            }  
+            $student->save();
 
             AdmissionProgressStatus::create([
-                'user_id' => $user->id,
-                'is_passed_age' => $passing_status,
-            ]);   
-
+                'user_id' => $request->input('user_id'),
+                'is_passed_age' => false, //after submit next step will be pass
+            ]); 
             DB::commit();
             return success_response([
                 'passing_status' => $passing_status,
                 'user_id' => $user->id,
-            ], 'Congratulations! Your registration was successfully completed.',  201); 
+                'reg_id' => $user->reg_id,
+                'dep_id' => $student->department_id,
+            ], 'অভিনন্দন! আপনার নিবন্ধন সফলভাবে সম্পন্ন হয়েছে।',  201); 
            
         } catch (\Exception $e) {
             DB::rollback();
             return error_response($e->getMessage(), 500);
         }
     }
+    
 
 
     public function lastStep(Request $request){  
         DB::beginTransaction();
         try {
+            $user = User::find($request->input('user_id'));
             UserFamily::create([
                 'user_id' => $request->input('user_id'),
                 'deeni_steps' => $request->input('deeni_steps'),
@@ -138,11 +174,38 @@ class StudentRegisterController extends Controller
                 'is_clean_lang' => $request->boolean('is_clean_lang'),
                 'future_plan' => $request->input('future_plan'),
                 'years_at_inst' => $request->input('years_at_inst'),
-                'reason_diff_edu' => $request->input('reason_diff_edu'),
+                'reason_diff_edu' => $request->input('reason_diff_edu'), 
+                'separation_experience' => $request->input('separation_experience'),
+                'is_organize_items' => $request->input('is_organize_items'),
+                'is_wash_clothes' => $request->input('is_wash_clothes'),
+                'is_join_meal' => $request->input('is_join_meal'),
+                'is_clean_after_bath' => $request->input('is_clean_after_bath'),
+                'health_issue_details' => $request->input('health_issue_details'),
+                'is_bath_before_sleep' => $request->input('is_bath_before_sleep') 
             ]); 
+            
+            $department_id = $user->studentRegister->department_id;
+            $passing_status = true;
+             if($department_id==1 && $request->input('is_bath_before_sleep')){
+                $passing_status = false;
+                $user->studentRegister->note = "ঘুমানোর আগে একবার হাম্মাম থেকে ফারেগ হওয়া যথেষ্ট নয়।";
+                $user->studentRegister->save();
+             } 
+
+            AdmissionProgressStatus::create([
+                'user_id' => $request->input('user_id'),
+                'is_passed_age' => true,
+            ]);  
 
             DB::commit();
             return success_response(null, 'Congratulations! Your registration was successfully completed.');
+            return success_response([
+                'passing_status' => $passing_status,
+                'user_id' => $user->id,
+                'reg_id' => $user->reg_id,
+                'dep_id' => $department_id,
+            ], 'অভিনন্দন! আপনার নিবন্ধন সফলভাবে সম্পন্ন হয়েছে।',  201);  
+
         } catch (\Exception $e) {
             DB::rollBack();
             return error_response($e->getMessage(),500);

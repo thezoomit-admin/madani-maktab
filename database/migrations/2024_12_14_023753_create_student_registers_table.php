@@ -37,6 +37,7 @@ return new class extends Migration
             $table->string('kitab_jamat')->nullable();
             $table->integer('is_bangla_handwriting_clear')->nullable();
             $table->string('kitab_read')->nullable(); 
+            $table->text('note');
             $table->timestamps();
         });
     }

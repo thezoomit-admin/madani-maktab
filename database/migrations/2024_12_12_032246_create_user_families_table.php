@@ -25,6 +25,14 @@ return new class extends Migration
             $table->string('future_plan', 255)->nullable(); 
             $table->integer('years_at_inst'); 
             $table->string('reason_diff_edu', 2048)->nullable(); 
+
+            $table->string('separation_experience')->nullable();
+            $table->boolean('is_organize_items')->default(false);  
+            $table->boolean('is_wash_clothes')->default(false);  
+            $table->boolean('is_join_meal')->default(false);  
+            $table->boolean('is_clean_after_bath')->default(false); 
+            $table->text('health_issue_details')->nullable();
+            $table->boolean('is_bath_before_sleep')->default(false);
             $table->timestamps();
         });
     }

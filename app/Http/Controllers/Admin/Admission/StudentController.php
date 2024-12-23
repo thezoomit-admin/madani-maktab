@@ -13,7 +13,11 @@ class StudentController extends Controller
         try{
             $user = User::with('studentRegister')
             ->with('address')
-            ->with('guardian')->find($id);
+            ->with('guardian')
+            ->where(function ($query) use ($id) {
+                $query->where('id', $id)
+                      ->orWhere('studentRegister.reg_id', $id);
+            })->first(); 
             return success_response($user);
         }catch(Exception $e){
             return error_response($e->getMessage(),500);
