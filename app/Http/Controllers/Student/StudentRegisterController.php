@@ -22,13 +22,20 @@ class StudentRegisterController extends Controller
     {    
         DB::beginTransaction();
         try { 
-            if ($request->hasFile('profile_image')) {
-                $profileImagePath = $request->file('profile_image')->store('uploads/profile_images', 'public'); 
-            }   
-
-            if ($request->hasFile('handwriting_image')) {
-                $handwritingImagesPaths = $request->file('handwriting_image')->store('uploads/handwriting_images', 'public'); 
-            }  
+            if ($request->hasFile('profile_image')) { 
+                $profileImage = $request->file('profile_image'); 
+                $profileImageName = time() . '_' . $profileImage->getClientOriginalName(); 
+                $profileImage->move(public_path('uploads/profile_images'), $profileImageName); 
+                $profileImageUrl = asset('uploads/profile_images/' . $profileImageName);
+            }
+            
+            if ($request->hasFile('handwriting_image')) { 
+                $handwritingImage = $request->file('handwriting_image'); 
+                $handwritingImageName = time() . '_' . $handwritingImage->getClientOriginalName(); 
+                $handwritingImage->move(public_path('uploads/handwriting_images'), $handwritingImageName); 
+                $handwritingImageUrl = asset('uploads/handwriting_images/' . $handwritingImageName);
+            }
+            
 
             $dob = Carbon::parse($request->input('dob')); 
             $currentDate = Carbon::now();  
@@ -39,7 +46,7 @@ class StudentRegisterController extends Controller
                 'phone' => $request->input('contact_number_1'),
                 'email' => $request->input('email'),
                 'password' => bcrypt($request->input('password', '123456')),
-                'profile_image' => $profileImagePath??null,
+                'profile_image' => $profileImageUrl??null,
                 'dob' => $request->input('dob'),
                 'age' => $ageMonths,
                 'dob_hijri' => $request->input('dob_hijri'),
@@ -58,7 +65,7 @@ class StudentRegisterController extends Controller
                 'arabi_study_status' => $request->input('arabi_study_status'),
                 'arabi_others_study' => $request->input('arabi_others_study'),
                 'study_info_after_seven' => $request->input('study_info_after_seven'),
-                'handwriting_images' => $handwritingImagesPaths??null, 
+                'handwriting_images' => $handwritingImageUrl??null, 
                 'previous_institution' => $request->input('previous_institution'),
                 'hifz_para' => $request->input('hifz_para'),
                 'is_other_kitab_study' => $request->input('is_other_kitab_study'),
