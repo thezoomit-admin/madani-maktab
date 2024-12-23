@@ -26,8 +26,8 @@ class StudentRegisterController extends Controller
                 $profileImagePath = $request->file('profile_image')->store('uploads/profile_images', 'public'); 
             }   
 
-            if ($request->hasFile('handwriting_images')) {
-                $handwritingImagesPaths = $request->file('handwriting_images')->store('uploads/handwriting_images', 'public'); 
+            if ($request->hasFile('handwriting_image')) {
+                $handwritingImagesPaths = $request->file('handwriting_image')->store('uploads/handwriting_images', 'public'); 
             }  
 
             $dob = Carbon::parse($request->input('dob')); 
