@@ -16,8 +16,7 @@ class StudentController extends Controller
                 ->orWhereHas('studentRegister', function ($query) use ($id) {
                     $query->where('reg_id', $id);
                 })
-                ->first();
-        
+                ->first(); 
             return success_response($user);
         } catch (Exception $e) {
             return error_response($e->getMessage(), 500);

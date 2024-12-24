@@ -22,10 +22,8 @@ return new class extends Migration
             $table->string('bangla_others_study')->nullable();
             $table->string('arabi_study_status')->nullable();
             $table->string('arabi_others_study')->nullable();
-            $table->text('study_info_after_seven')->nullable();  
-
-            $table->json('handwriting_images')->nullable();
-            
+            $table->text('study_info_after_seven')->nullable();   
+            $table->string('handwriting_image')->nullable(); 
             
             // For Maktab-specific data
             $table->string('previous_institution')->nullable();
