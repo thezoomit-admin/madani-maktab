@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('student_registers', function (Blueprint $table) {
             $table->id(); 
             $table->foreignId('user_id')->constrained(); 
-            $table->string('reg_id')->nullable(); 
-            
+            $table->string('reg_id')->nullable();  
             $table->string('name');
             $table->string('father_name'); 
             $table->integer('department_id');
@@ -37,7 +36,7 @@ return new class extends Migration
             $table->string('kitab_jamat')->nullable();
             $table->integer('is_bangla_handwriting_clear')->nullable();
             $table->string('kitab_read')->nullable(); 
-            $table->text('note');
+            $table->text('note')->nullable();
             $table->timestamps();
         });
     }

@@ -146,14 +146,14 @@ class StudentRegisterController extends Controller
             $student->save();
 
             AdmissionProgressStatus::create([
-                'user_id' => $request->input('user_id'),
+                'user_id' => $user->id,
                 'is_passed_age' => false, //after submit next step will be pass
             ]); 
             DB::commit();
             return success_response([
                 'passing_status' => $passing_status,
                 'user_id' => $user->id,
-                'reg_id' => $user->reg_id,
+                'reg_id' => $user->studentRegister->reg_id,
                 'dep_id' => $student->department_id,
             ], 'অভিনন্দন! আপনার নিবন্ধন সফলভাবে সম্পন্ন হয়েছে।',  201); 
            
@@ -204,8 +204,7 @@ class StudentRegisterController extends Controller
                 'is_passed_age' => true,
             ]);  
 
-            DB::commit();
-            return success_response(null, 'Congratulations! Your registration was successfully completed.');
+            DB::commit(); 
             return success_response([
                 'passing_status' => $passing_status,
                 'user_id' => $user->id,
