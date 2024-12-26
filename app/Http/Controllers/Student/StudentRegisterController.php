@@ -54,9 +54,15 @@ class StudentRegisterController extends Controller
                 'role_id' => 2,
             ]);
 
+            if($request->input('department_id')==1){ 
+                $reg_id = "ম-".$user->id;
+            }else{ 
+                $reg_id = "ক-".$user->id;
+            }   
+
             $student = StudentRegister::create([
                 'user_id' => $user->id,
-                'reg_id' => "REG-".$user->id,
+                'reg_id' => $reg_id,
                 'name' => $request->input('name'),
                 'father_name' => $request->input('father_name'),
                 'department_id' => $request->input('department_id'),
@@ -172,13 +178,13 @@ class StudentRegisterController extends Controller
             UserFamily::create([
                 'user_id' => $request->input('user_id'),
                 'deeni_steps' => $request->input('deeni_steps'),
-                'is_follow_porada' => $request->boolean('is_follow_porada'),
-                'is_shariah_compliant' => $request->boolean('is_shariah_compliant'),
+                'follow_porada' => $request->input('follow_porada'),
+                'shariah_compliant' => $request->input('shariah_compliant'),
                 'motivation' => $request->input('motivation'),
                 'info_src' => $request->input('info_src'),
                 'first_contact' => $request->input('first_contact'),
                 'preparation' => $request->input('preparation'),
-                'is_clean_lang' => $request->boolean('is_clean_lang'),
+                'clean_lang' => $request->input('clean_lang'),
                 'future_plan' => $request->input('future_plan'),
                 'years_at_inst' => $request->input('years_at_inst'),
                 'reason_diff_edu' => $request->input('reason_diff_edu'), 

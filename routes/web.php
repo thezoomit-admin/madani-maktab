@@ -1,6 +1,7 @@
 <?php
 
 use App\Helpers\ReportingService;
+use App\Http\Controllers\Admin\Admission\InterviewController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,3 +18,5 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {    
     return view('welcome');
 });
+
+Route::get("meetLink",[InterviewController::class,'sendWhatsAppMessage']);
