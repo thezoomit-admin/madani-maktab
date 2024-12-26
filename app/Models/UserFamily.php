@@ -22,6 +22,13 @@ class UserFamily extends Model
         'future_plan',
         'years_at_inst',
         'reason_diff_edu',
+        'separation_experience',
+        'is_organize_items',
+        'is_wash_clothes',
+        'is_join_meal',
+        'is_clean_after_bath',
+        'health_issue_details',
+        'is_bath_before_sleep',
     ];
 
     
