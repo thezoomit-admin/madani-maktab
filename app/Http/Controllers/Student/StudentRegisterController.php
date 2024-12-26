@@ -101,6 +101,7 @@ class StudentRegisterController extends Controller
                 'house_or_state'    => $request->input('house_or_state'),
                 'post_office'       => $request->input('post_office'),
                 'upazila'           => $request->input('upazila'),
+                'thana'           => $request->input('thana'),
                 'district'          => $request->input('district'),
                 'division'          => $request->input('division'),
             ]);
@@ -112,6 +113,7 @@ class StudentRegisterController extends Controller
                     'house_or_state'    => $request->input('temporary_house_or_state'),
                     'post_office'       => $request->input('temporary_post_office'),
                     'upazila'           => $request->input('temporary_upazila'),
+                    'thana'           => $request->input('temporary_thana'),
                     'district'          => $request->input('temporary_district'),
                     'division'          => $request->input('temporary_division'),
                 ]);

@@ -15,6 +15,7 @@ class UserAddress extends Model
         'house_or_state',
         'post_office',
         'upazila',
+        'thana',
         'district',
         'division',
         'thana'
