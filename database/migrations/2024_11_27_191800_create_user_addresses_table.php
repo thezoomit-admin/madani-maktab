@@ -17,10 +17,9 @@ return new class extends Migration
             $table->enum('address_type', ['permanent', 'temporary']);
             $table->string('house_or_state')->nullable();
             $table->string('post_office')->nullable();
-            $table->string('upazila')->nullable();
+            $table->string('upazila_thana')->nullable();
             $table->string('district')->nullable();
-            $table->string('division')->nullable(); 
-            $table->string('thana')->nullable(); 
+            $table->string('division')->nullable();  
             $table->timestamps();
         });
     }

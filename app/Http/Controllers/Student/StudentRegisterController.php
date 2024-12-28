@@ -100,8 +100,7 @@ class StudentRegisterController extends Controller
                 'address_type'      => 'permanent',
                 'house_or_state'    => $request->input('house_or_state'),
                 'post_office'       => $request->input('post_office'),
-                'upazila'           => $request->input('upazila'),
-                'thana'           => $request->input('thana'),
+                'upazila_thana'     => $request->input('upazila_thana'), 
                 'district'          => $request->input('district'),
                 'division'          => $request->input('division'),
             ]);
@@ -112,8 +111,7 @@ class StudentRegisterController extends Controller
                     'address_type'      => 'temporary',
                     'house_or_state'    => $request->input('temporary_house_or_state'),
                     'post_office'       => $request->input('temporary_post_office'),
-                    'upazila'           => $request->input('temporary_upazila'),
-                    'thana'           => $request->input('temporary_thana'),
+                    'upazila_thana'     => $request->input('temporary_upazila'), 
                     'district'          => $request->input('temporary_district'),
                     'division'          => $request->input('temporary_division'),
                 ]);

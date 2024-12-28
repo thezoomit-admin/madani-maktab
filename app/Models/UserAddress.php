@@ -14,11 +14,9 @@ class UserAddress extends Model
         'address_type',
         'house_or_state',
         'post_office',
-        'upazila',
-        'thana',
+        'upazila_thana', 
         'district',
-        'division',
-        'thana'
+        'division', 
     ];
 
     public function user()
