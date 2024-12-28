@@ -55,9 +55,9 @@ class StudentRegisterController extends Controller
             ]);
 
             if($request->input('department_id')==1){ 
-                $reg_id = "ম-".$user->id;
+                $reg_id = "ম-".$user->id+1000;
             }else{ 
-                $reg_id = "ক-".$user->id;
+                $reg_id = "ক-".$user->id+5000;
             }   
 
             $student = StudentRegister::create([

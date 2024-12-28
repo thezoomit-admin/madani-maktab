@@ -12,8 +12,8 @@ class UserFamily extends Model
     protected $fillable = [
         'user_id',
         'deeni_steps',
-        'is_follow_porada',
-        'is_shariah_compliant',
+        'follow_porada',
+        'shariah_compliant',
         'motivation',
         'info_src',
         'first_contact',
