@@ -32,7 +32,7 @@ return new class extends Migration
             $table->boolean('is_join_meal')->nullable()->default(false);  
             $table->boolean('is_clean_after_bath')->nullable()->default(false); 
             $table->text('health_issue_details')->nullable();
-            $table->boolean('is_bath_before_sleep')->default(false);
+            $table->boolean('is_bath_before_sleep')->nullable()->default(false);
             $table->timestamps();
         });
     }
