@@ -54,10 +54,10 @@ class StudentRegisterController extends Controller
                 'role_id' => 2,
             ]);
 
-            if($request->input('department_id')==1){ 
-                $reg_id = "ম-".$user->id+1000;
-            }else{ 
-                $reg_id = "ক-".$user->id+5000;
+            if($request->input('department_id')==1){
+                $reg_id = StudentRegister::nextMaktabId();
+            }else{
+                $reg_id = StudentRegister::nextKitabId();
             }   
 
             $student = StudentRegister::create([

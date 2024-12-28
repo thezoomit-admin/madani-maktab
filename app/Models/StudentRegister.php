@@ -11,7 +11,7 @@ class StudentRegister extends Model
     protected $fillable = [
         'user_id', 
         'reg_id', 
-        'handwriting_images',
+        'handwriting_image',
         'name',
         'father_name',
         'department_id',
@@ -32,7 +32,34 @@ class StudentRegister extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
+    } 
+
+    public static function nextMaktabId(){
+        $largest_student_id = StudentRegister::where('reg_id', 'like', 'ম-%')
+        ->pluck('reg_id')
+        ->map(function ($id) {
+            return preg_replace("/[^0-9]/", "", $id);
+        })
+        ->max();
+    
+        $largest_student_id = $largest_student_id ? $largest_student_id : 1000;  
+        $largest_student_id++;
+        $new_student_id = 'ম-' . $largest_student_id; 
+        return $new_student_id; 
+    } 
+     
+    public static function nextKitabId(){
+        $largest_student_id = StudentRegister::where('reg_id', 'like', 'ক-%')
+        ->pluck('reg_id')
+        ->map(function ($id) {
+            return preg_replace("/[^0-9]/", "", $id);
+        })
+        ->max(); 
+        $largest_student_id = $largest_student_id ? $largest_student_id : 5000;  
+        $largest_student_id++;
+        $new_student_id = 'ক-' . $largest_student_id; 
+        return $new_student_id; 
+    }  
 
      
 }

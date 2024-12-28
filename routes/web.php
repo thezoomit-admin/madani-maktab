@@ -2,6 +2,7 @@
 
 use App\Helpers\ReportingService;
 use App\Http\Controllers\Admin\Admission\InterviewController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,7 +17,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {    
-    return view('welcome');
+    // return view('welcome');
+    dd(User::nextMaktabId());
 });
 
 Route::get("meetLink",[InterviewController::class,'sendWhatsAppMessage']);
