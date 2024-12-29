@@ -58,7 +58,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('registerd-students', RegisterStudentListController::class); 
     Route::get('interview-students', InterviewStudentListController::class); 
-    Route::get('trial-students', TrialStudentListController::class);  
+    Route::get('trial-students', TrialStudentListController::class);
+    Route::get('student-register-last-stage', [StudentController::class,'isCompleted']);
 });
 
 

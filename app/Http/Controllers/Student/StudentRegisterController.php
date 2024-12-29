@@ -71,7 +71,7 @@ class StudentRegisterController extends Controller
                 'arabi_study_status' => $request->input('arabi_study_status'),
                 'arabi_others_study' => $request->input('arabi_others_study'),
                 'study_info_after_seven' => $request->input('study_info_after_seven'),
-                'handwriting_image' => $handwritingImageUrl??null, 
+                'handwriting_image' => $handwritingImageUrl??null,
                 'previous_institution' => $request->input('previous_institution'),
                 'hifz_para' => $request->input('hifz_para'),
                 'is_other_kitab_study' => $request->input('is_other_kitab_study'),
