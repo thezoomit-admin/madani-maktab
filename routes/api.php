@@ -40,13 +40,16 @@ Route::get('countries',CountryApiController::class);
 Route::get('divisions',DivisionApiController::class);
 Route::get('districts',DistrictApiController::class);
 Route::get('upazilas',UpazilaApiController::class);
-Route::get('unions',UnionApiController::class); 
+Route::get('unions',UnionApiController::class);  
   
 
 // Student Register 
 Route::post('student-register-first-step',[StudentRegisterController::class,'firstStep']);
 Route::post('student-register-last-step',[StudentRegisterController::class,'lastStep']);
 Route::get('student/{id}', [StudentController::class,'student']); 
+
+//Student Registration
+Route::get('student-register-last-stage', [StudentController::class,'isCompleted']);
  
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('employee', EmployeeController::class);  
@@ -58,8 +61,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('registerd-students', RegisterStudentListController::class); 
     Route::get('interview-students', InterviewStudentListController::class); 
-    Route::get('trial-students', TrialStudentListController::class);
-    Route::get('student-register-last-stage', [StudentController::class,'isCompleted']);
+    Route::get('trial-students', TrialStudentListController::class); 
 });
 
 
