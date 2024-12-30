@@ -153,8 +153,8 @@ class StudentRegisterController extends Controller
 
             AdmissionProgressStatus::create([
                 'user_id' => $user->id,
-                'is_passed_age' => false, //after submit next step will be pass
-            ]); 
+                'is_passed_age' => $passing_status, //after submit next step will be pass
+            ]);  
             DB::commit();
             return success_response([
                 'passing_status' => $passing_status,
