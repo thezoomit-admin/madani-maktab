@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('shariah_compliant')->nullable(); 
             $table->string('motivation', 255)->nullable(); 
             $table->string('info_src', 255)->nullable(); 
-            $table->date('first_contact')->nullable(); 
+            $table->string('first_contact')->nullable(); 
             $table->string('preparation', 255)->nullable(); 
             $table->string('clean_lang')->nullable(); 
             $table->string('future_plan', 255)->nullable(); 
