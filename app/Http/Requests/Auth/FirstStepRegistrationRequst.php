@@ -56,7 +56,7 @@ class FirstStepRegistrationRequst extends FormRequest
             'guardian_occupation_details' => 'required|string|max:255',
             'guardian_education' => 'required|string|max:255', 
             'children_count' => 'required|integer|min:0',
-            'child_1_education' => 'required|string|max:255',
+            'child_education' => 'required|json',
             'contact_number_1' => 'required|string|max:15', 
             'contact_number_2' => 'nullable|string|max:15',
             'whatsapp_number' => 'required|string|max:15',

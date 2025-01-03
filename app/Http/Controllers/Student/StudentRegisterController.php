@@ -78,13 +78,7 @@ class StudentRegisterController extends Controller
                 'is_bangla_handwriting_clear' => $request->input('is_bangla_handwriting_clear'), 
             ]);
 
-            $education = $request->input('child_education'); 
-            if (is_string($education) && json_decode($education, true) !== null) { 
-                $encoded_education = $education;
-            } else { 
-                $encoded_education = json_encode($education);
-            }
-
+            
             Guardian::create([
                 'user_id'               => $user->id,
                 'guardian_name'         => $request->input('guardian_name'),
@@ -92,7 +86,7 @@ class StudentRegisterController extends Controller
                 'guardian_occupation_details'   => $request->input('guardian_occupation_details'), 
                 'guardian_education'    => $request->input('guardian_education'),                
                 'children_count'        => $request->input('children_count'),
-                'child_education'       => $encoded_education,
+                'child_education'       => $request->input('child_education'),
                 'contact_number_1'      => $request->input('contact_number_1'),
                 'contact_number_2'      => $request->input('contact_number_2'),
                 'whatsapp_number'       => $request->input('whatsapp_number'),
