@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id'); 
             $table->enum('address_type', ['permanent', 'temporary']);
             $table->string('house_or_state')->nullable();
-            $table->string('vaillage_or_area')->nullable();
+            $table->string('village_or_area')->nullable();
             $table->string('post_office')->nullable();
             $table->string('upazila_thana')->nullable();
             $table->string('district')->nullable();
