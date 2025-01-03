@@ -9,11 +9,14 @@ use Illuminate\Http\Request;
 class RegisterStudentListController extends Controller
 {
     public function __invoke(Request $request)
-    {
+    { 
         $data = User::where('user_type','student')
         ->whereHas('studentRegister',function($q) use($request){
             $q->where('department_id',$request->department);
         })
+        ->whereHas('admissionProgress',function($q) use($request){
+            $q->where('is_passed_age',$request->status);
+        }) 
         ->with('studentRegister')
         ->with('address')
         ->with('guardian')
