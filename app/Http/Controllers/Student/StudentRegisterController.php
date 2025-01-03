@@ -88,7 +88,7 @@ class StudentRegisterController extends Controller
                 'guardian_education'    => $request->input('guardian_education'),
                 'guardian_workplace'    => $request->input('guardian_workplace'),
                 'children_count'        => $request->input('children_count'),
-                'child_1_education'     => $request->input('child_1_education'),
+                'child_education'       => json_encode($request->input('child_education')),
                 'contact_number_1'      => $request->input('contact_number_1'),
                 'contact_number_2'      => $request->input('contact_number_2'),
                 'whatsapp_number'       => $request->input('whatsapp_number'),
@@ -99,6 +99,7 @@ class StudentRegisterController extends Controller
                 'user_id'  => $user->id,
                 'address_type'      => 'permanent',
                 'house_or_state'    => $request->input('house_or_state'),
+                'vaillage_or_area'  => $request->input('vaillage_or_area'),
                 'post_office'       => $request->input('post_office'),
                 'upazila_thana'     => $request->input('upazila_thana'), 
                 'district'          => $request->input('district'),
@@ -110,8 +111,9 @@ class StudentRegisterController extends Controller
                     'user_id'  => $user->id,
                     'address_type'      => 'temporary',
                     'house_or_state'    => $request->input('temporary_house_or_state'),
+                    'vaillage_or_area'  => $request->input('temporary_vaillage_or_area'),
                     'post_office'       => $request->input('temporary_post_office'),
-                    'upazila_thana'     => $request->input('temporary_upazila'), 
+                    'upazila_thana'     => $request->input('temporary_upazila_thana'), 
                     'district'          => $request->input('temporary_district'),
                     'division'          => $request->input('temporary_division'),
                 ]);
@@ -155,6 +157,15 @@ class StudentRegisterController extends Controller
                 'user_id' => $user->id,
                 'is_passed_age' => $passing_status, //after submit next step will be pass
             ]);  
+
+            if($passing_status){
+                AdmissionProgressStatus::create([
+                    'user_id' => $request->input('user_id'),
+                    'is_passed_age' => true,
+                ]);  
+            }
+            
+
             DB::commit();
             return success_response([
                 'passing_status' => $passing_status,
@@ -203,12 +214,7 @@ class StudentRegisterController extends Controller
                 $passing_status = false;
                 $user->studentRegister->note = "ঘুমানোর আগে একবার হাম্মাম থেকে ফারেগ হওয়া যথেষ্ট নয়।";
                 $user->studentRegister->save();
-             } 
-
-            AdmissionProgressStatus::create([
-                'user_id' => $request->input('user_id'),
-                'is_passed_age' => true,
-            ]);  
+             }  
 
             DB::commit(); 
             return success_response([

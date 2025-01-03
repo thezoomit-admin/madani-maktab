@@ -18,7 +18,7 @@ class Guardian extends Model
         'guardian_education',
         'guardian_workplace',
         'children_count',
-        'child_1_education',
+        'child_education',
         'contact_number_1',
         'contact_number_2',
         'whatsapp_number',
