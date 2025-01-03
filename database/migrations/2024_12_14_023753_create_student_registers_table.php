@@ -21,19 +21,17 @@ return new class extends Migration
             $table->string('bangla_study_status')->nullable();
             $table->string('bangla_others_study')->nullable();
             $table->string('arabi_study_status')->nullable();
-            $table->string('arabi_others_study')->nullable();
-            $table->text('study_info_after_seven')->nullable();   
+            $table->string('arabi_others_study')->nullable();  
             $table->string('handwriting_image')->nullable(); 
             
             // For Maktab-specific data
-            $table->string('previous_institution')->nullable();
+            $table->text('previous_education_details')->nullable();
 
             // For kitab study
             $table->integer('hifz_para')->nullable();
             $table->integer('is_other_kitab_study')->nullable();
             $table->string('kitab_jamat')->nullable();
-            $table->integer('is_bangla_handwriting_clear')->nullable();
-            $table->string('kitab_read')->nullable(); 
+            $table->integer('is_bangla_handwriting_clear')->nullable(); 
             $table->text('note')->nullable();
             $table->timestamps();
         });

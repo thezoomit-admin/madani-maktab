@@ -14,9 +14,8 @@ class Guardian extends Model
         'student_id',
         'guardian_name',
         'guardian_relation',
-        'guardian_occupation',
-        'guardian_education',
-        'guardian_workplace',
+        'guardian_occupation_details',
+        'guardian_education', 
         'children_count',
         'child_education',
         'contact_number_1',
@@ -30,9 +29,6 @@ class Guardian extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function student()
-    {
-        return $this->belongsTo(Student::class);
-    }
+  
     
 }

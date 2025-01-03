@@ -13,7 +13,7 @@ class UserAddress extends Model
         'student_id',
         'address_type',
         'house_or_state',
-        'vaillage_or_area',
+        'village_or_area',
         'post_office',
         'upazila_thana', 
         'district',

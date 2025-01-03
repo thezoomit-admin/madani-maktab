@@ -18,14 +18,12 @@ class StudentRegister extends Model
         'bangla_study_status',
         'bangla_others_study',
         'arabi_study_status',
-        'arabi_others_study',
-        'study_info_after_seven', 
-        'previous_institution',
+        'arabi_others_study', 
+        'previous_education_details',
         'hifz_para',
         'is_other_kitab_study',
         'kitab_jamat',
-        'is_bangla_handwriting_clear',
-        'kitab_read',
+        'is_bangla_handwriting_clear', 
         'note',
     ];
 
