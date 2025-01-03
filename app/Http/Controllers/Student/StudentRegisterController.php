@@ -80,6 +80,13 @@ class StudentRegisterController extends Controller
                 'kitab_read' => $request->input('kitab_read'),
             ]);
 
+            $education = $request->input('child_education'); 
+            if (is_string($education) && json_decode($education, true) !== null) { 
+                $encoded_education = $education;
+            } else { 
+                $encoded_education = json_encode($education);
+            }
+
             Guardian::create([
                 'user_id'               => $user->id,
                 'guardian_name'         => $request->input('guardian_name'),
@@ -88,7 +95,7 @@ class StudentRegisterController extends Controller
                 'guardian_education'    => $request->input('guardian_education'),
                 'guardian_workplace'    => $request->input('guardian_workplace'),
                 'children_count'        => $request->input('children_count'),
-                'child_education'       => json_encode($request->input('child_education')),
+                'child_education'       => $encoded_education,
                 'contact_number_1'      => $request->input('contact_number_1'),
                 'contact_number_2'      => $request->input('contact_number_2'),
                 'whatsapp_number'       => $request->input('whatsapp_number'),
