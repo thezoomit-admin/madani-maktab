@@ -59,9 +59,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('pre-trial-attend',[PreAdmissionTrialController::class,'attend']);
     Route::post('pre-trial-result',[PreAdmissionTrialController::class,'result']);
 
-    Route::get('registerd-students', RegisterStudentListController::class); 
+    Route::get('registerd-students', RegisterStudentListController::class);
+    Route::delete('delete-registerd-students/{id}', [RegisterStudentListController::class,'delete']);
     Route::get('interview-students', InterviewStudentListController::class); 
     Route::get('trial-students', TrialStudentListController::class); 
+    
 });
 
 
