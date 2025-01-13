@@ -15,8 +15,8 @@ use Illuminate\Support\Facades\Validator;
 
 use Google_Client;
 use Google_Service_Calendar;
-use Google_Service_Calendar_Event; 
-
+use Google_Service_Calendar_Event;
+use Illuminate\Support\Facades\Http; 
 use Twilio\Rest\Client; 
 
 class InterviewController extends Controller
@@ -46,14 +46,49 @@ class InterviewController extends Controller
             
             $progress->is_interview_scheduled = true;
             $progress->save();  
-            // $phone = User::find($request->candidate_id)->phone;   
+            $phone = User::find($request->candidate_id)->phone; 
+            $this->sendSms($phone, "আপনার ইন্টারভিউ " . $interview_date->format('Y-m-d H:i') . " তারিখে নির্ধারিত হয়েছে।");
+
+
             // $this->sendWhatsAppMessage($phone, "Your interview has been scheduled for " . $interview_date->format('Y-m-d H:i'));
-            // $this->createGoogleMeetEvent($interview_date); 
+            // $this->createGoogleMeetEvent($interview_date);
             return success_response(null, "Schedule Created"); 
         } catch (Exception $e) { 
             return error_response($e->getMessage(), 500);
         }
     }
+
+    public function sendSms($phone, $message)
+    {
+        $apiUrl = env('AJURATECH_BASE_URL');
+        $apiKey = env('AJURATECH_API_KEY');
+        $secretKey = env('AJURATECH_SECRET_KEY');
+        $senderId = env('AJURATECH_SENDER_ID');
+     
+        $queryParams = [
+            'apikey' => $apiKey,
+            'secretkey' => $secretKey,
+            'callerID' => $senderId,
+            'toUser' => $phone,
+            'messageContent' => $message,
+        ];
+     
+        $url = $apiUrl . '?' . http_build_query($queryParams);
+    
+        try { 
+            $response = Http::get($url);  
+
+            if ($response->successful()) {
+                return $response->body();
+            } else {
+                throw new Exception('SMS sending failed. Status code: ' . $response->status());
+                return false;
+            }
+        } catch (Exception $e) { 
+            return false;
+        }
+    }
+    
    
     // Function to send WhatsApp message
     private function sendWhatsAppMessage($phone, $message)

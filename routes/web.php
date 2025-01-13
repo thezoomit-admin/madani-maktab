@@ -22,4 +22,4 @@ Route::get('/', function () {
     dd(StudentRegister::nextKitabId());
 });
 
-Route::get("meetLink",[InterviewController::class,'sendWhatsAppMessage']);
+Route::get("sendMessage",[InterviewController::class,'sendSms']);

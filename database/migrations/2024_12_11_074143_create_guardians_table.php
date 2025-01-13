@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();  
             $table->string('guardian_name');
             $table->string('guardian_relation');
-            $table->string('guardian_occupation_details');
-            $table->string('guardian_education'); 
+            $table->text('guardian_occupation_details');
+            $table->text('guardian_education'); 
             $table->integer('children_count')->nullable();
             $table->json('child_education')->nullable();
             $table->string('contact_number_1', 15)->nullable();
