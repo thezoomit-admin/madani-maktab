@@ -121,9 +121,9 @@ class StudentRegisterController extends Controller
 
             if ($student->department_id == 1) { 
                 if ($ageMonths < 78) {
-                    $student->note = "বয়স ৭৮ মাসের চেয়ে কম।";
+                    $student->note = "বয়স ৬ বছর ৬ মাসের চেয়ে কম।";
                 } elseif ($ageMonths > 102) {
-                    $student->note = "বয়স ১০২ মাসের চেয়ে বেশি।";
+                    $student->note = "বয়স ৮ বছর ৬ মাসের বেশি।";
                 } else {
                     $passing_status = true;
                 } 
