@@ -28,7 +28,7 @@ return new class extends Migration
             $table->text('previous_education_details')->nullable();
 
             // For kitab study
-            $table->integer('hifz_para')->nullable();
+            $table->string('hifz_para')->nullable();
             $table->integer('is_other_kitab_study')->nullable();
             $table->string('kitab_jamat')->nullable();
             $table->integer('is_bangla_handwriting_clear')->nullable(); 

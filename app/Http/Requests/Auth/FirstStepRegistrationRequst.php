@@ -47,7 +47,7 @@ class FirstStepRegistrationRequst extends FormRequest
             'profile_image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             // 'handwriting_images' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',  
             'previous_education_details'  => 'nullable|string',
-            'hifz_para'             => 'nullable|integer',
+            'hifz_para'             => 'nullable|string',
             'is_other_kitab_study' => 'required_if:department_id,2|integer',
             'kitab_jamat' => 'required_if:is_other_kitab_study,1',
             'is_bangla_handwriting_clear' => 'required_if:department_id,2|integer', 
