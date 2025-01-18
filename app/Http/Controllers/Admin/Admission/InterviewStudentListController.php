@@ -39,7 +39,8 @@ class InterviewStudentListController extends Controller
             $q->whereHas('admissionProgress',function($q){
                 $q->where('is_passed_interview',0);
             });
-        }) 
+        })
+        ->with('admissionProgress')
         ->with('studentRegister')
         ->with('address')
         ->with('guardian')

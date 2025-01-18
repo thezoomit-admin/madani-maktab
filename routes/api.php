@@ -1,4 +1,6 @@
-<?php 
+<?php
+
+use App\Http\Controllers\Admin\Admission\FailToPassController;
 use App\Http\Controllers\Admin\Admission\InterviewController;
 use App\Http\Controllers\Admin\Admission\InterviewStudentListController;
 use App\Http\Controllers\Admin\Admission\PreAdmissionTrialController;
@@ -66,6 +68,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('trial-students', TrialStudentListController::class);
 
     Route::get('send-reg-number/{user_id}', SendRegistrationNumberController::class);
+    Route::get('fail_to_pass/{user_id}', FailToPassController::class);
 
     
 });
