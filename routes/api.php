@@ -51,8 +51,6 @@ Route::get('student/{id}', [StudentController::class,'student']);
 
 //Student Registration
 Route::get('student-register-last-stage', [StudentController::class,'isCompleted']);
-
-Route::get('send-reg-number/{reg_id}', SendRegistrationNumberController::class);
  
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('employee', EmployeeController::class);  
@@ -66,6 +64,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('delete-registerd-students/{id}', [RegisterStudentListController::class,'delete']);
     Route::get('interview-students', InterviewStudentListController::class); 
     Route::get('trial-students', TrialStudentListController::class);
+
+    Route::get('send-reg-number/{reg_id}', SendRegistrationNumberController::class);
 
     
 });

@@ -205,7 +205,11 @@ class StudentRegisterController extends Controller
                 $passing_status = false;
                 $user->studentRegister->note = "ঘুমানোর আগে একবার হাম্মাম থেকে ফারেগ হওয়া যথেষ্ট নয়।";
                 $user->studentRegister->save();
-             }  
+             }   
+
+             $admission_progress_status = AdmissionProgressStatus::where('user_id', $user->id)->first();
+                $admission_progress_status->is_registration_complete = 1;
+                $admission_progress_status->save(); 
 
             DB::commit(); 
             return success_response([

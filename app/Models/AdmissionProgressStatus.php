@@ -9,7 +9,8 @@ class AdmissionProgressStatus extends Model
 {
     use HasFactory;  
     protected $fillable = [
-        'user_id', 
+        'user_id',
+        'is_registration_complete',
         'is_passed_age',
         'is_interview_scheduled',
         'is_passed_interview',
