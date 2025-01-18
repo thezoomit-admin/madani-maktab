@@ -18,10 +18,9 @@ class SendRegistrationNumberController extends Controller
         $this->messageService = $messageService;
     }
 
-    public function __invoke($reg_id)
+    public function __invoke($user_id)
     {
-        $student_register = StudentRegister::where('reg_id', $reg_id)->first();
-
+        $student_register = StudentRegister::where('user_id', $user_id)->first(); 
         if ($student_register) {
             $phone_number = $student_register->user->phone;
             $message = "সম্মানিত অভিভাবক! আলহামদুলিল্লাহ, আপনার দেয়া তথ্য অনুযায়ী আপনার সন্তান: {$student_register->name} নিবন্ধন নাম্বার: {$student_register->reg_id} পরবর্তী ধাপের জন্য নির্বাচিত হয়েছে।
@@ -32,12 +31,12 @@ class SendRegistrationNumberController extends Controller
                 $status = AdmissionProgressStatus::where('user_id', $student_register->user_id)->first();
                 $status->is_registration_complete = 0;
                 $status->save();
-                return response()->json(['message' => 'Message sent successfully!', 'response' => $response], 200);
+                return success_response('Message sent successfully!'); 
             } catch (Exception $e) {
-                return response()->json(['error' => $e->getMessage()], 500);
+                return error_response( $e->getMessage(), 500); 
             }
         } else {
-            return response()->json(['error' => 'Invalid Registration Number'], 404);
+            return error_response('Invalid Registration Number', 404);
         }
     }
 }
