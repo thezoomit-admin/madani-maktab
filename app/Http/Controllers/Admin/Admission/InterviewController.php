@@ -45,10 +45,7 @@ class InterviewController extends Controller
             $schedule->save();  
             
             $progress->is_interview_scheduled = true;
-            $progress->save();  
-            $phone = User::find($request->candidate_id)->phone; 
-            $this->sendSms($phone, "আপনার ইন্টারভিউ " . $interview_date->format('Y-m-d H:i') . " তারিখে নির্ধারিত হয়েছে।");
-
+            $progress->save();
 
             // $this->sendWhatsAppMessage($phone, "Your interview has been scheduled for " . $interview_date->format('Y-m-d H:i'));
             // $this->createGoogleMeetEvent($interview_date);
