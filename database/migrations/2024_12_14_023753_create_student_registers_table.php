@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('student_registers', function (Blueprint $table) {
-            $table->id(); 
+            $table->id();
             $table->foreignId('user_id')->constrained(); 
             $table->string('reg_id')->nullable();  
             $table->string('name');
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('bangla_others_study')->nullable();
             $table->string('arabi_study_status')->nullable();
             $table->string('arabi_others_study')->nullable();  
-            $table->string('handwriting_image')->nullable(); 
+            $table->string('handwriting_image')->nullable();
             
             // For Maktab-specific data
             $table->text('previous_education_details')->nullable();

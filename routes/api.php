@@ -3,6 +3,7 @@ use App\Http\Controllers\Admin\Admission\InterviewController;
 use App\Http\Controllers\Admin\Admission\InterviewStudentListController;
 use App\Http\Controllers\Admin\Admission\PreAdmissionTrialController;
 use App\Http\Controllers\Admin\Admission\RegisterStudentListController;
+use App\Http\Controllers\Admin\Admission\SendRegistrationNumberController;
 use App\Http\Controllers\Admin\Admission\StudentController;
 use App\Http\Controllers\Admin\Admission\TrialStudentListController;
 use App\Http\Controllers\AdminEmployee\EmployeeController;
@@ -62,8 +63,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('registerd-students', RegisterStudentListController::class);
     Route::delete('delete-registerd-students/{id}', [RegisterStudentListController::class,'delete']);
     Route::get('interview-students', InterviewStudentListController::class); 
-    Route::get('trial-students', TrialStudentListController::class); 
-    
+    Route::get('trial-students', TrialStudentListController::class);
+
+    Route::get('send-reg-number/{reg_id}', SendRegistrationNumberController::class);
 });
 
 
