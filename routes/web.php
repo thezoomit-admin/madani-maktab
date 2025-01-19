@@ -24,5 +24,4 @@ Route::get('/', function () {
                         আপনার সন্তানের দ্বীনী ইলম হাছিলের এ মহান সাধনায় আপনার এবং আপনার ঘরের মন মানসিকতা ও পরিবেশের রয়েছে অপরিসীম ভূমিকা। তাই এ বিষয়েও আমরা আপনার কাছে কিছু জানতে চাই। নিচের ঠিকানায় প্রবেশ করে সুচিন্তিতভাবে উত্তরগুলো লিখে পাঠান। আল্লাহ তাওফিক দান করুন https://admission.mimalmadinah.com/admission-form/step-3?user_id=1";
      return $messageService->sendMessage(+8801796351081, $message);
 });
-
-Route::get("sendMessage",[InterviewController::class,'sendSms']);
+ 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\Admission\FailToPassController;
 use App\Http\Controllers\Admin\Admission\InterviewController;
 use App\Http\Controllers\Admin\Admission\InterviewStudentListController;
+use App\Http\Controllers\Admin\Admission\PassToFailController;
 use App\Http\Controllers\Admin\Admission\PreAdmissionTrialController;
 use App\Http\Controllers\Admin\Admission\RegisterStudentListController;
 use App\Http\Controllers\Admin\Admission\SendRegistrationNumberController;
@@ -69,6 +70,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('send-reg-number/{user_id}', SendRegistrationNumberController::class);
     Route::get('fail_to_pass/{user_id}', FailToPassController::class);
+    Route::get('pass_to_fail/{user_id}', PassToFailController::class);
 
     
 });
