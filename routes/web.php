@@ -18,8 +18,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {    
-     $student_register = StudentRegister::where('user_id', 215)->first();  
+Route::get('/', function () {      
      $messageService = new PhoneMessageService;
      $message = "test";
      return $messageService->sendMessage(+8801766774016, $message);
