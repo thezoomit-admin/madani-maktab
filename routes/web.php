@@ -18,10 +18,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {     
+Route::get('/', function () {    
+     $student_register = StudentRegister::where('user_id', 215)->first();  
      $messageService = new PhoneMessageService;
-     $message = "সম্মানিত অভিভাবক! আলহামদুলিল্লাহ, আপনার দেয়া তথ্য অনুযায়ী আপনার সন্তান: Enamul update নিবন্ধন নাম্বার: 3654 পরবর্তী ধাপের জন্য নির্বাচিত হয়েছে।
-                        আপনার সন্তানের দ্বীনী ইলম হাছিলের এ মহান সাধনায় আপনার এবং আপনার ঘরের মন মানসিকতা ও পরিবেশের রয়েছে অপরিসীম ভূমিকা। তাই এ বিষয়েও আমরা আপনার কাছে কিছু জানতে চাই। নিচের ঠিকানায় প্রবেশ করে সুচিন্তিতভাবে উত্তরগুলো লিখে পাঠান। আল্লাহ তাওফিক দান করুন https://admission.mimalmadinah.com/admission-form/step-3?user_id=2";
+     $message = "সম্মানিত অভিভাবক! আলহামদুলিল্লাহ, আপনার দেয়া তথ্য অনুযায়ী আপনার সন্তান: {$student_register->name} নিবন্ধন নাম্বার: {$student_register->reg_id} পরবর্তী ধাপের জন্য নির্বাচিত হয়েছে। আপনার সন্তানের দ্বীনী ইলম হাছিলের এ মহান সাধনায় আপনার এবং আপনার ঘরের মন মানসিকতা ও পরিবেশের রয়েছে অপরিসীম ভূমিকা। তাই এ বিষয়েও আমরা আপনার কাছে কিছু জানতে চাই। নিচের ঠিকানায় প্রবেশ করে সুচিন্তিতভাবে উত্তরগুলো লিখে পাঠান। আল্লাহ তাওফিক দান করুন https://admission.mimalmadinah.com/admission-form/step-3?user_id={$student_register->user_id}";
      return $messageService->sendMessage(+8801766774016, $message);
 });
  
