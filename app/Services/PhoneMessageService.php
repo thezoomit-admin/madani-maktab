@@ -33,7 +33,7 @@ class PhoneMessageService
         $url = $this->apiUrl . '?' . http_build_query($queryParams);
 
         try {
-            $response = Http::withOptions(['debug' => true])->get($url);   
+            $response = Http::get($url); 
             if ($response->successful()) {
                 return $response->body();
             } else {
