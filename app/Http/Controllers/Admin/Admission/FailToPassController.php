@@ -28,10 +28,10 @@ class FailToPassController extends Controller
                 $progress = $user->admissionProgress;
                 $registration = $user->studentRegister;
 
-                if($progress->is_passed_trial==0){
+                if($progress->is_passed_trial===0){
                     $progress->is_passed_trial = 1;
                     $registration->note =  $registration->note." চূড়ান্ত পরীক্ষায় মাযেরাত থেকে বিশেষ বিবেচনায় পরবর্তীতে উত্তীর্ণ করে দেওয়া হয়েছে।". Auth::user()->name;
-                }elseif($progress->is_passed_interview==0){
+                }elseif($progress->is_passed_interview===0){
                     $progress->is_passed_interview = 1;
                     $registration->note =  $registration->note." প্রাথমিক পরীক্ষায় মাযেরাত থেকে বিশেষ বিবেচনায় পরবর্তীতে উত্তীর্ণ করে দেওয়া হয়েছে।". Auth::user()->name;
                 }else{
