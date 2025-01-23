@@ -22,6 +22,14 @@ class StudentRegisterController extends Controller
     {    
         DB::beginTransaction();
         try { 
+            $dob = Carbon::parse($request->input('dob')); 
+            $currentDate = Carbon::now();  
+            $ageMonths = $dob->diffInMonths($currentDate);
+
+            if($ageMonths>162){
+                return error_response("দুঃখিত! তালিবে ইলমের বয়স নির্ধারিত সীমা অতিক্রম করার কারণে আবেদনটি গ্রহণ করা যাচ্ছে না");
+            }
+
             if ($request->hasFile('profile_image')) { 
                 $profileImage = $request->file('profile_image'); 
                 $profileImageName = time() . '_' . $profileImage->getClientOriginalName(); 
@@ -34,12 +42,8 @@ class StudentRegisterController extends Controller
                 $handwritingImageName = time() . '_' . $handwritingImage->getClientOriginalName(); 
                 $handwritingImage->move(public_path('uploads/handwriting_images'), $handwritingImageName); 
                 $handwritingImageUrl = asset('uploads/handwriting_images/' . $handwritingImageName);
-            }
-            
-
-            $dob = Carbon::parse($request->input('dob')); 
-            $currentDate = Carbon::now();  
-            $ageMonths = $dob->diffInMonths($currentDate);
+            } 
+           
 
             $user = User::create([
                 'name' => $request->input('name'),
@@ -117,8 +121,7 @@ class StudentRegisterController extends Controller
                 ]);
             } 
 
-            $passing_status = false;
-
+            $passing_status = false; 
             if ($student->department_id == 1) { 
                 if ($ageMonths < 78) {
                     $student->note = "বয়স ৬ বছর ৬ মাসের চেয়ে কম।";
@@ -131,7 +134,33 @@ class StudentRegisterController extends Controller
                     $passing_status = false;
                     $student->note = "বাংলা পড়তে পারে না।";
                 }
-            } else { 
+            } else {  
+                if ($student->arabi_study_status == 1) {
+                    $student->note = "নাজেরা বিভাগ নির্বাচন করেছে।";
+                }elseif ($student->arabi_study_status == 2) {
+                    if($ageMonths < 78){
+                        $student->note = "বয়স ৬ বছর ৬ মাসের চেয়ে কম।";
+                    }elseif($ageMonths > 138){
+                        $student->note = "বয়স ১১ বছর ৬ মাসের বেশি।";
+                    }else{
+                        $passing_status = true; 
+                    }    
+                }elseif($student->arabi_study_status == 3){
+                    if ($ageMonths < 78) {
+                        $student->note = "বয়স ৬ বছর ৬ মাসের চেয়ে কম।";
+                    } elseif ($ageMonths > 162) {
+                        $student->note = "বয়স ১৩ বছর ৬ মাসের বেশি।";
+                    } else {
+                        $passing_status = true;
+                    } 
+                }elseif($student->arabi_study_status == 4){
+                    $student->note = "আংশিক হেফজ বিভাগ নির্বাচন করেছে।";
+                }elseif($student->arabi_study_status == 5){
+                    $student->note = "আরবি পড়া-লেখার জন্য অন্যান্য বিভাগ নির্বাচন করেছে।";
+                }elseif($student->is_other_kitab_study){
+                    $student->note = "অন্য কোথাও কিতাব বিভাগে পড়েছে।";
+                }
+
                 if ($student->arabi_study_status == 1) {
                     $student->note = "নাজেরা বিভাগ নির্বাচন করেছে।";
                 } elseif ($student->arabi_study_status == 2 && ($ageMonths >= 78 && $ageMonths <= 138)) {
@@ -139,7 +168,7 @@ class StudentRegisterController extends Controller
                 } elseif ($student->arabi_study_status == 3 && ($ageMonths >= 78 && $ageMonths <= 162)) {
                     $passing_status = true;
                 } elseif ($student->arabi_study_status == 4) {
-                    $student->note = "আংশিক হেফজ বিভাগ নির্বাচন করেছে।";
+                    
                 } elseif ($student->arabi_study_status == 5) {
                     $student->note = "আরবি পড়া-লেখার জন্য অন্যান্য বিভাগ নির্বাচন করেছে।";
                 }
@@ -209,6 +238,7 @@ class StudentRegisterController extends Controller
 
              $admission_progress_status = AdmissionProgressStatus::where('user_id', $user->id)->first();
                 $admission_progress_status->is_registration_complete = 1;
+                $admission_progress_status->is_passed_age = $passing_status;
                 $admission_progress_status->save(); 
 
             DB::commit(); 
