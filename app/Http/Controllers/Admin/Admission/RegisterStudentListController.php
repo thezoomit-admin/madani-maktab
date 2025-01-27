@@ -24,6 +24,7 @@ class RegisterStudentListController extends Controller
             $q->where('is_passed_age',$request->status);
         }) 
         ->with('studentRegister')
+        ->with('messageStatus')
         ->with('address')
         ->with('guardian')
         ->get();

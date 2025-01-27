@@ -41,6 +41,7 @@ class InterviewStudentListController extends Controller
             });
         })
         ->with('admissionProgress')
+        ->with('messageStatus')
         ->with('studentRegister')
         ->with('address')
         ->with('guardian')

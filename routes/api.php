@@ -68,7 +68,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('interview-students', InterviewStudentListController::class); 
     Route::get('trial-students', TrialStudentListController::class);
 
-    Route::get('send-reg-number/{user_id}', SendRegistrationNumberController::class);
+    Route::post('send-message/', SendRegistrationNumberController::class);
     Route::get('fail_to_pass/{user_id}', FailToPassController::class);
     Route::get('pass_to_fail/{user_id}', PassToFailController::class);
 

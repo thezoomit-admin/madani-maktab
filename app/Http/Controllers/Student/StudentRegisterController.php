@@ -205,6 +205,25 @@ class StudentRegisterController extends Controller
     public function lastStep(Request $request){  
         DB::beginTransaction();
         try {
+
+            $validated = $request->validate([
+                'answe_files' => 'required|array',
+                'answe_files.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',  
+            ]);  
+             
+            foreach ($request->file('answe_files') as $file) {
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads/answer_files'), $fileName); 
+                $fileUrl = asset('uploads/answer_files/' . $fileName);
+     
+                AnswerFile::create([
+                    'user_id'   => $request->input('user_id'),
+                    'name'      => $file->getClientOriginalName(),
+                    'link'      => $fileUrl,
+                    'type'      => $file->getClientOriginalExtension(),
+                ]);
+            }
+
             $user = User::find($request->input('user_id'));
             UserFamily::create([
                 'user_id' => $request->input('user_id'),

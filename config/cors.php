@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['http://localhost:3003','https://admission.mimalmadinah.com','https://madani-maktab.vercel.app'],
 
     'allowed_origins_patterns' => [],
 

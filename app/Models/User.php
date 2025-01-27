@@ -74,6 +74,11 @@ class User extends Authenticatable
         return $this->hasOne(UserFamily::class, 'user_id');
     }
 
+    public function messageStatus()
+    {
+        return $this->hasOne(MessageStatus::class, 'user_id');
+    }
+
     public function admissionProgress()
     {
         return $this->hasOne(AdmissionProgressStatus::class, 'user_id');

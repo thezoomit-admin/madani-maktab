@@ -41,6 +41,7 @@ class TrialStudentListController extends Controller
             });
         }) 
         ->with('studentRegister')
+        ->with('messageStatus')
         ->with('address')
         ->with('guardian')
         ->get();

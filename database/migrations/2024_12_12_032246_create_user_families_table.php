@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('user_families', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('user_id')->constrained(); 
             $table->string('deeni_steps', 255)->nullable(); 
             $table->string('follow_porada')->nullable(); 
             $table->string('shariah_compliant')->nullable(); 
