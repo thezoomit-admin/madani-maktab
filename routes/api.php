@@ -58,10 +58,10 @@ Route::get('student-register-last-stage', [StudentController::class,'isCompleted
  
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('employee', EmployeeController::class);  
-    Route::post('interview-schedule', InterviewController::class,'sehedule');
+    Route::post('interview-schedule', [InterviewController::class,'sehedule']);
     Route::post('interview-result',[InterviewController::class,'result']);
 
-    Route::post('pre-trial-schedule', PreAdmissionTrialController::class,'sehedule');
+    Route::post('pre-trial-schedule', [PreAdmissionTrialController::class,'sehedule']);
     Route::post('pre-trial-attend',[PreAdmissionTrialController::class,'attend']);
     Route::post('pre-trial-result',[PreAdmissionTrialController::class,'result']);
 
