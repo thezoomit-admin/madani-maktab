@@ -13,7 +13,7 @@ class StudentController extends Controller
 {
     public function student($id){
         try {
-            $user = User::with(['studentRegister', 'address', 'guardian','userFamily'])
+            $user = User::with(['studentRegister', 'address', 'guardian','userFamily','admissionProgress','messageStatus'])
                 ->where('id', $id)
                 ->orWhereHas('studentRegister', function ($query) use ($id) {
                     $query->where('reg_id', $id);
