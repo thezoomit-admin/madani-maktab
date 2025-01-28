@@ -10,6 +10,7 @@ use App\Models\Student;
 use App\Models\StudentRegister;
 use App\Models\User;
 use App\Models\UserAddress;
+use App\Models\AnswerFile;
 use App\Models\UserFamily;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -206,11 +207,11 @@ class StudentRegisterController extends Controller
         DB::beginTransaction();
         try {
 
-            $validated = $request->validate([
-                'answe_files' => 'required|array',
-                'answe_files.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',  
-            ]);  
-             
+            $request->validate([
+                'answe_files.*' => 'required|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'user_id' => 'required|integer',
+            ]); 
+
             foreach ($request->file('answe_files') as $file) {
                 $fileName = time() . '_' . $file->getClientOriginalName();
                 $file->move(public_path('uploads/answer_files'), $fileName); 

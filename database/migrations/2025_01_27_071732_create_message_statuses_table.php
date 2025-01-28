@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('message_statuses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->boolean('is_send_fail_message');
-            $table->boolean('is_send_general_pass_message');
-            $table->boolean('is_send_interview_pass_message');
-            $table->boolean('is_send_final_pass_message');
+            $table->boolean('is_send_fail_message')->nullable();
+            $table->boolean('is_send_general_pass_message')->nullable();
+            $table->boolean('is_send_interview_pass_message')->nullable();
+            $table->boolean('is_send_final_pass_message')->nullable();
             $table->timestamps();
         });
     }
