@@ -10,10 +10,18 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Services\PhoneMessageService;
 
 class PreAdmissionTrialController extends Controller
 {
-    public function store(Request $request)
+    protected $messageService;
+
+    public function __construct(PhoneMessageService $messageService)
+    {
+        $this->messageService = $messageService;
+    }
+
+    public function schedule(Request $request)
     { 
         $validator = Validator::make($request->all(), [
             'candidate_id' => 'required|exists:users,id',
@@ -28,11 +36,12 @@ class PreAdmissionTrialController extends Controller
 
         DB::beginTransaction();
         try { 
+            $user = User::find($request->candidate_id);
             $requested_at = Carbon::createFromFormat('Y-m-d H:i', $request->date . ' ' . $request->time);
- 
-            $progress = AdmissionProgressStatus::where('user_id',$request->candidate_id)->first();
-            if(!$progress){
-                return error_response('Candidate not found',404);
+    
+            $progress = AdmissionProgressStatus::where('user_id', $request->candidate_id)->first();
+            if (!$progress) {
+                return error_response('প্রার্থী পাওয়া যায়নি', 404);  // Candidate not found
             } 
 
             $progress->is_invited_for_trial = true;
@@ -45,13 +54,18 @@ class PreAdmissionTrialController extends Controller
                     'note'     => $request->note,
                 ]
             ); 
+ 
+            $message = "প্রথমিক পরীক্ষায় আপনি উত্তীর্ণ হয়েছেন। আপনাকে মাদ্রাসাতে ৭ দিনের জন্য পরীক্ষা দিতে হবে। আপনার উপস্থিতির সময়: $requested_at";
+ 
+            $this->messageService->sendMessage($user->phone, $message);  
             DB::commit();
-            return success_response(null, "Trial request stored successfully.");
+            return success_response(null, "ট্রায়াল রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে");  // Trial request has been sent successfully
         } catch (\Exception $e) {
             DB::rollBack();
             return error_response($e->getMessage(), 500);
         }
-    } 
+    }
+
 
     public function attend(Request $request)
     { 
@@ -76,7 +90,8 @@ class PreAdmissionTrialController extends Controller
                 'attended_at' => $attended_at,
                 'status'      => 'attended',
                 'note'        => $request->note,
-            ]); 
+            ]);  
+
             return success_response(null,"The student has successfully attended the trial session.");
         } catch (Exception $e) {
             return error_response($e->getMessage(), 500);

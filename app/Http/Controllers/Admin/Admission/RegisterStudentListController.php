@@ -23,8 +23,8 @@ class RegisterStudentListController extends Controller
         ->whereHas('admissionProgress',function($q) use($request){
             $q->where('is_passed_age',$request->status);
         }) 
-        ->with('studentRegister')
-        ->with('messageStatus')
+        ->with('studentRegister') 
+        ->with('admissionProgress')
         ->with('address')
         ->with('guardian')
         ->get();

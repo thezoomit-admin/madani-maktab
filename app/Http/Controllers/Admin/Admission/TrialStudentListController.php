@@ -40,8 +40,8 @@ class TrialStudentListController extends Controller
                 $q->where('is_passed_trial',0);
             });
         }) 
-        ->with('studentRegister')
-        ->with('messageStatus')
+        ->with('admissionProgress') 
+        ->with('studentRegister') 
         ->with('address')
         ->with('guardian')
         ->get();

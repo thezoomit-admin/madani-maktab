@@ -72,12 +72,7 @@ class User extends Authenticatable
     public function userFamily()
     {
         return $this->hasOne(UserFamily::class, 'user_id');
-    }
-
-    public function messageStatus()
-    {
-        return $this->hasOne(MessageStatus::class, 'user_id');
-    }
+    } 
 
     public function answerFiles()
     {

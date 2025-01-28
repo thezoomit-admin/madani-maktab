@@ -20,6 +20,7 @@ use App\Http\Controllers\Common\RoleApiController;
 use App\Http\Controllers\Common\UnionApiController;
 use App\Http\Controllers\Common\UpazilaApiController; 
 use App\Http\Controllers\Student\StudentRegisterController;
+use App\Http\Controllers\Setting\MeetLinkSettingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -57,20 +58,26 @@ Route::get('student-register-last-stage', [StudentController::class,'isCompleted
  
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('employee', EmployeeController::class);  
-    Route::resource('interview-schedule', InterviewController::class);
+    Route::post('interview-schedule', InterviewController::class,'sehedule');
     Route::post('interview-result',[InterviewController::class,'result']);
-    Route::resource('pre-admission-trial', PreAdmissionTrialController::class); 
+
+    Route::post('pre-trial-schedule', PreAdmissionTrialController::class,'sehedule');
     Route::post('pre-trial-attend',[PreAdmissionTrialController::class,'attend']);
     Route::post('pre-trial-result',[PreAdmissionTrialController::class,'result']);
 
-    Route::get('registerd-students', RegisterStudentListController::class);
-    Route::delete('delete-registerd-students/{id}', [RegisterStudentListController::class,'delete']);
+    Route::get('registerd-students', RegisterStudentListController::class); 
     Route::get('interview-students', InterviewStudentListController::class); 
     Route::get('trial-students', TrialStudentListController::class);
+
+    Route::delete('delete-registerd-students/{id}', [RegisterStudentListController::class,'delete']);
 
     Route::post('send-message/', SendRegistrationNumberController::class);
     Route::get('fail_to_pass/{user_id}', FailToPassController::class);
     Route::get('pass_to_fail/{user_id}', PassToFailController::class);
+
+
+    // setting 
+    Route::post('update-meet-link',[MeetLinkSettingController::class,'update']);
 
     
 });

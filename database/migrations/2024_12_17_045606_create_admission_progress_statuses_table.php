@@ -15,11 +15,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->boolean('is_passed_age')->nullable();
-            $table->boolean('is_registration_complete')->nullable()->comment("null=not send link, 0 = send but not fillup, 1 = fillup");
+            $table->boolean('is_send_step_2_link')->nullable();
+            $table->boolean('is_registration_complete')->nullable();
             $table->boolean('is_interview_scheduled')->nullable();
             $table->boolean('is_passed_interview')->nullable();  
             $table->boolean('is_invited_for_trial')->nullable();
-            $table->boolean('is_passed_trial')->nullable();
+            $table->boolean('is_passed_trial')->nullable(); 
+            
+            $table->boolean('is_send_fail_message')->nullable();
+            $table->boolean('is_send_final_pass_message')->nullable();
             $table->timestamps();
         });
     }
