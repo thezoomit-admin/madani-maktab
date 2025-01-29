@@ -68,7 +68,7 @@ class PreAdmissionTrialController extends Controller
 
 
     public function attend(Request $request)
-    { 
+    {
         $validator = Validator::make($request->all(), [
             'candidate_id' => 'required|exists:users,id',
             'date'         => ['required', 'date', 'after:now'],
@@ -102,7 +102,7 @@ class PreAdmissionTrialController extends Controller
     { 
         $validator = Validator::make($request->all(), [
             'candidate_id' => 'required|exists:pre_admission_trials,candidate_id',
-            'note'        => 'nullable|string|max:1000',
+            'notes'        => 'nullable|string|max:1000',
             'result'       => 'required|boolean',
         ]);
  
@@ -128,7 +128,7 @@ class PreAdmissionTrialController extends Controller
  
             $trial->status = 'completed';
             $trial->result = $request->result;
-            $trial->note = $request->note; 
+            $trial->notes = $request->notes;
             $trial->save();
 
             DB::commit(); 
