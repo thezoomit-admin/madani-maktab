@@ -73,7 +73,8 @@ class InterviewController extends Controller
             'candidate_id' => 'required|exists:interview_schedules,candidate_id',
             'notes'        => 'nullable|string|max:1000',
             'result'       => 'required|boolean',
-        ]); 
+        ]);  
+        
         if ($validator->fails()) {
             return error_response($validator->errors()->first(), 422);
         }
