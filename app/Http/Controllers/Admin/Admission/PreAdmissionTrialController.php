@@ -73,7 +73,7 @@ class PreAdmissionTrialController extends Controller
             'candidate_id' => 'required|exists:users,id',
             'date'         => ['required', 'date', 'after:now'],
             'time'         => ['required', 'date_format:H:i'],
-            'note'         => 'nullable|string|max:500',
+            'notes'         => 'nullable|string|max:500',
         ]);
  
         if ($validator->fails()) {
@@ -89,7 +89,7 @@ class PreAdmissionTrialController extends Controller
             $trial->update([
                 'attended_at' => $attended_at,
                 'status'      => 'attended',
-                'note'        => $request->note,
+                'notes'        => $request->notes,
             ]);  
 
             return success_response(null,"The student has successfully attended the trial session.");

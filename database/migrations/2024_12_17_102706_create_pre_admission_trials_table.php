@@ -19,7 +19,7 @@ return new class extends Migration
             $table->dateTime('attended_at')->nullable();
             $table->enum('status', ['pending', 'attended', 'completed'])->default('pending'); 
             $table->boolean('result')->nullable(); 
-            $table->text('note');
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
