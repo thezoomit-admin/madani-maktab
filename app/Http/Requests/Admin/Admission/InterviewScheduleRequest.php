@@ -29,10 +29,9 @@ class InterviewScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'candidate_id'      => ['required', 'exists:users,id'], 
-            'interviewer_id'    => ['required', 'exists:users,id'], 
-            'date'              => ['required', 'date', 'after:now'], // Validates the date
-            'time'              => ['required', 'date_format:H:i'],  // Validates time in HH:mm format
+            'candidate_id'      => ['required', 'exists:users,id'],  
+            'date'              => ['required', 'date', 'after:now'], 
+            'time'              => ['required', 'date_format:H:i'], 
             'location'          => ['nullable', 'in:online,office,offsite'], // Optional field with valid values
             'notes'             => ['nullable', 'string', 'max:500'], // Optional notes
         ];

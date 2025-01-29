@@ -61,7 +61,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('interview-schedule', [InterviewController::class,'schedule']);
     Route::post('interview-result',[InterviewController::class,'result']);
 
-    Route::post('pre-trial-schedule', [PreAdmissionTrialController::class,'sehedule']);
+    Route::post('pre-trial-schedule', [PreAdmissionTrialController::class,'schedule']);
     Route::post('pre-trial-attend',[PreAdmissionTrialController::class,'attend']);
     Route::post('pre-trial-result',[PreAdmissionTrialController::class,'result']);
 
