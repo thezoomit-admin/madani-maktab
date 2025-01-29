@@ -117,14 +117,17 @@ class PreAdmissionTrialController extends Controller
             if (!$progress) {
                 return error_response('Candidate not found in admission progress status.', 404);
             }
- 
-            $progress->is_passed_trial = $request->result;
-            $progress->save();
- 
+
             $trial = PreAdmissionTrial::where('candidate_id', $request->candidate_id)->first();
             if (!$trial) {
                 return error_response('No trial record found for this candidate.', 404);
             }
+            
+ 
+            $progress->is_passed_trial = $request->result;
+            $progress->save();
+ 
+            
  
             $trial->status = 'completed';
             $trial->result = $request->result;

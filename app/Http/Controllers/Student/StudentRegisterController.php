@@ -250,7 +250,7 @@ class StudentRegisterController extends Controller
             
             $department_id = $user->studentRegister->department_id;
             $passing_status = true;
-             if($department_id==1 && $request->input('is_bath_before_sleep')){
+             if($department_id==1 && $request->input('is_bath_before_sleep')==1){
                 $passing_status = false;
                 $user->studentRegister->note = "ঘুমানোর আগে একবার হাম্মাম থেকে ফারেগ হওয়া যথেষ্ট নয়।";
                 $user->studentRegister->save();
