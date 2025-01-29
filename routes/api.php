@@ -58,7 +58,7 @@ Route::get('student-register-last-stage', [StudentController::class,'isCompleted
  
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('employee', EmployeeController::class);  
-    Route::post('interview-schedule', [InterviewController::class,'sehedule']);
+    Route::post('interview-schedule', [InterviewController::class,'schedule']);
     Route::post('interview-result',[InterviewController::class,'result']);
 
     Route::post('pre-trial-schedule', [PreAdmissionTrialController::class,'sehedule']);
@@ -71,7 +71,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::delete('delete-registerd-students/{id}', [RegisterStudentListController::class,'delete']);
 
-    Route::post('send-message/', SendRegistrationNumberController::class);
+    Route::post('send-message', SendRegistrationNumberController::class);
     Route::get('fail_to_pass/{user_id}', FailToPassController::class);
     Route::get('pass_to_fail/{user_id}', PassToFailController::class);
 
