@@ -74,13 +74,13 @@ class InterviewController extends Controller
             'notes'        => 'nullable|string|max:1000',
             'result'       => 'required|boolean',
         ]);  
-        
+
         if ($validator->fails()) {
             return error_response($validator->errors()->first(), 422);
         }
 
         DB::beginTransaction();
-        try { 
+        try {
             $interview = InterviewSchedule::where('candidate_id', $request->candidate_id)->firstOrFail();
             $interview->update([
                 'notes'  => $request->notes,

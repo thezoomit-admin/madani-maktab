@@ -7,6 +7,8 @@ use App\Models\AdmissionProgressStatus;
 use App\Models\Guardian;
 use App\Models\StudentRegister;
 use App\Models\User;
+use App\Models\PreAdmissionTrial;
+use App\Models\InterviewSchedule;
 use App\Models\UserAddress;
 use App\Models\UserFamily;
 use Exception;
@@ -56,7 +58,18 @@ class RegisterStudentListController extends Controller
             $family = UserFamily::where('user_id',$id)->first();
             if($family){
                 $family->delete();
-            }      
+            }
+
+            $interview_schedule = InterviewSchedule::where('candidate_id',$id);
+            if($interview_schedule){
+                $interview_schedule->deete();
+            }
+
+            $pre_admission_trial = PreAdmissionTrial::where('candidate_id',$id);
+            if($pre_admission_trial){
+                $pre_admission_trial->deete();
+            }
+
             $user = User::find($id);
             if($user){
                 $user->delete(); 

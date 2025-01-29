@@ -35,7 +35,7 @@ class FailToPassController extends Controller
                     $progress->is_passed_interview = 1;
                     $registration->note =  $registration->note." প্রাথমিক পরীক্ষায় মাযেরাত থেকে বিশেষ বিবেচনায় পরবর্তীতে উত্তীর্ণ করে দেওয়া হয়েছে।". Auth::user()->name;
                 }else{
-                    $progress->is_passed_age = 1; 
+                    $progress->is_passed_age = 1;
                     $registration->note =  $registration->note." স্বাভাবিক মাযেরাত থেকে বিশেষ বিবেচনায় নিবন্ধিত তালিবে ইলম হিসেবে অন্তর্ভুক্ত করা হয়েছে।". Auth::user()->name;
                 }
                 $progress->save(); 
