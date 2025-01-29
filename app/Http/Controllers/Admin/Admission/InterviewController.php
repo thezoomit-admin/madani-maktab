@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Admission\InterviewScheduleRequest;
 use App\Models\AdmissionProgressStatus;
 use App\Models\InterviewSchedule;
+use App\Models\About;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
