@@ -51,7 +51,7 @@ Route::get('unions',UnionApiController::class);
 // Student Register 
 Route::post('student-register-first-step',[StudentRegisterController::class,'firstStep']);
 Route::post('student-register-last-step',[StudentRegisterController::class,'lastStep']);
-Route::get('student/{id}', [StudentController::class,'student']); 
+Route::get('student/{id}', [StudentController::class,'student']);
 
 //Student Registration
 Route::get('student-register-last-stage', [StudentController::class,'isCompleted']);
@@ -77,7 +77,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
     // setting 
-    Route::post('update-meet-link',[MeetLinkSettingController::class,'update']);
+    Route::get('meet-link',[MeetLinkSettingController::class,'index']);
+    Route::post('meet-link',[MeetLinkSettingController::class,'update']);
 
     
 });
