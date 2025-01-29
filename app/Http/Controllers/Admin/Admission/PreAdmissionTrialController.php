@@ -28,7 +28,7 @@ class PreAdmissionTrialController extends Controller
             'candidate_id' => 'required|exists:users,id',
             'date'         => ['required', 'date', 'after:now'],
             'time'         => ['required', 'date_format:H:i'],
-            'note'         => 'nullable|string|max:500',
+            'notes'         => 'nullable|string|max:500',
         ]);
 
         if ($validator->fails()) {
@@ -51,7 +51,7 @@ class PreAdmissionTrialController extends Controller
                 ['candidate_id' => $request->candidate_id],
                 [
                     'requested_at' => $requested_at,
-                    'note'     => $request->note,
+                    'notes'     => $request->notes,
                 ]
             ); 
  
@@ -122,7 +122,7 @@ class PreAdmissionTrialController extends Controller
             if (!$trial) {
                 return error_response('No trial record found for this candidate.', 404);
             }
-            
+
  
             $progress->is_passed_trial = $request->result;
             $progress->save();
