@@ -51,8 +51,7 @@ class InterviewController extends Controller
             $schedule = new InterviewSchedule(); 
             $schedule->candidate_id = $request->candidate_id;
             $schedule->interviewer_id = $request->interviewer_id;
-            $schedule->requested_at = $interview_date;
-            $schedule->location = $request->location ?? 'অনলাইন';  
+            $schedule->requested_at = $interview_date; 
             $schedule->notes = $request->notes; 
             $schedule->save();   
             $progress->is_interview_scheduled = true;
