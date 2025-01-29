@@ -39,10 +39,8 @@ class InterviewController extends Controller
             
             if(!$progress){
                 return error_response('প্রার্থী পাওয়া যায়নি', 404); 
-            }   
-    
-            $ex_candidate = InterviewSchedule::where('candidate_id', $request->candidate_id)->first(); 
-            if($ex_candidate){
+            }    
+            if($progress->is_interview_scheduled){
                 return error_response('ইন্টারভিউ শিডিউল ইতিমধ্যে পাঠানো হয়েছে');
             }  
     

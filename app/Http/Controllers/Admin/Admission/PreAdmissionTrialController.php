@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Admission;
 use App\Http\Controllers\Controller;
 use App\Models\AdmissionProgressStatus;
 use App\Models\PreAdmissionTrial;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -41,12 +42,11 @@ class PreAdmissionTrialController extends Controller
     
             $progress = AdmissionProgressStatus::where('user_id', $request->candidate_id)->first();
             if (!$progress) {
-                return error_response('প্রার্থী পাওয়া যায়নি', 404);  // Candidate not found
+                return error_response('প্রার্থী পাওয়া যায়নি', 404);   
             } 
 
             $progress->is_invited_for_trial = true;
-            $progress->save();  
-
+            $progress->save();   
             $trial = PreAdmissionTrial::updateOrCreate(
                 ['candidate_id' => $request->candidate_id],
                 [
