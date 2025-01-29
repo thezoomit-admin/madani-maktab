@@ -22,7 +22,7 @@ class InterviewStudentListController extends Controller
         }) 
         ->when($status=="unsend",function($q){
             $q->whereHas('admissionProgress',function($q){
-                $q->where('is_passed_age',1)->where('is_interview_scheduled',null);
+                $q->where('is_passed_age',1)->where('is_interview_scheduled',null)->where('is_registration_complete',1);
             });
         })
         ->when($status=="send",function($q){
