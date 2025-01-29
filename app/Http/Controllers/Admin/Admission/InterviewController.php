@@ -46,7 +46,7 @@ class InterviewController extends Controller
                 return error_response('ইন্টারভিউ শিডিউল ইতিমধ্যে পাঠানো হয়েছে');
             }  
     
-            $meetlink = About::where('keyword', 'meet_link')->first();
+            $meetlink = About::where('keyword', 'meet_link')->first()->value??null;
             
             $schedule = new InterviewSchedule(); 
             $schedule->candidate_id = $request->candidate_id;
@@ -56,7 +56,7 @@ class InterviewController extends Controller
             $schedule->save();   
             $progress->is_interview_scheduled = true;
             $progress->save();   
-            $message = "আপনাকে সাক্ষাৎকারের জন্য নির্বাচিত করা হয়েছে। আপনার সাক্ষাৎকারের সময়: $interview_date এবং মিট লিঙ্ক: $meetlink। অনুগ্রহ করে সময়মতো উপস্থিত থাকুন।";
+            $message = "আপনাকে সাক্ষাৎকারের জন্য নির্বাচিত করা হয়েছে। আপনার সাক্ষাৎকারের সময়: $interview_date এবং মিট লিঙ্ক: $meetlink অনুগ্রহ করে সময়মতো উপস্থিত থাকুন।";
             $response = $this->messageService->sendMessage($user->phone, $message);   
             return success_response(null, "সাক্ষাৎকারের শিডিউল সফলভাবে পাঠানো হয়েছে"); 
         } catch (Exception $e) { 
