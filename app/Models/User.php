@@ -76,7 +76,7 @@ class User extends Authenticatable
 
     public function answerFiles()
     {
-        return $this->hasOne(AnswerFile::class, 'user_id');
+        return $this->hasMany(AnswerFile::class, 'user_id');
     }
 
     public function admissionProgress()

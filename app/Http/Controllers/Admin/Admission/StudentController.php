@@ -11,7 +11,8 @@ use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
-    public function student($id){
+    public function student($id)
+    {
         try {
             $user = User::with(['studentRegister', 'address', 'guardian', 'userFamily', 'admissionProgress', 'answerFiles'])
                 ->where('id', $id)
@@ -19,16 +20,23 @@ class StudentController extends Controller
                     $query->where('reg_id', $id);
                 })
                 ->first();  
+
+            // Modify the answerFiles to return files individually by 'user_id'
             if ($user && $user->answerFiles) {
-                $user->answerFiles = $user->answerFiles->pluck('link')->toArray();
+                // Assuming you want to return files by user_id:
+                $user->answerFiles = $user->answerFiles->groupBy('user_id')->map(function($files) {
+                    return $files->pluck('link')->toArray(); // Pluck only the 'link' field for each user_id
+                });
             } else { 
                 $user->answerFiles = [];
-            } 
+            }
+
             return success_response($user);
         } catch (Exception $e) {
             return error_response($e->getMessage(), 500);
-        } 
+        }
     }
+
     
 
     public function isCompleted(Request $request)
