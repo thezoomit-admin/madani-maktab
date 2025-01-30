@@ -13,17 +13,23 @@ class StudentController extends Controller
 {
     public function student($id){
         try {
-            $user = User::with(['studentRegister', 'address', 'guardian','userFamily','answerFiles','admissionProgress'])
+            $user = User::with(['studentRegister', 'address', 'guardian', 'userFamily', 'admissionProgress', 'answerFiles'])
                 ->where('id', $id)
                 ->orWhereHas('studentRegister', function ($query) use ($id) {
                     $query->where('reg_id', $id);
                 })
-                ->first(); 
+                ->first();  
+            if ($user && $user->answerFiles) {
+                $user->answerFiles = $user->answerFiles->pluck('link')->toArray();
+            } else { 
+                $user->answerFiles = [];
+            } 
             return success_response($user);
         } catch (Exception $e) {
             return error_response($e->getMessage(), 500);
         } 
     }
+    
 
     public function isCompleted(Request $request)
     {

@@ -73,14 +73,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('send-message', SendRegistrationNumberController::class);
     Route::get('fail_to_pass/{user_id}', FailToPassController::class);
-    Route::get('pass_to_fail/{user_id}', PassToFailController::class);
-
+    Route::get('pass_to_fail/{user_id}', PassToFailController::class); 
 
     // setting 
     Route::get('meet-link',[MeetLinkSettingController::class,'index']);
-    Route::post('meet-link',[MeetLinkSettingController::class,'update']);
-
-    
+    Route::post('meet-link',[MeetLinkSettingController::class,'update']);  
 });
 
 
