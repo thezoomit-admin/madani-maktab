@@ -19,14 +19,9 @@ class StudentController extends Controller
                 ->orWhereHas('studentRegister', function ($query) use ($id) {
                     $query->where('reg_id', $id);
                 })
-                ->first();  
-
-            // Modify the answerFiles to return files individually by 'user_id'
-            if ($user && $user->answerFiles) {
-                // Assuming you want to return files by user_id:
-                $user->answerFiles = $user->answerFiles->groupBy('user_id')->map(function($files) {
-                    return $files->pluck('link')->toArray(); // Pluck only the 'link' field for each user_id
-                });
+                ->first();   
+            if ($user && $user->answerFiles) { 
+                $user->answerFiles = $user->answerFiles->pluck('link')->toArray();
             } else { 
                 $user->answerFiles = [];
             }
@@ -36,6 +31,7 @@ class StudentController extends Controller
             return error_response($e->getMessage(), 500);
         }
     }
+
 
     
 
