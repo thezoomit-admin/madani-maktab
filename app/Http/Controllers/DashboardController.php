@@ -22,20 +22,35 @@ class DashboardController extends Controller
             ->whereHas('studentRegister', function($q) use ($departmentId) {
                 $q->where('department_id', $departmentId);
             })
-            ->get();  
+            ->with('admissionProgress')  
+            ->get();
     }
+
  
     private function getStudentCounts($students)
     {
         return [
             'total_application' => $students->count(),
-            'general_fail' => $students->where('is_passed_age', 0)->count(),
-            'general_pass' => $students->where('is_passed_age', 1)->count(),
-            'interview_fail' => $students->where('is_passed_age', 1)->where('is_passed_interview', 0)->count(),
-            'interview_pass' => $students->where('is_passed_age', 1)->where('is_passed_interview', 1)->count(),
-            'final_fail' => $students->where('is_passed_age', 1)->where('is_passed_interview', 1)->where('is_passed_trial', 0)->count(),
-            'final_pass' => $students->where('is_passed_age', 1)->where('is_passed_interview', 1)->where('is_passed_trial', 1)->count(),
+            'general_fail' => $students->filter(function($student) {
+                return $student->admissionProgress && $student->admissionProgress->is_passed_age == 0;
+            })->count(),
+            'general_pass' => $students->filter(function($student) {
+                return $student->admissionProgress && $student->admissionProgress->is_passed_age == 1;
+            })->count(),
+            'interview_fail' => $students->filter(function($student) {
+                return $student->admissionProgress && $student->admissionProgress->is_passed_age == 1 && $student->admissionProgress->is_passed_interview == 0;
+            })->count(),
+            'interview_pass' => $students->filter(function($student) {
+                return $student->admissionProgress && $student->admissionProgress->is_passed_age == 1 && $student->admissionProgress->is_passed_interview == 1;
+            })->count(),
+            'final_fail' => $students->filter(function($student) {
+                return $student->admissionProgress && $student->admissionProgress->is_passed_age == 1 && $student->admissionProgress->is_passed_interview == 1 && $student->admissionProgress->is_passed_trial == 0;
+            })->count(),
+            'final_pass' => $students->filter(function($student) {
+                return $student->admissionProgress && $student->admissionProgress->is_passed_age == 1 && $student->admissionProgress->is_passed_interview == 1 && $student->admissionProgress->is_passed_trial == 1;
+            })->count(),
         ];
     }
+
 
 }
