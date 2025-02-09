@@ -29,10 +29,7 @@ class DashboardController extends Controller
     {
         return [
             'total_application' => $students->count(),
-            'general_fail' => $students->whereHas(function($q){
-                $q->where('is_passed_age', 0);
-            })->count(), 
-
+            'general_fail' => $students->where('is_passed_age', 0)->count(),
             'general_pass' => $students->where('is_passed_age', 1)->count(),
             'interview_fail' => $students->where('is_passed_age', 1)->where('is_passed_interview', 0)->count(),
             'interview_pass' => $students->where('is_passed_age', 1)->where('is_passed_interview', 1)->count(),
