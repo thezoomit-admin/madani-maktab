@@ -18,7 +18,8 @@ use App\Http\Controllers\Common\DistrictApiController;
 use App\Http\Controllers\Common\DivisionApiController;
 use App\Http\Controllers\Common\RoleApiController;
 use App\Http\Controllers\Common\UnionApiController;
-use App\Http\Controllers\Common\UpazilaApiController; 
+use App\Http\Controllers\Common\UpazilaApiController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Student\StudentRegisterController;
 use App\Http\Controllers\Setting\MeetLinkSettingController;
 use Illuminate\Http\Request;
@@ -55,8 +56,9 @@ Route::get('student/{id}', [StudentController::class,'student']);
 
 //Student Registration
 Route::get('student-register-last-stage', [StudentController::class,'isCompleted']);
- 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::get('dashboard',DashboardController::class);
+Route::middleware(['auth:sanctum'])->group(function () { 
+    
     Route::resource('employee', EmployeeController::class);  
     Route::post('interview-schedule', [InterviewController::class,'schedule']);
     Route::post('interview-result',[InterviewController::class,'result']);
