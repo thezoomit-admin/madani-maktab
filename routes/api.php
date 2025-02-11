@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\Admission\AdmissionNoteController;
 use App\Http\Controllers\Admin\Admission\FailToPassController;
 use App\Http\Controllers\Admin\Admission\InterviewController;
 use App\Http\Controllers\Admin\Admission\InterviewStudentListController;
@@ -76,6 +77,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('send-message', SendRegistrationNumberController::class);
     Route::get('fail_to_pass/{user_id}', FailToPassController::class);
     Route::get('pass_to_fail/{user_id}', PassToFailController::class); 
+
+    Route::resource('admission-note',AdmissionNoteController::class);
 
     // setting 
     Route::get('meet-link',[MeetLinkSettingController::class,'index']);

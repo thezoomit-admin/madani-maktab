@@ -31,6 +31,7 @@ class InterviewScheduleRequest extends FormRequest
         return [
             'candidate_id'      => ['required', 'exists:users,id'],  
             'date'              => ['required', 'date', 'after:now'], 
+            'custom_date'       => ['required'], 
             'time'              => ['required', 'date_format:H:i'], 
             'location'          => ['nullable', 'in:online,office,offsite'], // Optional field with valid values
             'notes'             => ['nullable', 'string', 'max:500'], // Optional notes

@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\Admission\InterviewScheduleRequest;
 use App\Models\AdmissionProgressStatus;
 use App\Models\InterviewSchedule;
 use App\Models\About;
+use App\Models\StudentNote;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -18,6 +19,7 @@ use App\Services\PhoneMessageService;
 use Google_Client;
 use Google_Service_Calendar;
 use Google_Service_Calendar_Event;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http; 
 use Twilio\Rest\Client; 
 
@@ -54,7 +56,7 @@ class InterviewController extends Controller
             $schedule->save();   
             $progress->is_interview_scheduled = true;
             $progress->save();   
-            $message = "আপনাকে সাক্ষাৎকারের জন্য নির্বাচিত করা হয়েছে। আপনার সাক্ষাৎকারের সময়: $interview_date এবং মিট লিঙ্ক: $meetlink অনুগ্রহ করে সময়মতো উপস্থিত থাকুন।";
+            $message = "আপনাকে সাক্ষাৎকারের জন্য নির্বাচিত করা হয়েছে। আপনার সাক্ষাৎকারের সময়: $request->custom_date এবং মিট লিঙ্ক: $meetlink অনুগ্রহ করে সময়মতো উপস্থিত থাকুন।";
             $response = $this->messageService->sendMessage($user->phone, $message);   
             return success_response(null, "সাক্ষাৎকারের শিডিউল সফলভাবে পাঠানো হয়েছে"); 
         } catch (Exception $e) { 
@@ -92,6 +94,14 @@ class InterviewController extends Controller
             $progress->update([
                 'is_passed_interview' => $request->result,
             ]);
+
+            if($request->notes!=null){
+                StudentNote::create([
+                    'employee_id' => Auth::user()->id,
+                    'student_id' => $request->candidate_id,
+                    'notes' => $request->notes,
+                ]);
+            }
 
             DB::commit();
             return success_response(null, "Result Updated");

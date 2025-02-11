@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Admission;
 use App\Http\Controllers\Controller;
 use App\Models\AdmissionProgressStatus;
 use App\Models\PreAdmissionTrial;
+use App\Models\StudentNote;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Services\PhoneMessageService;
+use Illuminate\Support\Facades\Auth;
 
 class PreAdmissionTrialController extends Controller
 {
@@ -25,9 +27,10 @@ class PreAdmissionTrialController extends Controller
     public function schedule(Request $request)
     { 
         $validator = Validator::make($request->all(), [
-            'candidate_id' => 'required|exists:users,id',
-            'date'         => ['required', 'date', 'after:now'],
-            'time'         => ['required', 'date_format:H:i'],
+            'candidate_id'  => 'required|exists:users,id',
+            'date'          => ['required', 'date', 'after:now'],
+            'custom_date'   => ['required'],
+            'time'          => ['required', 'date_format:H:i'],
             'notes'         => 'nullable|string|max:500',
         ]);
 
@@ -55,7 +58,7 @@ class PreAdmissionTrialController extends Controller
                 ]
             ); 
  
-            $message = "প্রথমিক পরীক্ষায় আপনি উত্তীর্ণ হয়েছেন। আপনাকে মাদ্রাসাতে ৭ দিনের জন্য পরীক্ষা দিতে হবে। আপনার উপস্থিতির সময়: $requested_at";
+            $message = "প্রথমিক পরীক্ষায় আপনি উত্তীর্ণ হয়েছেন। আপনাকে মাদ্রাসাতে ৭ দিনের জন্য পরীক্ষা দিতে হবে। আপনার উপস্থিতির সময়: $request->custom_date";
  
             $this->messageService->sendMessage($user->phone, $message);  
             DB::commit();
@@ -121,19 +124,22 @@ class PreAdmissionTrialController extends Controller
             $trial = PreAdmissionTrial::where('candidate_id', $request->candidate_id)->first();
             if (!$trial) {
                 return error_response('No trial record found for this candidate.', 404);
-            }
-
+            } 
  
             $progress->is_passed_trial = $request->result;
-            $progress->save();
- 
-            
+            $progress->save(); 
  
             $trial->status = 'completed';
             $trial->result = $request->result;
             $trial->notes = $request->notes;
             $trial->save();
 
+            StudentNote::create([
+                'employee_id' => Auth::user()->id,
+                'student_id' => $request->candidate_id,
+                'notes' =>  $request->notes,
+            ]);
+            
             DB::commit(); 
 
             return success_response(null, "The trial session result has been successfully updated.");
