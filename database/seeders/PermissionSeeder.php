@@ -15,14 +15,15 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
-            'create_user',
-            'edit_user',
-            'delete_user',
-            'view_user',
-            'create_role',
-            'edit_role',
-            'delete_role',
-            'view_role',
+            'ড্যাশবোর্ড',
+            'মক্তব', 
+            'কিতাব',
+            'স্বাভাবিক-মাযেরাত',
+            'নিবন্ধিত-তালিবে-ইলম',
+            'প্রাথমিক-পরীক্ষায়-মাযেরাত',
+            'প্রাথমিক-পরীক্ষায়-উত্তীর্ণ',
+            'চূড়ান্ত-পরীক্ষায়-মাযেরাত',
+            'চূড়ান্ত-পরীক্ষায়-উত্তীর্ণ',
         ];
 
         foreach ($permissions as $permission) {

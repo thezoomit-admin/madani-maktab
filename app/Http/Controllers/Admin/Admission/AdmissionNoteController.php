@@ -17,7 +17,7 @@ class AdmissionNoteController extends Controller
             ->get();
  
         if ($notes->isEmpty()) {
-            return response()->json(['message' => 'No notes found for this student'], 404);
+            return success_response([]); 
         }
  
         $datas = $notes->map(function ($note) {

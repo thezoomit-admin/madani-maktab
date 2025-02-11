@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\Admission\SendRegistrationNumberController;
 use App\Http\Controllers\Admin\Admission\StudentController;
 use App\Http\Controllers\Admin\Admission\TrialStudentListController;
 use App\Http\Controllers\Admin\Employee\EmployeeController;
+use App\Http\Controllers\Admin\Employee\RoleController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Common\CompanyCategoryApiController;
 use App\Http\Controllers\Common\CountryApiController;
@@ -60,6 +61,7 @@ Route::get('student-register-last-stage', [StudentController::class,'isCompleted
 Route::get('dashboard',DashboardController::class);
 Route::middleware(['auth:sanctum'])->group(function () { 
     
+    Route::resource('role', RoleController::class); 
     Route::resource('employee', EmployeeController::class);  
     Route::post('interview-schedule', [InterviewController::class,'schedule']);
     Route::post('interview-result',[InterviewController::class,'result']);
