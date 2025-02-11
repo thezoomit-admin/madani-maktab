@@ -10,7 +10,7 @@ use App\Http\Controllers\Admin\Admission\RegisterStudentListController;
 use App\Http\Controllers\Admin\Admission\SendRegistrationNumberController;
 use App\Http\Controllers\Admin\Admission\StudentController;
 use App\Http\Controllers\Admin\Admission\TrialStudentListController;
-use App\Http\Controllers\AdminEmployee\EmployeeController;
+use App\Http\Controllers\Admin\Employee\EmployeeController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Common\CompanyCategoryApiController;
 use App\Http\Controllers\Common\CountryApiController;

@@ -6,13 +6,12 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class EmployeeStoreResource extends FormRequest
+class EmployeeUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */ 
 
-     
      protected function failedValidation(Validator $validator)
      {
          throw new HttpResponseException(
@@ -35,12 +34,12 @@ class EmployeeStoreResource extends FormRequest
      */
     public function rules(): array
     {
-        return [ 
+        return [
             'user_name' => 'required|string|max:255',
-            'user_email' => 'required|email|unique:users,email',
-            'user_phone' => 'required|string|max:15|unique:users,phone', 
+            'user_email' => 'required|email|unique:users,email,' . $this->route('id'),
+            'user_phone' => 'required|string|max:15|unique:users,phone,' . $this->route('id'),
             'role_id' => 'required|exists:roles,id',
-            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',  
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
 }
