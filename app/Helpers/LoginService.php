@@ -15,11 +15,8 @@ class LoginService {
     public static function createResponse($user)
     {  
         $token = $user->createToken('authToken')->plainTextToken;
- 
-        $permissions = $user->role->slug === 'admin'
-            ? Permission::pluck('slug')  
-            : $user->role->permissions->pluck('slug'); 
-     
+  
+
         $data = [
             'token' => $token,
             'user' => [
@@ -28,7 +25,7 @@ class LoginService {
                 'user_type' => $user->user_type,
                 'role' => $user->role->slug,
             ],
-            'permissions' => $permissions,
+            'permissions' => $user->getPermissionsSlugs(),
         ];   
         return success_response($data, 'User authenticated successfully.'); 
     }

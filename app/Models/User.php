@@ -108,6 +108,11 @@ class User extends Authenticatable
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }  
+
+    public function getPermissionsSlugs()
+    {
+        return $this->role->permissions->pluck('slug')->toArray();
+    }
  
  
 

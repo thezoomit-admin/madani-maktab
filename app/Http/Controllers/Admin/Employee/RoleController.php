@@ -64,13 +64,13 @@ class RoleController extends Controller
         }
     } 
 
-    public function delete($id)
+    public function destroy($id)
     {
         DB::beginTransaction();
         try { 
             $role = Role::findOrFail($id); 
             $role->delete();  
-            
+
             DB::commit();
             return success_response(null, 'Role deleted successfully!');
         } catch (\Exception $e) {

@@ -12,5 +12,10 @@ class Role extends Model
         'name',        
         'slug',       
         'guard_name', 
-    ];
+    ]; 
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'role_permissions');
+    }
 }
