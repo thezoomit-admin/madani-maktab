@@ -212,7 +212,7 @@ class StudentRegisterController extends Controller
                 'user_id' => 'required|integer',
             ]); 
 
-            if(isset($request->answe_files) && count($request->answe_files)){
+            if(isset($request->answe_files) && count($request->answe_files)>0){
                 foreach ($request->file('answe_files') as $file) {
                     $fileName = time() . '_' . $file->getClientOriginalName();
                     $file->move(public_path('uploads/answer_files'), $fileName); 
