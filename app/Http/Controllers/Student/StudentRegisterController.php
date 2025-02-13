@@ -212,18 +212,20 @@ class StudentRegisterController extends Controller
                 'user_id' => 'required|integer',
             ]); 
 
-            foreach ($request->file('answe_files') as $file) {
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('uploads/answer_files'), $fileName); 
-                $fileUrl = asset('uploads/answer_files/' . $fileName);
-     
-                AnswerFile::create([
-                    'user_id'   => $request->input('user_id'),
-                    'name'      => $file->getClientOriginalName(),
-                    'link'      => $fileUrl,
-                    'type'      => $file->getClientOriginalExtension(),
-                ]);
-            }
+            if(isset($request->answe_files) && count($request->answe_files)){
+                foreach ($request->file('answe_files') as $file) {
+                    $fileName = time() . '_' . $file->getClientOriginalName();
+                    $file->move(public_path('uploads/answer_files'), $fileName); 
+                    $fileUrl = asset('uploads/answer_files/' . $fileName);
+         
+                    AnswerFile::create([
+                        'user_id'   => $request->input('user_id'),
+                        'name'      => $file->getClientOriginalName(),
+                        'link'      => $fileUrl,
+                        'type'      => $file->getClientOriginalExtension(),
+                    ]);
+                }
+            } 
 
             $user = User::find($request->input('user_id'));
             UserFamily::create([

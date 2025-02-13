@@ -29,7 +29,7 @@ class RolePermissionController extends Controller
     }  
 
     public function update(Request $request, $role_id) {
-        try { 
+        try {
             RolePermission::where('role_id', $role_id)->delete(); 
             $permissions = $request->permissions; 
             if (isset($permissions) && count($permissions) > 0) { 
@@ -41,7 +41,7 @@ class RolePermissionController extends Controller
                 }
             } 
             return success_response(null, "Permission updated");
-        } catch (Exception $e) { 
+        } catch (Exception $e) {
             return error_response($e->getMessage());
         }
     }
