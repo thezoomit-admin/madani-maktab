@@ -44,7 +44,7 @@ class FirstStepRegistrationRequst extends FormRequest
             'bangla_others_study' => 'nullable|string|max:255',
             'arabi_study_status' => 'required|string|max:255',
             'arabi_others_study' => 'nullable|string|max:255', 
-            'profile_image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'profile_image' => 'required|image|mimes:jpg,jpeg,png',
             // 'handwriting_images' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',  
             'previous_education_details'  => 'nullable|string',
             'hifz_para'             => 'nullable|string',

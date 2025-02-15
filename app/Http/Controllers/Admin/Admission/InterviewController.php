@@ -33,7 +33,10 @@ class InterviewController extends Controller
     }
 
     public function schedule(InterviewScheduleRequest $request) { 
-        $interview_date = Carbon::createFromFormat('Y-m-d H:i', $request->date . ' ' . $request->time);
+        $interview_date = Carbon::createFromFormat(
+            'Y-m-d H:i',
+            $request->date . ' ' . ($request->time ?? '00:00')
+        ); 
         
         try {
             $user = User::find($request->candidate_id);

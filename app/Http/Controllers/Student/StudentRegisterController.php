@@ -208,7 +208,7 @@ class StudentRegisterController extends Controller
         try {
 
             $request->validate([
-                'answe_files.*' => 'required|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'answe_files.*' => 'required|mimes:jpeg,png,jpg,gif,svg',
                 'user_id' => 'required|integer',
             ]); 
 

@@ -30,7 +30,7 @@ class PreAdmissionTrialController extends Controller
             'candidate_id'  => 'required|exists:users,id',
             'date'          => ['required', 'date', 'after:now'],
             'custom_date'   => ['required'],
-            'time'          => ['required', 'date_format:H:i'],
+            'time'          => ['nullable', 'date_format:H:i'],
             'notes'         => 'nullable|string|max:500',
         ]);
 
@@ -41,7 +41,11 @@ class PreAdmissionTrialController extends Controller
         DB::beginTransaction();
         try { 
             $user = User::find($request->candidate_id);
-            $requested_at = Carbon::createFromFormat('Y-m-d H:i', $request->date . ' ' . $request->time);
+            $requested_at = Carbon::createFromFormat(
+                'Y-m-d H:i',
+                $request->date . ' ' . ($request->time ?? '00:00')
+            );
+            
     
             $progress = AdmissionProgressStatus::where('user_id', $request->candidate_id)->first();
             if (!$progress) {
