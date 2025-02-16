@@ -98,13 +98,13 @@ class InterviewController extends Controller
                 'is_passed_interview' => $request->result,
             ]);
 
-            if($request->notes!=null){
-                StudentNote::create([
-                    'employee_id' => Auth::user()->id,
-                    'student_id' => $request->candidate_id,
-                    'notes' => $request->notes,
-                ]);
-            }
+            // if($request->notes!=null){
+            //     StudentNote::create([
+            //         'employee_id' => Auth::user()->id,
+            //         'student_id' => $request->candidate_id,
+            //         'notes' => $request->notes,
+            //     ]);
+            // }
 
             DB::commit();
             return success_response(null, "Result Updated");

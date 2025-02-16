@@ -138,11 +138,11 @@ class PreAdmissionTrialController extends Controller
             $trial->notes = $request->notes;
             $trial->save();
 
-            StudentNote::create([
-                'employee_id' => Auth::user()->id,
-                'student_id' => $request->candidate_id,
-                'notes' =>  $request->notes,
-            ]);
+            // StudentNote::create([
+            //     'employee_id' => Auth::user()->id,
+            //     'student_id' => $request->candidate_id,
+            //     'notes' =>  $request->notes,
+            // ]);
             
             DB::commit(); 
 
