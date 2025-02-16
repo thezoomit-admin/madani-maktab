@@ -115,8 +115,7 @@ class PreAdmissionTrialController extends Controller
  
         if ($validator->fails()) {
             return error_response($validator->errors()->first(), 422);
-        }
-
+        } 
         DB::beginTransaction();
 
         try { 
