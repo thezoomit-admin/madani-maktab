@@ -88,7 +88,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // setting 
     Route::get('meet-link',[MeetLinkSettingController::class,'index']);
     Route::post('meet-link',[MeetLinkSettingController::class,'update']); 
-    Route::put('update-print-status',[ProfilePrintStatusController::class]);
+    Route::put('update-print-status',[ProfilePrintStatusController::class,'updateStatus']);
 });
 
 
