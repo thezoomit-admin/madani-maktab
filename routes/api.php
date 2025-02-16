@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\Admission\InterviewController;
 use App\Http\Controllers\Admin\Admission\InterviewStudentListController;
 use App\Http\Controllers\Admin\Admission\PassToFailController;
 use App\Http\Controllers\Admin\Admission\PreAdmissionTrialController;
+use App\Http\Controllers\Admin\Admission\ProfilePrintStatusController;
 use App\Http\Controllers\Admin\Admission\RegisterStudentListController;
 use App\Http\Controllers\Admin\Admission\SendRegistrationNumberController;
 use App\Http\Controllers\Admin\Admission\StudentController;
@@ -86,7 +87,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // setting 
     Route::get('meet-link',[MeetLinkSettingController::class,'index']);
-    Route::post('meet-link',[MeetLinkSettingController::class,'update']);  
+    Route::post('meet-link',[MeetLinkSettingController::class,'update']); 
+    Route::put('update-print-status',[ProfilePrintStatusController::class]);
 });
 
 

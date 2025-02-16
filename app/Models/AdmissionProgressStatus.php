@@ -19,5 +19,6 @@ class AdmissionProgressStatus extends Model
         'is_passed_trial',
         'is_send_fail_message',
         'is_send_final_pass_message',
+        'is_print_profile'
     ];
 }

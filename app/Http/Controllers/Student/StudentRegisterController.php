@@ -1,7 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Student;
-
+namespace App\Http\Controllers\Student; 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\FirstStepRegistrationRequst;
 use App\Models\AdmissionProgressStatus;

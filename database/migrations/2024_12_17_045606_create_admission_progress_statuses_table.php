@@ -24,6 +24,7 @@ return new class extends Migration
             
             $table->boolean('is_send_fail_message')->nullable();
             $table->boolean('is_send_final_pass_message')->nullable();
+            $table->boolean('is_print_profile')->default(false)->nullable();
             $table->timestamps();
         });
     }
