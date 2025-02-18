@@ -224,9 +224,9 @@ class StudentRegisterController extends Controller
                         'type'      => $file->getClientOriginalExtension(),
                     ]);
                 }
-            } 
+            }  
+            $user = User::find($request->input('user_id')); 
 
-            $user = User::find($request->input('user_id'));
             UserFamily::create([
                 'user_id' => $request->input('user_id'),
                 'deeni_steps' => $request->input('deeni_steps'),
@@ -247,7 +247,7 @@ class StudentRegisterController extends Controller
                 'is_clean_after_bath' => $request->input('is_clean_after_bath'),
                 'health_issue_details' => $request->input('health_issue_details'),
                 'is_bath_before_sleep' => $request->input('is_bath_before_sleep') 
-            ]); 
+            ]);
             
             $department_id = $user->studentRegister->department_id;
             $passing_status = true;

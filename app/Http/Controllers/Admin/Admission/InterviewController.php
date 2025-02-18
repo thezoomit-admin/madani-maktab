@@ -8,6 +8,7 @@ use App\Models\AdmissionProgressStatus;
 use App\Models\InterviewSchedule;
 use App\Models\About;
 use App\Models\StudentNote;
+use App\Models\StudentRegister;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -49,7 +50,12 @@ class InterviewController extends Controller
                 return error_response('ইন্টারভিউ শিডিউল ইতিমধ্যে পাঠানো হয়েছে');
             }  
     
-            $meetlink = About::where('keyword', 'meet_link')->first()->value??null;
+            $student = StudentRegister::where('user_id',$request->candidate_id)->first();
+            if($student->department_id==1){
+                $meetlink = About::where('keyword', 'maktab_meet_link')->first()->value??null;
+            }else{
+                $meetlink = About::where('keyword', 'kitab_meet_link')->first()->value??null;
+            } 
             
             $schedule = new InterviewSchedule(); 
             $schedule->candidate_id = $request->candidate_id;
