@@ -15,9 +15,10 @@ class MeetLinkSettingController extends Controller
             $maktab_meet_link = About::where('keyword', 'maktab_meet_link')->first();
 
             return success_response([
-                $kitab_meet_link->value??"",
-                $maktab_meet_link->value??""
-            ]); 
+                "kitab" => isset($kitab_meet_link) ? ($kitab_meet_link->value ?? "") : "",
+                "maktab" => isset($maktab_meet_link) ? ($maktab_meet_link->value ?? "") : ""
+            ]);
+            
         }catch(Exception $e){
             return success_response($e->getMessage()); 
         }
