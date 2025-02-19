@@ -36,21 +36,26 @@ class MeetLinkSettingController extends Controller
     public function update(Request $request)
     {
         try {
-            $kitab_meet_link = About::where('keyword', 'kitab_meet_link')->first();
-            if (!$kitab_meet_link) {
-                $kitab_meet_link = new About();
+            if(isset($request->kitab_meet_link) && $request->kitab_meet_link!=null){
+                $kitab_meet_link = About::where('keyword', 'kitab_meet_link')->first();
+                if (!$kitab_meet_link) {
+                    $kitab_meet_link = new About();
+                }
+                $kitab_meet_link->keyword = "kitab_meet_link";
+                $kitab_meet_link->value = $request->kitab_meet_link;
+                $kitab_meet_link->save();
             }
-            $kitab_meet_link->keyword = "kitab_meet_link";
-            $kitab_meet_link->value = $request->kitab_meet_link;
-            $kitab_meet_link->save();  
-
-            $maktab_meet_link = About::where('keyword', 'maktab_meet_link')->first();
-            if (!$maktab_meet_link) {
-                $maktab_meet_link = new About();
+              
+            if(isset($request->maktab_meet_link) && $request->maktab_meet_link!=null){
+                $maktab_meet_link = About::where('keyword', 'maktab_meet_link')->first();
+                if (!$maktab_meet_link) {
+                    $maktab_meet_link = new About();
+                }
+                $maktab_meet_link->keyword = "maktab_meet_link";
+                $maktab_meet_link->value = $request->maktab_meet_link;
+                $maktab_meet_link->save(); 
             }
-            $maktab_meet_link->keyword = "maktab_meet_link";
-            $maktab_meet_link->value = $request->maktab_meet_link;
-            $maktab_meet_link->save(); 
+            
 
             return success_response('মিটিং লিঙ্ক আপডেট করা হয়েছে'); 
         } catch (Exception $e) { 
