@@ -51,22 +51,22 @@ class InterviewController extends Controller
             }  
     
             $student = StudentRegister::where('user_id',$request->candidate_id)->first();
-            if($student->department_id==1){
-                $meetlink = About::where('keyword', 'maktab_meet_link')->first()->value??null;
-            }else{
-                $meetlink = About::where('keyword', 'kitab_meet_link')->first()->value??null;
-            } 
+            // if($student->department_id==1){
+            //     $meetlink = About::where('keyword', 'maktab_meet_link')->first()->value??null;
+            // }else{
+            //     $meetlink = About::where('keyword', 'kitab_meet_link')->first()->value??null;
+            // } 
+            $message = $request->message;
             
             $schedule = new InterviewSchedule(); 
             $schedule->candidate_id = $request->candidate_id;
             $schedule->interviewer_id = $request->interviewer_id;
-            $schedule->requested_at = $interview_date; 
-            $schedule->meeting_link = $meetlink;
-            $schedule->notes = $request->notes; 
+            $schedule->requested_at = $interview_date;  
+            $schedule->notes = $message; 
             $schedule->save();   
             $progress->is_interview_scheduled = true;
             $progress->save();   
-            $message = "সম্মানিত অভিভাবক! আপনার তালিবে ইলমকে ইমতিহানের জন্য ( $request->custom_date এবং মিট লিঙ্ক:- $meetlink ) প্রস্তুত থাকার অনুরোধ করছি। ইমতিহানের সময় মাদ্রাসাতুল মাদিনার দরসের পোশাক ( অন্তত সাদা পোশাক ) পরে বসা কাম্য। অভিভাবকের উপস্থিতি আবশ্যক।";
+            // $message = "সম্মানিত অভিভাবক! আপনার তালিবে ইলমকে ইমতিহানের জন্য ( $request->custom_date এবং মিট লিঙ্ক:- $meetlink ) প্রস্তুত থাকার অনুরোধ করছি। ইমতিহানের সময় মাদ্রাসাতুল মাদিনার দরসের পোশাক ( অন্তত সাদা পোশাক ) পরে বসা কাম্য। অভিভাবকের উপস্থিতি আবশ্যক।";
             $response = $this->messageService->sendMessage($user->phone, $message);   
             return success_response(null, "সাক্ষাৎকারের শিডিউল সফলভাবে পাঠানো হয়েছে"); 
         } catch (Exception $e) { 
