@@ -56,6 +56,7 @@ Route::get('unions',UnionApiController::class);
 // Student Register 
 Route::post('student-register-first-step',[StudentRegisterController::class,'firstStep']);
 Route::post('student-register-last-step',[StudentRegisterController::class,'lastStep']);
+Route::post('existing-student-register',[StudentRegisterController::class,'existing']);
 Route::get('student/{id}', [StudentController::class,'student']);
 
 //Student Registration

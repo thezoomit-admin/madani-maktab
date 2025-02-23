@@ -25,6 +25,7 @@ class StudentRegister extends Model
         'kitab_jamat',
         'is_bangla_handwriting_clear', 
         'note',
+        'is_existing',
     ];
 
     public function user()
