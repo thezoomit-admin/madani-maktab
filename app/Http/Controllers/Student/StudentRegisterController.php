@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\FirstStepRegistrationRequst;
 use App\Http\Requests\ExistingStudentRegisterRequest;
+use App\Models\Admission;
 use App\Models\AdmissionProgressStatus;
 use App\Models\Guardian;
 use App\Models\Student;
@@ -55,8 +56,7 @@ class StudentRegisterController extends Controller
                 'dob' => $request->input('dob'),
                 'age' => $ageMonths,
                 'dob_hijri' => $request->input('dob_hijri'),
-                'user_type' => 'student',
-                'role_id' => 2,
+                'user_type' => 'student', 
             ]);
 
             if($request->input('department_id')==1){
@@ -292,25 +292,22 @@ class StudentRegisterController extends Controller
                 'dob' => $request->input('dob'),
                 'age' => $ageMonths,
                 'dob_hijri' => $request->input('dob_hijri'),
-                'user_type' => 'student',
-                'role_id' => 2,
+                'user_type' => 'student', 
             ]);
-
-            if($request->input('department_id')==1){
-                $reg_id = StudentRegister::nextMaktabId();
-            }else{
-                $reg_id = StudentRegister::nextKitabId();
-            }   
-
-            StudentRegister::create([
-                'user_id' => $user->id,
-                'reg_id' => $reg_id,
+ 
+            Admission::create([
+                'user_id' => $user->id, 
                 'name' => $request->input('name'),
                 'father_name' => $request->input('father_name'),
                 'department_id' => $request->input('department_id'),  
-                'is_existing' => 1,
+                'interested_session' => $request->interested_session,
+                'last_year_session' => $request->last_year_session,
+                'last_year_id' => $request->last_year_id,
+                'original_id' => $request->original_id,
+                'total_marks' => $request->total_marks,
+                'average_marks' => $request->average_marks,
             ]);
-
+ 
             
             Guardian::create([
                 'user_id'               => $user->id,
@@ -350,7 +347,7 @@ class StudentRegisterController extends Controller
                 ]);
             }  
             DB::commit();
-            return success_response($request->all(), 'অভিনন্দন! আপনার নিবন্ধন সফলভাবে সম্পন্ন হয়েছে।',  201); 
+            return success_response($request->all(), 'অভিনন্দন! আপনার নিবন্ধন সফলভাবে সম্পন্ন হয়েছে।',  201);
         } catch (\Exception $e) {
             DB::rollback();
             return error_response($e->getMessage(), 500);
