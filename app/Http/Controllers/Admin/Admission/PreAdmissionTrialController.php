@@ -109,7 +109,7 @@ class PreAdmissionTrialController extends Controller
     { 
         $validator = Validator::make($request->all(), [
             'candidate_id' => 'required|exists:pre_admission_trials,candidate_id',
-            'notes'        => 'nullable|string|max:1000',
+            'message'        => 'nullable|string|max:1000',
             'result'       => 'required|boolean',
         ]);
  
@@ -128,15 +128,19 @@ class PreAdmissionTrialController extends Controller
             if (!$trial) {
                 return error_response('No trial record found for this candidate.', 404);
             } 
- 
+
+            $message = $request->message; 
             $progress->is_passed_trial = $request->result;
             $progress->save(); 
  
             $trial->status = 'completed';
             $trial->result = $request->result;
-            $trial->notes = $request->notes;
+            $trial->notes =  $message;
             $trial->save();
 
+            $user = User::find($request->candidate_id);
+            $this->messageService->sendMessage($user->phone, $message);   
+            
             // StudentNote::create([
             //     'employee_id' => Auth::user()->id,
             //     'student_id' => $request->candidate_id,

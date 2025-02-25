@@ -83,7 +83,7 @@ class InterviewController extends Controller
     { 
         $validator = Validator::make($request->all(), [
             'candidate_id' => 'required|exists:interview_schedules,candidate_id',
-            'notes'        => 'nullable|string|max:1000',
+            'message'        => 'nullable|string|max:1000',
             'result'       => 'required|boolean',
         ]);  
 
@@ -91,11 +91,12 @@ class InterviewController extends Controller
             return error_response($validator->errors()->first(), 422);
         }
 
+        $message =  $request->message;
         DB::beginTransaction();
         try {
             $interview = InterviewSchedule::where('candidate_id', $request->candidate_id)->firstOrFail();
             $interview->update([
-                'notes'  => $request->notes,
+                'notes'  =>$message,
                 'attended_at' => now(),
                 'status' => 'completed',
             ]);
@@ -104,6 +105,9 @@ class InterviewController extends Controller
             $progress->update([
                 'is_passed_interview' => $request->result,
             ]);
+
+            $user = User::find($request->candidate_id);
+            $this->messageService->sendMessage($user->phone, $message);
 
             // if($request->notes!=null){
             //     StudentNote::create([
