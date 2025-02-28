@@ -40,7 +40,15 @@ class InterviewController extends Controller
         ); 
         
         try {
+            
             $user = User::find($request->candidate_id);
+            $message = $request->message;
+            $response = $this->messageService->sendMessage(+8801766774016, $message);
+            return [
+                'phone' => $user->phone,
+                'response' => $response,
+                'response' => $message,
+            ];
             $progress = AdmissionProgressStatus::where('user_id', $request->candidate_id)->first();   
             
             if(!$progress){
@@ -56,7 +64,7 @@ class InterviewController extends Controller
             // }else{
             //     $meetlink = About::where('keyword', 'kitab_meet_link')->first()->value??null;
             // } 
-            $message = $request->message;
+            
             
             $schedule = new InterviewSchedule(); 
             $schedule->candidate_id = $request->candidate_id;
@@ -67,7 +75,7 @@ class InterviewController extends Controller
             $progress->is_interview_scheduled = true;
             $progress->save();   
             // $message = "সম্মানিত অভিভাবক! আপনার তালিবে ইলমকে ইমতিহানের জন্য ( $request->custom_date এবং মিট লিঙ্ক:- $meetlink ) প্রস্তুত থাকার অনুরোধ করছি। ইমতিহানের সময় মাদ্রাসাতুল মাদিনার দরসের পোশাক ( অন্তত সাদা পোশাক ) পরে বসা কাম্য। অভিভাবকের উপস্থিতি আবশ্যক।";
-            $response = $this->messageService->sendMessage($user->phone, $message);   
+            $response = $this->messageService->sendMessage($user->phone, $message);
             return success_response(null, "সাক্ষাৎকারের শিডিউল সফলভাবে পাঠানো হয়েছে"); 
         } catch (Exception $e) { 
             return error_response($e->getMessage(), 500);

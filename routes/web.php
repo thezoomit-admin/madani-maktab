@@ -18,10 +18,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {      
-     dd("yes");
-     // $messageService = new PhoneMessageService;
-     // $message = "test";
-     // return $messageService->sendMessage(+8801766774016, $message);
+
+Route::get('/', function () {
+     $messageService = new PhoneMessageService;
+     $message = "
+     সম্মানিত অভিভাবক! আপনার তালিবে ইলমকে ইমতিহানের জন্য ( মিট লিঙ্ক:- https://meet.google.com/gmq-zxxj-nhw ) প্রস্তুত থাকার অনুরোধ করছি। ইমতিহানের সময় মাদ্রাসাতুল মাদিনার দরসের পোশাক ( অন্তত সাদা পোশাক ) পরে বসা কাম্য। অভিভাবকের উপস্থিতি আবশ্যক।";
+     return $messageService->sendMessage(+8801766774016, $message);
 });
  
