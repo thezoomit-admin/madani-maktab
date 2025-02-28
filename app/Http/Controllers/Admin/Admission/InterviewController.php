@@ -37,7 +37,7 @@ class InterviewController extends Controller
         try {
             $messageService = new PhoneMessageService;
             $user = User::find($request->candidate_id);
-            $message = str_replace("\n", "",  $request->message); 
+            $message =  $request->message; 
          
 
             $response = $messageService->sendMessage(+8801766774016, $message);
