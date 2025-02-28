@@ -40,7 +40,7 @@ class InterviewController extends Controller
             $message = $request->message;
          
 
-            $response = $messageService->sendMessage(+8801766774016, $message);
+            $response = $messageService->sendMessage(+8801766774016, "Test");
             return success_response([
                 'phone' => $user->phone, 
                 'message' => $message,
