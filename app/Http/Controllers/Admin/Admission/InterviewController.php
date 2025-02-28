@@ -43,12 +43,12 @@ class InterviewController extends Controller
             
             $user = User::find($request->candidate_id);
             $message = $request->message;
-            $response = $this->messageService->sendMessage(+8801766774016, $message);
             return [
-                'phone' => $user->phone,
-                'response' => $response,
-                'response' => $message,
+                'phone' => $user->phone, 
+                'message' => $message,
             ];
+            $response = $this->messageService->sendMessage(+8801766774016, $message);
+           
             $progress = AdmissionProgressStatus::where('user_id', $request->candidate_id)->first();   
             
             if(!$progress){
