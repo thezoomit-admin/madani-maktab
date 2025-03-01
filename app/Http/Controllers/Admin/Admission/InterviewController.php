@@ -34,16 +34,16 @@ class InterviewController extends Controller
             $request->date . ' ' . ($request->time ?? '00:00')
         );   
 
+        DB::beginTransaction();
         try {
             $messageService = new PhoneMessageService;
             $user = User::find($request->candidate_id);
-            $message =  $request->message; 
-          
+            $message =  $request->message;  
 
             $progress = AdmissionProgressStatus::where('user_id', $request->candidate_id)->first();   
             if(!$progress){
                 return error_response('প্রার্থী পাওয়া যায়নি', 404); 
-            }    
+            } 
             if($progress->is_interview_scheduled){
                 return error_response('ইন্টারভিউ শিডিউল ইতিমধ্যে পাঠানো হয়েছে');
             }   
@@ -56,11 +56,13 @@ class InterviewController extends Controller
             $schedule->notes = $message; 
             $schedule->save();   
             $progress->is_interview_scheduled = true;
-            $progress->save();     
+            $progress->save();  
+            $messageService->sendMessage($user->phone, $message);  
 
-            $messageService->sendMessage($user->phone, $message);
+            DB::commit();
             return success_response(null, "সাক্ষাৎকারের শিডিউল সফলভাবে পাঠানো হয়েছে"); 
         } catch (Exception $e) { 
+            DB::rollBack();
             return error_response($e->getMessage(), 500);
         }
     }
@@ -77,6 +79,8 @@ class InterviewController extends Controller
             'message'        => 'nullable|string|max:1000',
             'result'       => 'required|boolean',
         ]);  
+
+        $messageService = new PhoneMessageService;
 
         if ($validator->fails()) {
             return error_response($validator->errors()->first(), 422);
@@ -98,7 +102,7 @@ class InterviewController extends Controller
             ]);
 
             $user = User::find($request->candidate_id);
-            $this->messageService->sendMessage($user->phone, $message);
+            $messageService->sendMessage($user->phone, $message);
 
             // if($request->notes!=null){
             //     StudentNote::create([
