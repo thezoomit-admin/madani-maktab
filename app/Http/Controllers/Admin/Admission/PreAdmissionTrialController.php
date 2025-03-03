@@ -28,24 +28,22 @@ class PreAdmissionTrialController extends Controller
     { 
         $validator = Validator::make($request->all(), [
             'candidate_id'  => 'required|exists:users,id',
-            'date'          => ['required', 'date', 'after:now'],
-            'custom_date'   => ['required'],
+            'date'          => ['required', 'date', 'after:now'], 
             'time'          => ['nullable', 'date_format:H:i'],
-            'notes'         => 'nullable|string|max:500',
+            'message'         => 'nullable|string|max:500',
         ]);
 
         if ($validator->fails()) {
             return error_response($validator->errors()->first(), 422);
         }
 
-        DB::beginTransaction();
+        // DB::beginTransaction();
         try { 
             $user = User::find($request->candidate_id);
             $requested_at = Carbon::createFromFormat(
                 'Y-m-d H:i',
                 $request->date . ' ' . ($request->time ?? '00:00')
-            );
-            
+            ); 
     
             $progress = AdmissionProgressStatus::where('user_id', $request->candidate_id)->first();
             if (!$progress) {
@@ -54,21 +52,19 @@ class PreAdmissionTrialController extends Controller
 
             $progress->is_invited_for_trial = true;
             $progress->save();   
-            $trial = PreAdmissionTrial::updateOrCreate(
+            PreAdmissionTrial::updateOrCreate(
                 ['candidate_id' => $request->candidate_id],
                 [
                     'requested_at' => $requested_at,
-                    'notes'     => $request->notes,
+                    'notes'     => $request->message,
                 ]
-            ); 
- 
-            $message = "প্রথমিক পরীক্ষায় আপনি উত্তীর্ণ হয়েছেন। আপনাকে মাদ্রাসাতে ৭ দিনের জন্য পরীক্ষা দিতে হবে। আপনার উপস্থিতির সময়: $request->custom_date";
- 
+            );  
+            $message = $request->message; 
             $this->messageService->sendMessage($user->phone, $message);  
-            DB::commit();
-            return success_response(null, "ট্রায়াল রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে");  // Trial request has been sent successfully
+            // DB::commit();
+            return success_response(null, "ট্রায়াল রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে");  
         } catch (\Exception $e) {
-            DB::rollBack();
+            // DB::rollBack();
             return error_response($e->getMessage(), 500);
         }
     }
@@ -97,8 +93,7 @@ class PreAdmissionTrialController extends Controller
                 'attended_at' => $attended_at,
                 'status'      => 'attended',
                 'notes'        => $request->notes,
-            ]);  
-
+            ]);   
             return success_response(null,"The student has successfully attended the trial session.");
         } catch (Exception $e) {
             return error_response($e->getMessage(), 500);
@@ -115,9 +110,9 @@ class PreAdmissionTrialController extends Controller
  
         if ($validator->fails()) {
             return error_response($validator->errors()->first(), 422);
-        } 
-        DB::beginTransaction();
+        }  
 
+        // DB::beginTransaction(); 
         try { 
             $progress = AdmissionProgressStatus::where('user_id', $request->candidate_id)->first();
             if (!$progress) {
@@ -141,18 +136,10 @@ class PreAdmissionTrialController extends Controller
             $user = User::find($request->candidate_id);
             $this->messageService->sendMessage($user->phone, $message);   
             
-            // StudentNote::create([
-            //     'employee_id' => Auth::user()->id,
-            //     'student_id' => $request->candidate_id,
-            //     'notes' =>  $request->notes,
-            // ]);
-            
-            DB::commit(); 
-
-            return success_response(null, "The trial session result has been successfully updated.");
-
+            // DB::commit();  
+            return success_response(null, "The trial session result has been successfully updated."); 
         } catch (Exception $e) {
-            DB::rollBack(); // Rollback the transaction on error
+            // DB::rollBack(); 
             return error_response('An error occurred while processing the request: ' . $e->getMessage(), 500);
         }
     }

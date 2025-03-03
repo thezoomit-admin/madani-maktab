@@ -31,17 +31,17 @@ class PhoneMessageService
         ];
 
         $url = $this->apiUrl . '?' . http_build_query($queryParams);
-        // $balanceUrl = "https://smpp.ajuratech.com/portal/sms/smsConfiguration/smsClientBalance.jsp?client=MMadinah";
+        $balanceUrl = "https://smpp.ajuratech.com/portal/sms/smsConfiguration/smsClientBalance.jsp?client=MMadinah";
         try {
 
             // balance check 
-            // $balanceResponse = Http::get($balanceUrl); 
-            // if ($balanceResponse->successful()) {
-            //     $balanceData = json_decode($balanceResponse->body(), true); 
-            //     if (isset($balanceData['Balance']) && $balanceData['Balance'] < 3) {
-            //         throw new Exception('Insufficient balance. Please recharge to continue sending SMS.'); 
-            //     }
-            // }
+            $balanceResponse = Http::get($balanceUrl); 
+            if ($balanceResponse->successful()) {
+                $balanceData = json_decode($balanceResponse->body(), true); 
+                if (isset($balanceData['Balance']) && $balanceData['Balance'] < 3) {
+                    throw new Exception('Insufficient balance. Please recharge to continue sending SMS.'); 
+                }
+            }
 
             // send message 
             $response = Http::get($url); 

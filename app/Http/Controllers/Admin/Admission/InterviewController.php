@@ -32,7 +32,7 @@ class InterviewController extends Controller
             $request->date . ' ' . ($request->time ?? '00:00')
         );   
 
-        DB::beginTransaction();
+        // DB::beginTransaction();
         try {
             $messageService = new PhoneMessageService;
             $user = User::find($request->candidate_id);
@@ -57,10 +57,10 @@ class InterviewController extends Controller
             $progress->save();  
             $messageService->sendMessage($user->phone, $message);  
 
-            DB::commit();
+            // DB::commit();
             return success_response(null, "সাক্ষাৎকারের শিডিউল সফলভাবে পাঠানো হয়েছে"); 
         } catch (Exception $e) { 
-            DB::rollBack();
+            // DB::rollBack();
             return error_response($e->getMessage(), 500);
         }
     }
@@ -85,7 +85,7 @@ class InterviewController extends Controller
         }
 
         $message =  $request->message;
-        DB::beginTransaction();
+        // DB::beginTransaction();
         try {
             $interview = InterviewSchedule::where('candidate_id', $request->candidate_id)->firstOrFail();
             $interview->update([
@@ -101,19 +101,12 @@ class InterviewController extends Controller
 
             $user = User::find($request->candidate_id);
             $messageService->sendMessage($user->phone, $message);
+ 
 
-            // if($request->notes!=null){
-            //     StudentNote::create([
-            //         'employee_id' => Auth::user()->id,
-            //         'student_id' => $request->candidate_id,
-            //         'notes' => $request->notes,
-            //     ]);
-            // }
-
-            DB::commit();
+            // DB::commit();
             return success_response(null, "Result Updated");
         } catch (\Exception $e) {
-            DB::rollBack();  
+            // DB::rollBack();  
             return error_response($e->getMessage(), 500);
         }
     }
