@@ -25,9 +25,7 @@ use Illuminate\Support\Facades\Http;
 use Twilio\Rest\Client; 
 
 class InterviewController extends Controller
-{ 
-  
-
+{  
     public function schedule(InterviewScheduleRequest $request) { 
         $interview_date = Carbon::createFromFormat(
             'Y-m-d H:i',

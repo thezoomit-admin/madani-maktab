@@ -205,8 +205,7 @@ class StudentRegisterController extends Controller
 
     public function lastStep(Request $request){  
         DB::beginTransaction();
-        try {
-
+        try { 
             $request->validate([
                 'answe_files.*' => 'required|mimes:jpeg,png,jpg,gif,svg',
                 'user_id' => 'required|integer',
