@@ -36,7 +36,9 @@ class SendRegistrationNumberController extends Controller
             $message = $validated['message'];
             $message_type = $validated['message_type'];
             try { 
-                $response = $this->messageService->sendMessage($phone_number, $message); 
+                $messageService = new PhoneMessageService; 
+
+                $messageService->sendMessage($phone_number, $message); 
                 $admission_progress = AdmissionProgressStatus::where('user_id', $student_register->user_id)->first();
                 if($message_type=="fail_message"){
                     $admission_progress->is_send_fail_message = 1;

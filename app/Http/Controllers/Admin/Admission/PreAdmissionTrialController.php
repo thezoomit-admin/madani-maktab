@@ -16,14 +16,7 @@ use App\Services\PhoneMessageService;
 use Illuminate\Support\Facades\Auth;
 
 class PreAdmissionTrialController extends Controller
-{
-    protected $messageService;
-
-    public function __construct(PhoneMessageService $messageService)
-    {
-        $this->messageService = $messageService;
-    }
-
+{ 
     public function schedule(Request $request)
     { 
         $validator = Validator::make($request->all(), [
@@ -38,7 +31,10 @@ class PreAdmissionTrialController extends Controller
         }
 
         // DB::beginTransaction();
-        try { 
+        try {  
+            $messageService = new PhoneMessageService; 
+
+            $message = $request->message; 
             $user = User::find($request->candidate_id);
             $requested_at = Carbon::createFromFormat(
                 'Y-m-d H:i',
@@ -56,11 +52,10 @@ class PreAdmissionTrialController extends Controller
                 ['candidate_id' => $request->candidate_id],
                 [
                     'requested_at' => $requested_at,
-                    'notes'     => $request->message,
+                    'notes'     => $message,
                 ]
             );  
-            $message = $request->message; 
-            $this->messageService->sendMessage($user->phone, $message);  
+            $messageService->sendMessage($user->phone, $message);  
             // DB::commit();
             return success_response(null, "ট্রায়াল রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে");  
         } catch (\Exception $e) {
@@ -114,6 +109,7 @@ class PreAdmissionTrialController extends Controller
 
         // DB::beginTransaction(); 
         try { 
+            $messageService = new PhoneMessageService; 
             $progress = AdmissionProgressStatus::where('user_id', $request->candidate_id)->first();
             if (!$progress) {
                 return error_response('Candidate not found in admission progress status.', 404);
@@ -134,7 +130,7 @@ class PreAdmissionTrialController extends Controller
             $trial->save();
 
             $user = User::find($request->candidate_id);
-            $this->messageService->sendMessage($user->phone, $message);   
+            $messageService->sendMessage($user->phone, $message);   
             
             // DB::commit();  
             return success_response(null, "The trial session result has been successfully updated."); 
