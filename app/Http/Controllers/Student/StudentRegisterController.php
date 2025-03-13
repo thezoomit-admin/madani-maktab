@@ -184,8 +184,7 @@ class StudentRegisterController extends Controller
             AdmissionProgressStatus::create([
                 'user_id' => $user->id,
                 'is_passed_age' => $passing_status,
-            ]);  
-            
+            ]);   
 
             DB::commit();
             return success_response([
@@ -278,7 +277,7 @@ class StudentRegisterController extends Controller
 
     public function existing(ExistingStudentRegisterRequest $request){
         DB::beginTransaction();
-        try { 
+        try {
             $dob = Carbon::parse($request->input('dob')); 
             $currentDate = Carbon::now();  
             $ageMonths = $dob->diffInMonths($currentDate);

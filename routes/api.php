@@ -24,6 +24,8 @@ use App\Http\Controllers\Common\RoleApiController;
 use App\Http\Controllers\Common\UnionApiController;
 use App\Http\Controllers\Common\UpazilaApiController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Setting\FeeSettingController;
+use App\Http\Controllers\Setting\HijriYearController;
 use App\Http\Controllers\Student\StudentRegisterController;
 use App\Http\Controllers\Setting\MeetLinkSettingController;
 use Illuminate\Http\Request;
@@ -83,13 +85,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('send-message', SendRegistrationNumberController::class);
     Route::get('fail_to_pass/{user_id}', FailToPassController::class);
     Route::get('pass_to_fail/{user_id}', PassToFailController::class); 
-
     Route::resource('admission-note',AdmissionNoteController::class);
+    Route::put('update-print-status',[ProfilePrintStatusController::class,'updateStatus']); 
 
-    // setting 
+    // setting
     Route::get('meet-link',[MeetLinkSettingController::class,'index']);
-    Route::post('meet-link',[MeetLinkSettingController::class,'update']); 
-    Route::put('update-print-status',[ProfilePrintStatusController::class,'updateStatus']);
+    Route::post('meet-link',[MeetLinkSettingController::class,'update']);
+    Route::resource('fee-setting',FeeSettingController::class);
+
+    // Hijri Date 
+    Route::resource('hijri-year',HijriYearController::class);
+
+    
 });
 
 
