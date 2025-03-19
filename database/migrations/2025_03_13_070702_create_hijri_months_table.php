@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('hijri_months', function (Blueprint $table) {
             $table->id();
-            $table->string('month')->nullable();
-            $table->boolean('is_current')->default(false);
+            $table->string('month')->nullable(); 
             $table->timestamps();
         });
     }

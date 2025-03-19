@@ -25,6 +25,7 @@ use App\Http\Controllers\Common\UnionApiController;
 use App\Http\Controllers\Common\UpazilaApiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Setting\FeeSettingController;
+use App\Http\Controllers\Setting\HijriDateController;
 use App\Http\Controllers\Setting\HijriYearController;
 use App\Http\Controllers\Student\StudentRegisterController;
 use App\Http\Controllers\Setting\MeetLinkSettingController;
@@ -95,6 +96,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Hijri Date 
     Route::resource('hijri-year',HijriYearController::class);
+    Route::resource('hijri-date',HijriDateController::class);
 
     
 });

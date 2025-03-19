@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('hijri_year_id')->constrained('hijri_years');
             $table->foreignId('hijri_month_id')->constrained('hijri_months');
-            $table->integer('start_date');
-            $table->integer('end_date')->nullable();
-            $table->timestamps();
+            $table->date('start_date');
+            $table->date('end_date')->nullable();
+            $table->timestamps(); 
+
+            $table->unique(['hijri_year_id', 'hijri_month_id']);
         });
     }
 

@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('hijri_years', function (Blueprint $table) {
             $table->id();
-            $table->string('year')->nullable();
-            $table->boolean('is_current')->default(false); 
-            $table->integer('start_date');
-            $table->integer('end_date')->nullable();
+            $table->string('year')->unique(); 
+            $table->date('start_date');
+            $table->date('end_date')->nullable();
             $table->timestamps();
         });
     }

@@ -24,5 +24,6 @@ class DatabaseSeeder extends Seeder
         $this->call(UpazilaSeeder::class);  
         $this->call(UnionSeeder::class);  
         $this->call(DesignationSeeder::class);  
+        $this->call(MonthSeeder::class);  
     }
 }
