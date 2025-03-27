@@ -65,7 +65,7 @@ Route::get('student/{id}', [StudentController::class,'student']);
 //Student Registration
 Route::get('student-register-last-stage', [StudentController::class,'isCompleted']);
 Route::get('dashboard',DashboardController::class);
-Route::middleware(['auth:sanctum'])->group(function () { 
+Route::middleware(['auth:sanctum'])->group(function () {
     
     Route::resource('role', RoleController::class); 
     Route::resource('role-permission',RolePermissionController::class);
@@ -96,8 +96,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Hijri Date 
     Route::resource('hijri-year',HijriYearController::class);
+    Route::get('hijri-month',[HijriDateController::class,'month']);
     Route::resource('hijri-date',HijriDateController::class);
 
+
+
+    // Student Management System 
+    Route::get('existing-student-list',[StudentRegisterController::class,"existingStudent"]);
     
 });
 

@@ -14,6 +14,7 @@ use App\Models\UserAddress;
 use App\Models\AnswerFile;
 use App\Models\UserFamily;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -198,13 +199,11 @@ class StudentRegisterController extends Controller
             DB::rollback();
             return error_response($e->getMessage(), 500);
         }
-    }
-    
+    }   
 
-
-    public function lastStep(Request $request){  
+    public function lastStep(Request $request){
         DB::beginTransaction();
-        try { 
+        try {
             $request->validate([
                 'answe_files.*' => 'required|mimes:jpeg,png,jpg,gif,svg',
                 'user_id' => 'required|integer',
@@ -350,6 +349,15 @@ class StudentRegisterController extends Controller
             DB::rollback();
             return error_response($e->getMessage(), 500);
         }
+    }
+
+    public function existingStudent(){
+       try{
+        $datas = Admission::where('status',0)->get();
+        return success_response($datas);
+       }catch(Exception $e){
+        return error_response($e->getMessage());
+       }
     }
 }
 

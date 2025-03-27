@@ -61,7 +61,7 @@ class ExistingStudentRegisterRequest extends FormRequest
             'upazila_thana' => 'nullable|string|max:255',
             'district' => 'required|string|max:255',
             'division' => 'required|string|max:255',
-            'same_address' => 'nullable|boolean', 
+            'same_address' => 'nullable|boolean',
         ];
     }
 }

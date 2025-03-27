@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Setting;
 
 use App\Http\Controllers\Controller;
 use App\Models\HijriDate;
+use App\Models\HijriMonth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -80,5 +81,10 @@ class HijriDateController extends Controller
         } 
         $hijriDate->update($request->all()); 
         return success_response(null, "Hijri Date Updated Successfully");
-    } 
+    }  
+
+    public function month(){
+        $datas = HijriMonth::all();
+        return success_response($datas);
+    }
 }
