@@ -29,33 +29,31 @@ class FeeSettingController extends Controller
             'maktab_admission_fee' => 'required|numeric|min:0',
             'kitab_monthly_fee' => 'required|numeric|min:0',
             'kitab_admission_fee' => 'required|numeric|min:0',
-        ]);  
+        ]);
 
         try {
             DB::beginTransaction();
 
             $authId = Auth::id();
- 
-            FeeSetting::updateOrCreate(
-                ['key' => 'maktab_fee'],
-                [
-                    'value' => $request->maktab_fee,
-                    'created_by' => $authId,
-                    'updated_by' => $authId
-                ]
-            );
- 
-            FeeSetting::updateOrCreate(
-                ['key' => 'kitab_fee'],
-                [
-                    'value' => $request->kitab_fee,
-                    'created_by' => $authId,
-                    'updated_by' => $authId
-                ]
-            );
+            $fees = [
+                'maktab_monthly_fee',
+                'maktab_admission_fee',
+                'kitab_monthly_fee',
+                'kitab_admission_fee',
+            ];
+
+            foreach ($fees as $feeKey) {
+                FeeSetting::updateOrCreate(
+                    ['key' => $feeKey],
+                    [
+                        'value' => $request->$feeKey,
+                        'created_by' => $authId,
+                        'updated_by' => $authId,
+                    ]
+                );
+            }
 
             DB::commit();
-
             return success_response(null, "Fees updated successfully");
 
         } catch (\Exception $e) {
@@ -63,5 +61,6 @@ class FeeSettingController extends Controller
             return error_response("Something went wrong: " . $e->getMessage());
         }
     }
+
 
 }
