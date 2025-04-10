@@ -97,12 +97,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Hijri Date 
     Route::resource('hijri-year',HijriYearController::class);
     Route::get('hijri-month',[HijriDateController::class,'month']);
-    Route::resource('hijri-date',HijriDateController::class);
-
-
+    Route::resource('hijri-date',HijriDateController::class); 
 
     // Student Management System 
-    Route::get('existing-student-list',[StudentRegisterController::class,"existingStudent"]);
+    Route::get('existing-student-list',[StudentRegisterController::class,"existingStudent"]); 
     
 });
 

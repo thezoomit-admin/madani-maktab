@@ -351,14 +351,34 @@ class StudentRegisterController extends Controller
         }
     }
 
-    public function existingStudent(){
-       try{
-        $datas = Admission::where('status',0)->get();
-        return success_response($datas);
-       }catch(Exception $e){
-        return error_response($e->getMessage());
-       }
+    public function existingStudent(Request $request)
+    {
+        try {
+            $perPage = $request->input('per_page', 20);  
+            $page = $request->input('page', 1); 
+
+            $query = Admission::where('status', 0);
+
+            $total = $query->count();
+            $data = $query
+                ->skip(($page - 1) * $perPage)
+                ->take($perPage)
+                ->get();
+
+            return success_response([
+                'data' => $data,
+                'pagination' => [
+                    'total' => $total,
+                    'per_page' => (int)$perPage,
+                    'current_page' => (int)$page,
+                    'last_page' => ceil($total / $perPage),
+                ]
+            ]);
+        } catch (Exception $e) {
+            return error_response($e->getMessage());
+        }
     }
+
 }
 
 
