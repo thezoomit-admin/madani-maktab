@@ -29,6 +29,9 @@ use App\Http\Controllers\Setting\HijriDateController;
 use App\Http\Controllers\Setting\HijriYearController;
 use App\Http\Controllers\Student\StudentRegisterController;
 use App\Http\Controllers\Setting\MeetLinkSettingController;
+use App\Http\Controllers\Student\ExistingStudentController;
+use App\Http\Controllers\Student\TeacherCommentController;
+use App\Models\TeacherComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -59,7 +62,7 @@ Route::get('unions',UnionApiController::class);
 // Student Register 
 Route::post('student-register-first-step',[StudentRegisterController::class,'firstStep']);
 Route::post('student-register-last-step',[StudentRegisterController::class,'lastStep']);
-Route::post('existing-student-register',[StudentRegisterController::class,'existing']);
+Route::post('existing-student-register',[ExistingStudentController::class,'store']);
 Route::get('student/{id}', [StudentController::class,'student']);
 
 //Student Registration
@@ -100,7 +103,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('hijri-date',HijriDateController::class); 
 
     // Student Management System 
-    Route::get('existing-student-list',[StudentRegisterController::class,"existingStudent"]); 
+    Route::get('existing-student-list',[ExistingStudentController::class,"index"]);
+    Route::post('existing-student-approve/{id}',[ExistingStudentController::class,"approve"]); 
+
+    Route::resource('teacher-comment',TeacherCommentController::class); 
     
 });
 
