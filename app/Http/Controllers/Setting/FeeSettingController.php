@@ -18,15 +18,17 @@ class FeeSettingController extends Controller
             'kitab_monthly_fee' => FeeSetting::where('key', 'kitab_monthly_fee')->value('value') ?? 0,
             'kitab_admission_fee' => FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0,
         ]; 
-        
+
         return success_response($data);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'maktab_fee' => 'required|numeric|min:0',
-            'kitab_fee' => 'required|numeric|min:0',
+            'maktab_monthly_fee' => 'required|numeric|min:0',
+            'maktab_admission_fee' => 'required|numeric|min:0',
+            'kitab_monthly_fee' => 'required|numeric|min:0',
+            'kitab_admission_fee' => 'required|numeric|min:0',
         ]);  
 
         try {
