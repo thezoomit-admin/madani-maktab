@@ -14,12 +14,16 @@ return new class extends Migration
         Schema::create('hijri_dates', function (Blueprint $table) {
             $table->id();
             $table->foreignId('hijri_year_id')->constrained('hijri_years');
-            $table->foreignId('hijri_month_id')->constrained('hijri_months');
+            $table->string('month');
             $table->date('start_date');
-            $table->date('end_date')->nullable();
+            $table->date('end_date')->nullable(); 
+            
+            $table->boolean('is_active')->default(false); 
+            $table->foreignId('created_by')->constrained('users');
+            $table->foreignId('updated_by')->constrained('users');
             $table->timestamps(); 
 
-            $table->unique(['hijri_year_id', 'hijri_month_id']);
+            $table->unique(['hijri_year_id', 'month']);
         });
     }
 

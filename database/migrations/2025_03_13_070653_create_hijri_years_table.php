@@ -16,6 +16,10 @@ return new class extends Migration
             $table->string('year')->unique(); 
             $table->date('start_date');
             $table->date('end_date')->nullable();
+            
+            $table->boolean('is_active')->default(false); 
+            $table->foreignId('created_by')->constrained('users');
+            $table->foreignId('updated_by')->constrained('users');
             $table->timestamps();
         });
     }
