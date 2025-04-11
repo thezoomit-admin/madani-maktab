@@ -9,7 +9,7 @@ use App\Http\Controllers\Admin\Admission\PreAdmissionTrialController;
 use App\Http\Controllers\Admin\Admission\ProfilePrintStatusController;
 use App\Http\Controllers\Admin\Admission\RegisterStudentListController;
 use App\Http\Controllers\Admin\Admission\SendRegistrationNumberController;
-use App\Http\Controllers\Admin\Admission\StudentController;
+use App\Http\Controllers\Admin\Admission\StudentController as AdmissionStudentController;
 use App\Http\Controllers\Admin\Admission\TrialStudentListController;
 use App\Http\Controllers\Admin\Employee\EmployeeController;
 use App\Http\Controllers\Admin\Employee\RoleController;
@@ -30,6 +30,7 @@ use App\Http\Controllers\Setting\HijriYearController;
 use App\Http\Controllers\Student\StudentRegisterController;
 use App\Http\Controllers\Setting\MeetLinkSettingController;
 use App\Http\Controllers\Student\ExistingStudentController;
+use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Student\TeacherCommentController;
 use App\Models\TeacherComment;
 use Illuminate\Http\Request;
@@ -63,10 +64,10 @@ Route::get('unions',UnionApiController::class);
 Route::post('student-register-first-step',[StudentRegisterController::class,'firstStep']);
 Route::post('student-register-last-step',[StudentRegisterController::class,'lastStep']);
 Route::post('existing-student-register',[ExistingStudentController::class,'store']);
-Route::get('student/{id}', [StudentController::class,'student']);
+Route::get('student/{id}', [AdmissionStudentController::class,'student']);
 
 //Student Registration
-Route::get('student-register-last-stage', [StudentController::class,'isCompleted']);
+Route::get('student-register-last-stage', [AdmissionStudentController::class,'isCompleted']);
 Route::get('dashboard',DashboardController::class);
 Route::middleware(['auth:sanctum'])->group(function () {
     
@@ -97,8 +98,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('meet-link',[MeetLinkSettingController::class,'update']);
     Route::resource('fee-setting',FeeSettingController::class);
 
-    // Hijri Date 
-    Route::resource('hijri-year',HijriYearController::class);
+    // Hijri Date  
     Route::get('hijri-month',[HijriDateController::class,'month']);
     Route::resource('hijri-date',HijriDateController::class); 
 
@@ -107,6 +107,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('existing-student-approve/{id}',[ExistingStudentController::class,"approve"]); 
 
     Route::resource('teacher-comment',TeacherCommentController::class); 
+    Route::get('student',[StudentController::class,'index']);
     
 });
 

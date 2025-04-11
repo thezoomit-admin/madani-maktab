@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('total_marks')->nullable();
             $table->string('average_marks')->nullable();
             $table->tinyInteger('status')->default(0)->comment('0= Unapproved, 1= Running, 2= Completed, 3 Rejected');
+            $table->integer('student_id')->nullable()->default(null);
             $table->timestamps();
         });
     }

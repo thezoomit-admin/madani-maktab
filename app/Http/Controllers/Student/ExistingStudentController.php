@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ExistingStudentRegisterRequest;
 use App\Models\Admission;
+use App\Models\Enrole;
 use App\Models\Guardian;
 use App\Models\Student;
 use App\Models\User;
@@ -121,15 +122,56 @@ class ExistingStudentController extends Controller
         }
     }   
 
-    public function approve($id){
-        $admisison = Admission::find($id); 
-        if($admisison){
-            return error_response(null,'404', "Invalid Id");
+    public function approve(Request $request, $id)
+    {
+        try {
+            $admission = Admission::find($id);
+
+            if (!$admission) {
+                return error_response(null, '404', "অ্যাডমিশন আইডি খুঁজে পাওয়া যায়নি।");
+            }
+
+            if ($admission->status == 1) {
+                return error_response(null, '404', "এই শিক্ষার্থী ইতোমধ্যে ভর্তি হয়েছে।");
+            }
+
+            $student = Student::create([
+                'user_id' => $admission->user_id,
+                'reg_id' => $admission->original_id,
+                "average_marks" => $admission->average_marks,
+                "status" => 1
+            ]);
+ 
+            Enrole::create([
+                'user_id' => $admission->user_id,
+                'student_id' => $student->id,
+                'department_id' => $admission->department_id,
+                'session' => $admission->last_year_session,
+                'year' => 1445,
+                "marks" => $admission->total_marks,
+                "fee_type" => $request->fee_type,
+                "fee" => $request->fee,
+                "status" => 2,
+            ]);
+
+            Enrole::create([
+                'user_id' => $admission->user_id,
+                'student_id' => $student->id,
+                'department_id' => $admission->department_id,
+                'session' => $admission->interested_session,
+                'year' => 1446,
+                "fee_type" => $request->fee_type,
+                "fee" => $request->fee ?? null,
+                "status" => 1,
+            ]);  
+            $admission->status = 1;
+            $admission->save(); 
+            
+            return success_response(null, "ভর্তি সফলভাবে অনুমোদন করা হয়েছে।");
+        } catch (\Exception $e) { 
+            return error_response(null, '500', "ভর্তি প্রক্রিয়ায় একটি সমস্যা ঘটেছে: " . $e->getMessage());
         }
-
-        $student = Student::create([
-
-        ]);
-        
     }
+
+
 }

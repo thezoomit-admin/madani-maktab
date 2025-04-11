@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users'); 
             $table->foreignId('student_id')->constrained('students'); 
-            $table->integer('department_id')->nullable(); 
+            $table->integer('department_id')->nullable();
             $table->string('session')->nullable(); 
+            $table->string('year')->nullable(); 
             $table->string('marks')->nullable(); 
             $table->enum('fee_type', ['General', 'Half', 'Guest'])->default('General');  
             $table->decimal('fee', 10, 2)->nullable()->comment("if half"); 

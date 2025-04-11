@@ -20,6 +20,8 @@ class Admission extends Model
         'original_id',
         'total_marks',
         'average_marks',
+        'status',
+        'student_id',
     ];
     
 }

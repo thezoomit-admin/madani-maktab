@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('hijri_months', function (Blueprint $table) {
+        Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->string('month')->nullable(); 
+            $table->foreignId('user_id')->constrained('users'); 
+            $table->foreignId('student_id')->constrained('students'); 
             $table->timestamps();
-        }); 
-
-        
+        });
     }
 
     /**
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('hijri_months');
+        Schema::dropIfExists('payments');
     }
 };
