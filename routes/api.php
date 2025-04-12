@@ -31,6 +31,7 @@ use App\Http\Controllers\Setting\HijriYearController;
 use App\Http\Controllers\Student\StudentRegisterController;
 use App\Http\Controllers\Setting\MeetLinkSettingController;
 use App\Http\Controllers\Student\ExistingStudentController;
+use App\Http\Controllers\Student\ProfileController;
 use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Student\TeacherCommentController;
 use App\Models\TeacherComment;
@@ -108,6 +109,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::resource('teacher-comment',TeacherCommentController::class); 
     Route::get('student',[StudentController::class,'index']);
+    Route::get('profile/{id?}', [ProfileController::class, 'profile']);
+    Route::get('payment-history/{id?}', [ProfileController::class, 'PaymentHistory']);
+
     
 });
 

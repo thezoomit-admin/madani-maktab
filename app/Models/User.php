@@ -69,6 +69,12 @@ class User extends Authenticatable
         return $this->hasOne(StudentRegister::class, 'user_id');
     }  
 
+    public function student()
+    {
+        return $this->hasOne(Student::class, 'user_id');
+    } 
+
+
     public function userFamily()
     {
         return $this->hasOne(UserFamily::class, 'user_id');
@@ -112,7 +118,7 @@ class User extends Authenticatable
     public function getPermissionsSlugs()
     {
         return $this->role->permissions->pluck('slug')->toArray();
-    }
+    } 
  
  
 
