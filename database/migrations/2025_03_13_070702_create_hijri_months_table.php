@@ -15,9 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('month')->nullable(); 
             $table->timestamps();
-        }); 
-
-        
+        });  
     }
 
     /**

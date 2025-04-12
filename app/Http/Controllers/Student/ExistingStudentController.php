@@ -6,13 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ExistingStudentRegisterRequest;
 use App\Models\Admission;
 use App\Models\Enrole;
+use App\Models\FeeSetting;
 use App\Models\Guardian;
+use App\Models\HijriMonth;
+use App\Models\Payment;
 use App\Models\Student;
 use App\Models\User;
 use App\Models\UserAddress;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ExistingStudentController extends Controller
@@ -150,7 +154,7 @@ class ExistingStudentController extends Controller
                 'year' => 1445,
                 "marks" => $admission->total_marks,
                 "fee_type" => $request->fee_type,
-                "fee" => $request->fee,
+                "fee" => 0,
                 "status" => 2,
             ]);
 
@@ -165,7 +169,49 @@ class ExistingStudentController extends Controller
                 "status" => 1,
             ]);  
             $admission->status = 1;
-            $admission->save(); 
+            $admission->save();   
+
+            $active_month = HijriMonth::where('is_active',true)->first();
+            if(!$active_month){
+                return error_response("Tumer kono active hijri mas nei");
+            } 
+            
+            if($admission->department_id==1){
+                $monthly_fee = FeeSetting::where('key', 'maktab_monthly_fee')->value('value')?? 0;
+                $admission_fee =  FeeSetting::where('key', 'maktab_admission_fee')->value('value')?? 0;
+            }else{
+                $monthly_fee = FeeSetting::where('key', 'kitab_monthly_fee')->value('value') ?? 0;
+                $admission_fee = FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0;
+            }
+             
+            Payment::create([
+                'user_id' => $admission->user_id,
+                'student_id' => $student->id,
+                'hijri_month_id' => $active_month->id,
+                'reason' => "Admission Fee", 
+                'amount' => $admission_fee, 
+                'due' => $admission_fee, 
+                'created_by' => Auth::user()->id,
+                'updated_by' => Auth::user()->id,
+            ]);
+
+            if($request->fee_type == "Half"){
+                $monthly_fee = $request->fee;
+            } 
+
+            Payment::create([
+                'user_id' => $admission->user_id,
+                'student_id' => $student->id,
+                'hijri_month_id' => $active_month->id,
+                'reason' => "Monthly Fee", 
+                'fee_type' => $request->fee_type,
+                'amount' => $monthly_fee, 
+                'due' => $monthly_fee, 
+                'created_by' => Auth::user()->id,
+                'updated_by' => Auth::user()->id,
+            ]);
+
+
             
             return success_response(null, "ভর্তি সফলভাবে অনুমোদন করা হয়েছে।");
         } catch (\Exception $e) { 

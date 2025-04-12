@@ -26,6 +26,7 @@ use App\Http\Controllers\Common\UpazilaApiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Setting\FeeSettingController;
 use App\Http\Controllers\Setting\HijriDateController;
+use App\Http\Controllers\Setting\HijriMonthController;
 use App\Http\Controllers\Setting\HijriYearController;
 use App\Http\Controllers\Student\StudentRegisterController;
 use App\Http\Controllers\Setting\MeetLinkSettingController;
@@ -99,8 +100,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('fee-setting',FeeSettingController::class);
 
     // Hijri Date  
-    Route::get('hijri-month',[HijriDateController::class,'month']);
-    Route::resource('hijri-date',HijriDateController::class); 
+    Route::resource('hijri-month',HijriMonthController::class); 
 
     // Student Management System 
     Route::get('existing-student-list',[ExistingStudentController::class,"index"]);

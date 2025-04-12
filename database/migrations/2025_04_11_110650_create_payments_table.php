@@ -12,9 +12,37 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users'); 
-            $table->foreignId('student_id')->constrained('students'); 
+            $table->id(); 
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->onDelete('cascade');
+        
+            $table->foreignId('student_id')
+                ->constrained('students')
+                ->onDelete('cascade');
+        
+            $table->foreignId('hijri_month_id')
+                ->constrained('hijri_months')
+                ->onDelete('cascade');
+        
+            $table->string('reason');
+            $table->string('fee_type')->nullable();
+        
+            $table->decimal('amount', 10, 2)->default(0);
+            $table->decimal('paid', 10, 2)->default(0);
+            $table->decimal('due', 10, 2)->default(0); 
+            
+        
+            $table->foreignId('created_by')
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('set null');
+        
+            $table->foreignId('updated_by')
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('set null');
+        
             $table->timestamps();
         });
     }
