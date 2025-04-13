@@ -61,11 +61,11 @@ class LoginRequest extends FormRequest
         }
 
         if($reg_id && $reg_id !=null){
-            $user = User::where('email', $email) 
+            $user = User::where('reg_id', $reg_id) 
                 ->first();
             if(!$user){
                 throw ValidationException::withMessages([
-                    'red_id' => "Invalid Reg Number",
+                    'reg_id' => "Invalid Reg Number",
                 ]);
             }
         }

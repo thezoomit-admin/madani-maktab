@@ -113,7 +113,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('student',[StudentController::class,'index']);
     Route::get('profile/{id?}', [ProfileController::class, 'profile']);
     Route::get('payment-history/{id?}', [ProfileController::class, 'PaymentHistory']);
-    Route::get('enrole-history/{id?}', [ProfileController::class, 'EnroleHistory']); 
+    Route::get('enroll-history/{id?}', [ProfileController::class, 'EnroleHistory']); 
 
 
     // Payment Route 
