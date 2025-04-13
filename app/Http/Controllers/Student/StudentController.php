@@ -25,7 +25,7 @@ class StudentController extends Controller
             ->when($request->input('jamaat'), function ($query, $jamaat) {
                 $query->where('jamaat', $jamaat);
             }) 
-            
+
             ->whereHas('user', function ($query) use ($request) {
                 if ($request->filled('blood_group')) {
                     $query->where('blood_group', $request->input('blood_group'));
@@ -42,8 +42,8 @@ class StudentController extends Controller
 
                 return [
                     'id' => $student->id,
-                    'user_id' => $user->user_id,
-                    'reg_id' => $student->reg_id,
+                    'user_id' => $user->id,
+                    'reg_id' => $user->reg_id,
                     'jamaat' => $student->jamaat,
                     'average_marks' => $student->average_marks,
 
