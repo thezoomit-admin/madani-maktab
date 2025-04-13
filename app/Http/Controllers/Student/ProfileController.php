@@ -21,7 +21,7 @@ class ProfileController extends Controller
             $user = User::find($id);
     
             if (!$user) {
-                return error_response(null, 404, "ইউজার পাওয়া যায়নি।"); 
+                return error_response(null, 404, "ইউজার পাওয়া যায়নি।");
             }
     
             if (!$user->student) {

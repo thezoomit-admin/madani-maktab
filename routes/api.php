@@ -118,6 +118,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Payment Route 
     Route::post('pay-now',[PaymentController::class,'payNow']);
+    Route::get('payment-list',[PaymentController::class,'paymentList']);
+    Route::get('approve-payment/{id}',[PaymentController::class,'approvePayment']);
+
+    
 
     
 });
