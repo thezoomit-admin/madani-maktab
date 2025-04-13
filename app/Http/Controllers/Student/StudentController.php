@@ -41,7 +41,8 @@ class StudentController extends Controller
 
                 return [
                     'id' => $student->id,
-                    'user_id' => $student->user_id, 
+                    'user_id' => $student->user_id,
+                    'reg_id' => $user->reg_id,
                     'jamaat' => $student->jamaat,
                     'average_marks' => $student->average_marks,
 
