@@ -13,19 +13,30 @@ class TeacherCommentController extends Controller
     public function index(Request $request)
     {
         $student_id = $request->student_id;
- 
+
         $perPage = $request->per_page ?? 10;
         $page = $request->page ?? 1;
         $offset = ($page - 1) * $perPage;
 
-        $query = TeacherComment::where('student_id', $student_id)
+        $query = TeacherComment::with('teacher') // eager load teacher
+            ->where('student_id', $student_id)
             ->latest();
 
         $total = $query->count();
 
-        $data = $query->skip($offset)
-                    ->take($perPage)
-                    ->get();
+        $comments = $query->skip($offset)
+                        ->take($perPage)
+                        ->get();
+
+        // Transform the data
+        $data = $comments->map(function ($comment) {
+            return [
+                'teacher_id' => $comment->teacher_id,
+                'teacher_name' => optional($comment->teacher)->name,
+                'comment' => $comment->comment,
+                'created_at' => $comment->created_at->toDateTimeString(),
+            ];
+        });
 
         return success_response([
             'data' => $data,
@@ -37,6 +48,7 @@ class TeacherCommentController extends Controller
             ],
         ]);
     }
+
 
 
     public function store(Request $request){ 

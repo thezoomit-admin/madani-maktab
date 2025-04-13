@@ -46,41 +46,41 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         $email = $this->input('email');
-        $reg_id = $this->input('reg_id');  
+        $reg_id = $this->input('reg_id');
         $password = $this->input('password');
-        $remember = $this->boolean('remember');  
-         
-        if($email && $email !=null){
-            $user = User::where('email', $email) 
-                ->first();
-            if(!$user){
+        $remember = $this->boolean('remember');
+
+        $user = null;
+
+        // Try to get the user either by email or reg_id
+        if ($email) {
+            $user = User::where('email', $email)->first();
+            if (!$user) {
                 throw ValidationException::withMessages([
                     'email' => "Invalid Email",
                 ]);
             }
-        }
-
-        if($reg_id && $reg_id !=null){
-            $user = User::where('reg_id', $reg_id) 
-                ->first();
-            if(!$user){
+        } elseif ($reg_id) {
+            $user = User::where('reg_id', $reg_id)->first();
+            if (!$user) {
                 throw ValidationException::withMessages([
                     'reg_id' => "Invalid Reg Number",
                 ]);
             }
         }
 
- 
-        
+        // Final authentication using email (since Laravel only checks email+password by default)
         if (! $user || ! Auth::attempt(['email' => $user->email, 'password' => $password], $remember)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);
-        } 
+        }
+
         RateLimiter::clear($this->throttleKey());
-    } 
+    }
+
 
     /**
      * Ensure the login request is not rate limited.

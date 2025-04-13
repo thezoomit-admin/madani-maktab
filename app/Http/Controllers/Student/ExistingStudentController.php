@@ -139,9 +139,12 @@ class ExistingStudentController extends Controller
                 return error_response(null, '404', "এই শিক্ষার্থী ইতোমধ্যে ভর্তি হয়েছে।");
             }
 
+            $user = User::find($admission->user_id);
+            $user->reg_id = $admission->original_id;
+            $user->save();
+
             $student = Student::create([
-                'user_id' => $admission->user_id,
-                'reg_id' => $admission->original_id,
+                'user_id' => $admission->user_id, 
                 "average_marks" => $admission->average_marks,
                 "status" => 1
             ]);

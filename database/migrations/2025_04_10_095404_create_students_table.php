@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->string('reg_id')->nullable();
             $table->string('jamaat')->nullable();
             $table->string('average_marks')->nullable();
             $table->tinyInteger('status')->default(0)->comment('1= Running, 2= Completed');

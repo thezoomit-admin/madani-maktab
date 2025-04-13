@@ -16,8 +16,10 @@ class User extends Authenticatable
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
-     */
+     */ 
+
     protected $fillable = [
+        'reg_id',
         'name',
         'phone',
         'email',
@@ -35,8 +37,7 @@ class User extends Authenticatable
         'created_by',
         'updated_by',
         'deleted_by',
-    ];
-    
+    ]; 
 
     /**
      * The attributes that should be hidden for serialization.
