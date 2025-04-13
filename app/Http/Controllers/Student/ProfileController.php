@@ -34,7 +34,7 @@ class ProfileController extends Controller
                 'profile_image' => $user->profile_image,
                 'dob_hijri' => $user->dob_hijri,
                 'blood_group' => $user->blood_group,
-                'reg_id' => $user->student->reg_id,
+                'reg_id' => $user->reg_id,
                 'jamaat' => $user->student->jamaat,
                 'average_marks' => $user->student->average_marks,
             ];
