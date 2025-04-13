@@ -24,6 +24,7 @@ use App\Http\Controllers\Common\RoleApiController;
 use App\Http\Controllers\Common\UnionApiController;
 use App\Http\Controllers\Common\UpazilaApiController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Setting\FeeSettingController;
 use App\Http\Controllers\Setting\HijriDateController;
 use App\Http\Controllers\Setting\HijriMonthController;
@@ -37,6 +38,7 @@ use App\Http\Controllers\Student\TeacherCommentController;
 use App\Models\TeacherComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Twilio\Rest\Api\V2010\Account\Call\PaymentContext;
 
 /*
 |--------------------------------------------------------------------------
@@ -111,6 +113,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('student',[StudentController::class,'index']);
     Route::get('profile/{id?}', [ProfileController::class, 'profile']);
     Route::get('payment-history/{id?}', [ProfileController::class, 'PaymentHistory']);
+    Route::get('enrole-history/{id?}', [ProfileController::class, 'EnroleHistory']); 
+
+
+    // Payment Route 
+    Route::post('pay-now',[PaymentController::class,'payNow']);
 
     
 });

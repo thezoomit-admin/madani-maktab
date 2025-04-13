@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -27,11 +28,13 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => ['nullable', 'string', 'email', 'required_without:reg_id'],
+            'reg_id' => ['nullable', 'string', 'required_without:email'],
             'password' => ['required', 'string'],
             'remember' => 'nullable|boolean',
         ];
     }
+
 
     /**
      * Attempt to authenticate the request's credentials.
@@ -42,15 +45,42 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $email = $this->input('email');
+        $reg_id = $this->input('reg_id');  
+        $password = $this->input('password');
+        $remember = $this->boolean('remember');  
+         
+        if($email && $email !=null){
+            $user = User::where('email', $email) 
+                ->first();
+            if(!$user){
+                throw ValidationException::withMessages([
+                    'email' => "Invalid Email",
+                ]);
+            }
+        }
+
+        if($reg_id && $reg_id !=null){
+            $user = User::where('email', $email) 
+                ->first();
+            if(!$user){
+                throw ValidationException::withMessages([
+                    'red_id' => "Invalid Reg Number",
+                ]);
+            }
+        }
+
+ 
+        
+        if (! $user || ! Auth::attempt(['email' => $user->email, 'password' => $password], $remember)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);
         } 
-        RateLimiter::clear($this->throttleKey());  
-    }
+        RateLimiter::clear($this->throttleKey());
+    } 
 
     /**
      * Ensure the login request is not rate limited.

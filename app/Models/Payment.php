@@ -34,7 +34,7 @@ class Payment extends Model
  
     public function hijriMonth()
     {
-        return $this->belongsTo(HijriMonth::class);
+        return $this->belongsTo(HijriMonth::class,'hijri_month_id');
     }
  
     public function creator()

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
-            $table->id(); 
+            $table->id();
             $table->foreignId('user_id')
                 ->constrained('users')
                 ->onDelete('cascade');
@@ -30,8 +30,7 @@ return new class extends Migration
         
             $table->decimal('amount', 10, 2)->default(0);
             $table->decimal('paid', 10, 2)->default(0);
-            $table->decimal('due', 10, 2)->default(0); 
-            
+            $table->decimal('due', 10, 2)->default(0);
         
             $table->foreignId('created_by')
                 ->nullable()
