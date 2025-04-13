@@ -24,16 +24,13 @@ class StudentController extends Controller
             ])
             ->when($request->input('jamaat'), function ($query, $jamaat) {
                 $query->where('jamaat', $jamaat);
-            })
-            ->when($request->input('reg_id'), function ($query, $reg_id) {
-                $query->where('reg_id', 'like', "%$reg_id%");
-            })
+            }) 
             ->whereHas('user', function ($query) use ($request) {
                 if ($request->filled('blood_group')) {
                     $query->where('blood_group', $request->input('blood_group'));
                 }
             })
-            ->select('id', 'user_id', 'reg_id', 'jamaat', 'average_marks', 'status')
+            ->select('id', 'user_id',  'jamaat', 'average_marks', 'status')
             ->orderBy('id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -44,8 +41,7 @@ class StudentController extends Controller
 
                 return [
                     'id' => $student->id,
-                    'user_id' => $student->user_id,
-                    'reg_id' => $student->reg_id,
+                    'user_id' => $student->user_id, 
                     'jamaat' => $student->jamaat,
                     'average_marks' => $student->average_marks,
 
