@@ -16,7 +16,7 @@ class StudentController extends Controller
             $year = $request->input('year', 1446);
 
             $students = Student::with([
-                'user:id,name,phone,profile_image,blood_group',
+                'user:id,name,reg_id,phone,profile_image,blood_group',
                 'enroles' => function ($query) use ($year) {
                     $query->where('year', $year)
                         ->select('id', 'student_id', 'department_id', 'session', 'fee_type', 'status', 'year');
@@ -41,8 +41,8 @@ class StudentController extends Controller
 
                 return [
                     'id' => $student->id,
-                    'user_id' => $student->user_id,
-                    'reg_id' => $user->reg_id,
+                    'user_id' => $user->user_id,
+                    'reg_id' => $student->reg_id,
                     'jamaat' => $student->jamaat,
                     'average_marks' => $student->average_marks,
 
