@@ -19,16 +19,19 @@ class LoginService {
 
         if($user->user_type=="student"){
             $permission = ['student'];
+            $role = 'student';
         }else{
             $permission = $user->getPermissionsSlugs();
-        }
+            $role = $user->role->slug;
+        } 
+        
         $data = [
             'token' => $token,
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,
                 'user_type' => $user->user_type,
-                'role' => $user->role->slug,
+                'role' =>  $role,
             ],
             'permissions' => $permission,
         ];   

@@ -12,10 +12,12 @@ use App\Models\EmployeeDesignation;
 use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\UserContact;
+use App\Services\PhoneMessageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -111,5 +113,64 @@ class AuthController extends Controller
             DB::rollBack();  
             return error_response($e->getMessage(), 500);
         }
+    }  
+
+    public function changePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'current_password' => 'required|string|min:6',
+            'new_password' => 'required|string|min:6|confirmed',
+        ]);
+    
+        if ($validator->fails()) {
+            return error_response(null, 422, "ভুল ইনপুট: " . $validator->errors()->first());
+        }
+     
+        $user = User::find(Auth::user()->id); 
+        if (!Hash::check($request->current_password, $user->password)) {
+            return error_response(null, 401, "বর্তমান পাসওয়ার্ড সঠিক নয়।");
+        }
+    
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+    
+        return success_response(null, "পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে।");
+    }  
+    public function forgetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => ['nullable', 'string', 'email', 'required_without:reg_id'],
+            'reg_id' => ['nullable', 'string', 'required_without:email'],
+        ]);
+
+        if ($validator->fails()) {
+            return error_response(null, 422, "ভুল ইনপুট: " . $validator->errors()->first());
+        }
+
+        $email = $request->input('email');
+        $reg_id = $request->input('reg_id');
+        $new_password = rand(100000, 999999);
+
+        if ($email) {
+            $user = User::where('email', $email)->first();
+            if (!$user) {
+                return error_response(null, 404, "এই ইমেইলের কোনও একাউন্ট খুঁজে পাওয়া যায়নি।");
+            }
+        } else {
+            $user = User::where('reg_id', $reg_id)->first();
+            if (!$user) {
+                return error_response(null, 404, "এই রেজিস্ট্রেশন নম্বরে কোনও একাউন্ট খুঁজে পাওয়া যায়নি।");
+            }
+        }
+
+        $user->password = Hash::make($new_password);
+        $user->save();
+
+        // Send password via SMS
+        $messageService = new PhoneMessageService;
+        $message = "আপনার নতুন পাসওয়ার্ড: " . $new_password . "। দয়া করে লগইন করার পর পাসওয়ার্ড পরিবর্তন করে নিন।";
+        $messageService->sendMessage($user->phone, $message);
+
+        return success_response(null, "নতুন পাসওয়ার্ড সফলভাবে ফোন নম্বরে পাঠানো হয়েছে। অনুগ্রহ করে লগইন করুন।");
     } 
 }

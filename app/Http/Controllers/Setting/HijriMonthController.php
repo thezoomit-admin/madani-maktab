@@ -67,7 +67,12 @@ class HijriMonthController extends Controller
         } 
         $input =  $request->all();
         $input['created_by'] = Auth::user()->id;
-        $input['updated_by'] = Auth::user()->id;
+        $input['updated_by'] = Auth::user()->id; 
+        
+        if ($input['is_active'] == 1) {
+            HijriMonth::where('is_active', 1)->update(['is_active' => 0]);
+        }
+        
         HijriMonth::create($input);
         return success_response(null, "Hijri Date Created Successfully");
     } 
@@ -111,9 +116,39 @@ class HijriMonthController extends Controller
                 $next->save();
             }
         } 
-        $hijriMonth->update($request->all()); 
+
+         
+
+        $input =  $request->all();
+        $input['updated_by'] = Auth::user()->id; 
+
+        if ($input['is_active'] == 1) {
+            HijriMonth::where('is_active', 1)->update(['is_active' => 0]);
+        }
+
+        $hijriMonth->update($input); 
         return success_response(null, "Hijri Date Updated Successfully");
+    } 
+
+    public function changeStatus($id)
+    {
+        $hijri_month = HijriMonth::find($id); 
+        if (!$hijri_month) {
+            return error_response(null, 404, "এই হিজরি মাসটি খুঁজে পাওয়া যায়নি।");
+        } 
+        if ($hijri_month->is_active == 1) { 
+            $hijri_month->is_active = 0;
+            $message = "হিজরি মাসটি নিষ্ক্রিয় করা হয়েছে।";
+        } else { 
+            HijriMonth::where('is_active', 1)->update(['is_active' => 0]);
+ 
+            $hijri_month->is_active = 1;
+            $message = "হিজরি মাসটি সক্রিয় করা হয়েছে।";
+        } 
+        $hijri_month->save(); 
+        return success_response(null, $message);
     }
+
 
 
 

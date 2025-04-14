@@ -74,6 +74,8 @@ Route::get('student/{id}', [AdmissionStudentController::class,'student']);
 Route::get('student-register-last-stage', [AdmissionStudentController::class,'isCompleted']);
 Route::get('dashboard',DashboardController::class);
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('change-password',[AuthController::class,"changePassword"]);
+    Route::post('forget-password',[AuthController::class,"forgetPassword"]);
     
     Route::resource('role', RoleController::class); 
     Route::resource('role-permission',RolePermissionController::class);
@@ -105,6 +107,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Hijri Date  
     Route::resource('hijri-month',HijriMonthController::class); 
+    Route::get('active-unactive-month/{id}',[HijriMonthController::class,"changeStatus"]); 
 
     // Student Management System 
     Route::get('existing-student-list',[ExistingStudentController::class,"index"]);
@@ -114,13 +117,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('student',[StudentController::class,'index']);
     Route::get('profile/{id?}', [ProfileController::class, 'profile']);
     Route::get('payment-history/{id?}', [ProfileController::class, 'PaymentHistory']);
-    Route::get('enroll-history/{id?}', [ProfileController::class, 'EnroleHistory']); 
+    Route::get('enroll-history/{id?}', [ProfileController::class, 'EnroleHistory']);
+    Route::get('change-fee-type/{id}', [ProfileController::class, 'ChangeFeeType']);
 
 
     // Payment Route 
     Route::post('pay-now',[PaymentController::class,'payNow']);
     Route::get('payment-list',[PaymentController::class,'paymentList']);
     Route::get('approve-payment/{id}',[PaymentController::class,'approvePayment']);
+    
+
 
     
 

@@ -143,6 +143,6 @@ class ProfileController extends Controller
         } catch (\Exception $e) {
             return error_response(null, 500, 'এনরোল হিস্টোরি লোড করতে সমস্যা হয়েছে।');
         }
-    } 
+    }   
     
 }
