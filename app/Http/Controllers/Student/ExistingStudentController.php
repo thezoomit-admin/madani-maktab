@@ -124,19 +124,19 @@ class ExistingStudentController extends Controller
             DB::rollback();
             return error_response($e->getMessage(), 500);
         }
-    }   
-
+    }    
     public function approve(Request $request, $id)
     {
+        DB::beginTransaction(); 
         try {
             $admission = Admission::find($id);
 
             if (!$admission) {
-                return error_response(null, '404', "অ্যাডমিশন আইডি খুঁজে পাওয়া যায়নি।");
+                return error_response(null, '404', "ভুল আইডি প্রদান করা হয়েছে, ভর্তি তথ্য পাওয়া যায়নি।");
             }
 
             if ($admission->status == 1) {
-                return error_response(null, '404', "এই শিক্ষার্থী ইতোমধ্যে ভর্তি হয়েছে।");
+                return error_response(null, '409', "এই শিক্ষার্থী ইতোমধ্যে ভর্তি হয়েছে।");
             }
 
             $user = User::find($admission->user_id);
@@ -148,7 +148,7 @@ class ExistingStudentController extends Controller
                 "average_marks" => $admission->average_marks,
                 "status" => 1
             ]);
- 
+
             Enrole::create([
                 'user_id' => $admission->user_id,
                 'student_id' => $student->id,
@@ -170,57 +170,61 @@ class ExistingStudentController extends Controller
                 "fee_type" => $request->fee_type,
                 "fee" => $request->fee ?? null,
                 "status" => 1,
-            ]);  
-            $admission->status = 1;
-            $admission->save();   
+            ]);
 
-            $active_month = HijriMonth::where('is_active',true)->first();
-            if(!$active_month){
-                return error_response("Tumer kono active hijri mas nei");
-            } 
-            
-            if($admission->department_id==1){
-                $monthly_fee = FeeSetting::where('key', 'maktab_monthly_fee')->value('value')?? 0;
-                $admission_fee =  FeeSetting::where('key', 'maktab_admission_fee')->value('value')?? 0;
-            }else{
+            $admission->status = 1;
+            $admission->save();
+
+            $active_month = HijriMonth::where('is_active', true)->first();
+            if (!$active_month) {
+                DB::rollBack();
+                return error_response(null, '422', "কোনো সক্রিয় হিজরি মাস পাওয়া যায়নি। অনুগ্রহ করে আগে সক্রিয় মাস নির্ধারণ করুন।");
+            }
+
+            if ($admission->department_id == 1) {
+                $monthly_fee = FeeSetting::where('key', 'maktab_monthly_fee')->value('value') ?? 0;
+                $admission_fee = FeeSetting::where('key', 'maktab_admission_fee')->value('value') ?? 0;
+            } else {
                 $monthly_fee = FeeSetting::where('key', 'kitab_monthly_fee')->value('value') ?? 0;
                 $admission_fee = FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0;
             }
-             
+
             Payment::create([
                 'user_id' => $admission->user_id,
                 'student_id' => $student->id,
                 'hijri_month_id' => $active_month->id,
-                'reason' => "Admission Fee", 
-                'amount' => $admission_fee, 
-                'due' => $admission_fee, 
+                'reason' => "ভর্তি ফি",
+                'amount' => $admission_fee,
+                'due' => $admission_fee,
                 'created_by' => Auth::user()->id,
                 'updated_by' => Auth::user()->id,
             ]);
 
-            if($request->fee_type == "Half"){
+            if ($request->fee_type == "আংশিক") {
                 $monthly_fee = $request->fee;
-            } 
+            }
 
             Payment::create([
                 'user_id' => $admission->user_id,
                 'student_id' => $student->id,
                 'hijri_month_id' => $active_month->id,
-                'reason' => "Monthly Fee", 
+                'reason' => "মাসিক ফি",
                 'fee_type' => $request->fee_type,
-                'amount' => $monthly_fee, 
-                'due' => $monthly_fee, 
+                'amount' => $monthly_fee,
+                'due' => $monthly_fee,
                 'created_by' => Auth::user()->id,
                 'updated_by' => Auth::user()->id,
             ]);
 
+            DB::commit();
+            return success_response(null, "✅ ভর্তি সফলভাবে সম্পন্ন হয়েছে।");
 
-            
-            return success_response(null, "ভর্তি সফলভাবে অনুমোদন করা হয়েছে।");
-        } catch (\Exception $e) { 
-            return error_response(null, '500', "ভর্তি প্রক্রিয়ায় একটি সমস্যা ঘটেছে: " . $e->getMessage());
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return error_response(null, '500', "❌ ভর্তি প্রক্রিয়ায় একটি ত্রুটি ঘটেছে: " . $e->getMessage());
         }
     }
+
 
 
 }

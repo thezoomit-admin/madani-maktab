@@ -17,6 +17,11 @@ class LoginService {
         $token = $user->createToken('authToken')->plainTextToken;
   
 
+        if($user->user_type=="student"){
+            $permission = ['student'];
+        }else{
+            $permission = $user->getPermissionsSlugs();
+        }
         $data = [
             'token' => $token,
             'user' => [
@@ -25,7 +30,7 @@ class LoginService {
                 'user_type' => $user->user_type,
                 'role' => $user->role->slug,
             ],
-            'permissions' => $user->getPermissionsSlugs(),
+            'permissions' => $permission,
         ];   
         return success_response($data, 'User authenticated successfully.'); 
     }

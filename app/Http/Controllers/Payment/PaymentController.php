@@ -67,7 +67,7 @@ class PaymentController extends Controller
             });
         }
  
-        $total = $query->count();  
+        $total = $query->count();
         $data = $query->skip($offset)
                     ->take($perPage)
                     ->get()
