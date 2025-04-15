@@ -69,6 +69,7 @@ class ProfileController extends Controller
 
             foreach ($payments as $payment) {
                 $datas[] = [
+                    'id' => $payment->id,
                     'month' => optional($payment->hijriMonth)->month . ' - ' . optional($payment->hijriMonth)->year,
                     'reason' => $payment->reason,
                     'fee_type' => $payment->fee_type,
