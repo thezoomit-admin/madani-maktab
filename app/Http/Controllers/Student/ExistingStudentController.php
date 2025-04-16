@@ -161,7 +161,7 @@ class ExistingStudentController extends Controller
                 "status" => 2,
             ]);
 
-            Enrole::create([
+            $enrole = Enrole::create([
                 'user_id' => $admission->user_id,
                 'student_id' => $student->id,
                 'department_id' => $admission->department_id,
@@ -194,6 +194,7 @@ class ExistingStudentController extends Controller
                 'student_id' => $student->id,
                 'hijri_month_id' => $active_month->id,
                 'reason' => "ভর্তি ফি",
+                'year' => $enrole->year,
                 'amount' => $admission_fee,
                 'due' => $admission_fee,
                 'created_by' => Auth::user()->id,
@@ -209,6 +210,7 @@ class ExistingStudentController extends Controller
                 'student_id' => $student->id,
                 'hijri_month_id' => $active_month->id,
                 'reason' => "মাসিক ফি",
+                'year' => $enrole->year,
                 'fee_type' => $request->fee_type,
                 'amount' => $monthly_fee,
                 'due' => $monthly_fee,

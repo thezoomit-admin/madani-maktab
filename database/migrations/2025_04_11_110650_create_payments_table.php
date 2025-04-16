@@ -19,12 +19,13 @@ return new class extends Migration
         
             $table->foreignId('student_id')
                 ->constrained('students')
-                ->onDelete('cascade');
+                ->onDelete('cascade'); 
         
             $table->foreignId('hijri_month_id')
                 ->constrained('hijri_months')
                 ->onDelete('cascade');
         
+            $table->string('year')->nullable();
             $table->string('reason');
             $table->string('fee_type')->nullable();
         

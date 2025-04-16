@@ -59,8 +59,21 @@ class TrialStudentListController extends Controller
     {
         $id = $request->id; 
         DB::beginTransaction();
-        try {
-            $user = User::find($id);
+        try { 
+            
+            $user = User::find($id); 
+
+            $department_id = @$user->studentRegister->department_id;
+            if ($department_id == 1) {
+                $monthly_fee = FeeSetting::where('key', 'maktab_monthly_fee')->value('value') ?? 0;
+                $admission_fee = FeeSetting::where('key', 'maktab_admission_fee')->value('value') ?? 0;
+                $session = "প্রথম শ্রেণি";
+            } else {
+                $monthly_fee = FeeSetting::where('key', 'kitab_monthly_fee')->value('value') ?? 0;
+                $admission_fee = FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0;
+                $session = "প্রথম বর্ষ";
+            }
+
 
             if (!$user) {
                 return error_response(null, 404, "শিক্ষার্থী পাওয়া যায়নি।");
@@ -85,33 +98,30 @@ class TrialStudentListController extends Controller
             $enrole = Enrole::create([
                 'user_id' => $id,
                 'student_id' => $student->id,
-                'department_id' => @$user->studentRegister->department_id,
-                'session' => $request->session,
-                'year' => $request->session,
+                'department_id' => $department_id,
+                'session' => $session,
+                'year' => $request->year,
                 'fee_type' => $request->fee_type,
                 'fee' => $request->fee ?? null,
                 'status' => 1,
             ]);
+
+            
 
             $active_month = HijriMonth::where('is_active', true)->first();
             if (!$active_month) {
                 DB::rollBack();
                 return error_response(null, 400, "তোমার কোন অ্যাকটিভ হিজরি মাস নেই।");
             }
-
-            if ($enrole->department_id == 1) {
-                $monthly_fee = FeeSetting::where('key', 'maktab_monthly_fee')->value('value') ?? 0;
-                $admission_fee = FeeSetting::where('key', 'maktab_admission_fee')->value('value') ?? 0;
-            } else {
-                $monthly_fee = FeeSetting::where('key', 'kitab_monthly_fee')->value('value') ?? 0;
-                $admission_fee = FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0;
-            }
+ 
+            
 
             Payment::create([
                 'user_id' => $id,
                 'student_id' => $student->id,
                 'hijri_month_id' => $active_month->id,
                 'reason' => "ভর্তি ফি",
+                'year' => $request->session,
                 'amount' => $admission_fee,
                 'due' => $admission_fee,
                 'created_by' => Auth::user()->id,
@@ -127,6 +137,7 @@ class TrialStudentListController extends Controller
                 'student_id' => $student->id,
                 'hijri_month_id' => $active_month->id,
                 'reason' => "মাসিক ফি",
+                'year' => $request->session,
                 'fee_type' => $request->fee_type,
                 'amount' => $monthly_fee,
                 'due' => $monthly_fee,

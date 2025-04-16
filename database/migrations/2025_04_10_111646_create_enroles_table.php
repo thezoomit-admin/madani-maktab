@@ -17,15 +17,14 @@ return new class extends Migration
             $table->foreignId('student_id')->constrained('students'); 
             $table->integer('department_id')->nullable();
             $table->string('session')->nullable(); 
-            $table->string('year')->nullable(); 
+            $table->string('year')->nullable();
             $table->string('marks')->nullable(); 
-            $table->enum('fee_type', ['General', 'Half', 'Guest'])->default('General');  
+            $table->enum('fee_type', ['সাধারণ', 'আংশিক', 'মেহমান'])->default('সাধারণ');  
             $table->decimal('fee', 10, 2)->nullable()->comment("if half"); 
             $table->tinyInteger('status')->default(0)->comment('1= Running, 2= Completed, 0 = Rejected'); 
             $table->timestamps(); 
-        });
-        
-    }
+        }); 
+    } 
 
     /**
      * Reverse the migrations.
