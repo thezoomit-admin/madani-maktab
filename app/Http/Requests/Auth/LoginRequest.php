@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -43,44 +44,31 @@ class LoginRequest extends FormRequest
      */
     public function authenticate(): void
     {
-        $this->ensureIsNotRateLimited();
-
+        $this->ensureIsNotRateLimited(); 
         $email = $this->input('email');
         $reg_id = $this->input('reg_id');
         $password = $this->input('password');
-        $remember = $this->boolean('remember');
-
-        $user = null;
-
-        // Try to get the user either by email or reg_id
+        $remember = $this->boolean('remember'); 
+        $user = null; 
         if ($email) {
             $user = User::where('email', $email)->first();
             if (!$user) {
-                throw ValidationException::withMessages([
-                    'email' => "Invalid Email",
-                ]);
+                throw ValidationException::withMessages(['email' => "Invalid Email"]);
             }
-        } elseif ($reg_id) {
+        } else {
             $user = User::where('reg_id', $reg_id)->first();
             if (!$user) {
-                throw ValidationException::withMessages([
-                    'reg_id' => "Invalid Reg Number",
-                ]);
+                throw ValidationException::withMessages(['reg_id' => "Invalid Reg Number"]);
             }
-        }
-
-        // Final authentication using email (since Laravel only checks email+password by default)
-        if (! $user || ! Auth::attempt(['email' => $user->email, 'password' => $password], $remember)) {
+        } 
+        if (!$user || !Hash::check($password, $user->password)) {
             RateLimiter::hit($this->throttleKey());
-
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
-        }
-
+    
+            throw ValidationException::withMessages(['email' => __('auth.failed')]);
+        }  
+        Auth::login($user, $remember); 
         RateLimiter::clear($this->throttleKey());
-    }
-
+    } 
 
     /**
      * Ensure the login request is not rate limited.

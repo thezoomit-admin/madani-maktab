@@ -223,8 +223,7 @@ class ExistingStudentController extends Controller
             DB::rollBack();
             return error_response(null, '500', "❌ ভর্তি প্রক্রিয়ায় একটি ত্রুটি ঘটেছে: " . $e->getMessage());
         }
-    }
-
-
+    } 
 
 }
+

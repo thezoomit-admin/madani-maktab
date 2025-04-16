@@ -14,9 +14,7 @@ class LoginService {
 
     public static function createResponse($user)
     {  
-        $token = $user->createToken('authToken')->plainTextToken;
-  
-
+        $token = $user->createToken('authToken')->plainTextToken; 
         if($user->user_type=="student"){
             $permission = ['student'];
             $role = 'student';
@@ -28,6 +26,7 @@ class LoginService {
         $data = [
             'token' => $token,
             'user' => [
+                'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'user_type' => $user->user_type,
