@@ -60,25 +60,53 @@ class ProfileController extends Controller
 
             $perPage = $request->input('per_page', 10);
             $page = $request->input('page', 1); 
+ 
+            $year = $request->input('year', null);
+
             $query = Payment::with('hijriMonth')->where('user_id', $id);
+ 
+            if ($year) {
+                $query->where('year', $year);
+            }  
+
             $total = $query->count(); 
             $payments = $query->skip(($page - 1) * $perPage)
                             ->take($perPage)
                             ->get();
 
             $datas = [];
+            $totalAmount = 0;
+            $totalPaid = 0;
+            $totalDue = 0;  
 
             foreach ($payments as $payment) {
+                
+                if($payment->due == 0){
+                    $status = "Paid";
+                } else if($payment->transaction) {
+                    if($payment->transaction->is_approved == false){
+                        $status = "Pending";
+                    } else {
+                        $status = "Unpaid";
+                    }
+                } else {
+                    $status = "Unpaid";
+                }
+                
+                
                 $datas[] = [
                     'id' => $payment->id,
                     'month' => optional($payment->hijriMonth)->month . ' - ' . optional($payment->hijriMonth)->year,
                     'reason' => $payment->reason,
                     'fee_type' => $payment->fee_type,
                     'amount' => $payment->amount,
-                    'status' => $payment->due == 0 ? 'Paid' : 'Unpaid',
+                    'status' => $status,
                 ];
+ 
+                $totalAmount += $payment->amount;
+                $totalPaid += $payment->paid;
+                $totalDue += $payment->due;
             }
-                            
 
             return success_response([
                 'data' => $datas,
@@ -87,13 +115,19 @@ class ProfileController extends Controller
                     'per_page' => (int) $perPage,
                     'current_page' => (int) $page,
                     'last_page' => ceil($total / $perPage),
-                ]
+                ],
+                'totals' => [
+                    'total_amount' => $totalAmount,
+                    'total_paid' => $totalPaid,
+                    'total_due' => $totalDue,
+                ],
             ]);  
 
         } catch (\Exception $e) {
             return error_response(null, 500, $e->getMessage());
         }
-    } 
+    }
+
 
     public function EnroleHistory(Request $request, $id = null)
     {

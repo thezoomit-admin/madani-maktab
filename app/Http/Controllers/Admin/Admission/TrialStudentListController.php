@@ -106,15 +106,11 @@ class TrialStudentListController extends Controller
                 'status' => 1,
             ]);
 
-            
-
             $active_month = HijriMonth::where('is_active', true)->first();
             if (!$active_month) {
                 DB::rollBack();
-                return error_response(null, 400, "তোমার কোন অ্যাকটিভ হিজরি মাস নেই।");
-            }
- 
-            
+                return error_response(null, 400, "কোন অ্যাকটিভ হিজরি মাস নেই।");
+            } 
 
             Payment::create([
                 'user_id' => $id,

@@ -22,6 +22,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
      $messageService = new PhoneMessageService;
      $message = "Test";
-     return $messageService->sendMessage(+8801766774016, $message);
+     // return $messageService->sendMessage(+8801766774016, $message);
 });
  

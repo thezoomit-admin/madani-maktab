@@ -47,5 +47,9 @@ class Payment extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public function transaction(){
+        return $this->hasOne(PaymentTransaction::class,'payment_id');
+    }
     
 }

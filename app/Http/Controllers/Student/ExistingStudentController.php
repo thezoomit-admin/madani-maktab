@@ -18,6 +18,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class ExistingStudentController extends Controller
 {
@@ -26,8 +27,17 @@ class ExistingStudentController extends Controller
         try {
             $perPage = $request->input('per_page', 20);  
             $page = $request->input('page', 1); 
+            $keyword = $request->input('keyword');  
 
             $query = Admission::where('status', 0);
+ 
+            if (!empty($keyword)) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%")
+                    ->orWhere('father_name', 'like', "%{$keyword}%")
+                    ->orWhere('original_id', 'like', "%{$keyword}%");
+                });
+            }
 
             $total = $query->count();
             $data = $query
@@ -48,6 +58,7 @@ class ExistingStudentController extends Controller
             return error_response($e->getMessage());
         }
     }
+
     
     public function store(ExistingStudentRegisterRequest $request){
         DB::beginTransaction();
@@ -127,6 +138,32 @@ class ExistingStudentController extends Controller
     }    
     public function approve(Request $request, $id)
     {
+        $validator = Validator::make($request->all(), [
+            'fee_type' => 'required',
+            'reg_id' => ['required', 'regex:/^[0-9]+$/', 'unique:users,reg_id'],
+            'jamaat' => ['nullable', 'regex:/^[0-9]+$/'],
+        ], [
+            'fee_type.required' => 'ফি টাইপ দেওয়া আবশ্যক।',
+            'reg_id.required' => 'রেজিস্ট্রেশন আইডি দেওয়া আবশ্যক।',
+            'reg_id.regex' => 'রেজিস্ট্রেশন আইডি অবশ্যই শুধুমাত্র ইংরেজি সংখ্যা (0-9) হতে হবে।',
+            'reg_id.unique' => 'এই রেজিস্ট্রেশন আইডি ইতিমধ্যে ব্যবহার করা হয়েছে।',
+            'jamaat.regex' => 'জামাত অবশ্যই শুধুমাত্র ইংরেজি সংখ্যা (0-9) হতে হবে।',
+        ]);
+        
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'ভ্যালিডেশন ত্রুটি।',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+               
+
+        if ($validator->fails()) {
+            return error_response(null, 422, $validator->errors());
+        }
+        
         DB::beginTransaction(); 
         try {
             $admission = Admission::find($id);
@@ -140,11 +177,13 @@ class ExistingStudentController extends Controller
             }
 
             $user = User::find($admission->user_id);
-            $user->reg_id = $admission->original_id;
+            $user->reg_id = $request->reg_id;
             $user->save();
 
             $student = Student::create([
                 'user_id' => $admission->user_id, 
+                'reg_id' => $admission->reg_id,
+                'jamaat' => $request->jamaat??null,
                 "average_marks" => $admission->average_marks,
                 "status" => 1
             ]);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Payment;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,17 +20,32 @@ class PaymentController extends Controller
 
             if (!$payment) {
                 return error_response(null, 404, 'পেমেন্ট আইডি সঠিক নয়।');
+            }  
+
+            $existingTransaction = PaymentTransaction::where('payment_id', $payment->id)
+                ->first();
+
+            if ($existingTransaction) {
+                if ($existingTransaction->is_approved) {
+                    return error_response(null, 400, 'পেমেন্ট ইতিমধ্যে সম্পন্ন হয়েছে।');
+                } else {
+                    return error_response(null, 400, 'পেমেন্ট অনুরোধ জমা আছে, অনুমোদনের জন্য অপেক্ষা করুন।');
+                }
             }
 
-            $user = Auth::user();
+
+            $user = User::find(Auth::user()->id);
             $is_approved = false;
             $approved_by = null;
             if($user->user_type=='teacher'){
                 $is_approved = true;
                 $approved_by = $user->id;
+                $payment->paid = $payment->amount;
+                $payment->due = 0;
+                $payment->save(); 
             }  
 
-            $transaction = PaymentTransaction::create([
+             PaymentTransaction::create([
                 'user_id' => $payment->user_id,
                 'student_id' => $payment->student_id,
                 'payment_id' => $payment->id,

@@ -13,12 +13,15 @@ class TeacherCommentController extends Controller
     public function index(Request $request)
     {
         $student_id = $request->student_id;
+        if(!$student_id){
+            $student_id = Auth::user()->id;
+        }
 
         $perPage = $request->per_page ?? 10;
         $page = $request->page ?? 1;
         $offset = ($page - 1) * $perPage;
 
-        $query = TeacherComment::with('teacher') // eager load teacher
+        $query = TeacherComment::with('teacher')  
             ->where('student_id', $student_id)
             ->latest();
 
