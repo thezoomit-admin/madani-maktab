@@ -19,6 +19,7 @@ class Enrole extends Model
         'fee_type',
         'fee',
         'status',
+        'is_yeada',
     ];
  
     public function user()

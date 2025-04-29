@@ -67,13 +67,10 @@ class TrialStudentListController extends Controller
             if ($department_id == 1) {
                 $monthly_fee = FeeSetting::where('key', 'maktab_monthly_fee')->value('value') ?? 0;
                 $admission_fee = FeeSetting::where('key', 'maktab_admission_fee')->value('value') ?? 0;
-                $session = "প্রথম শ্রেণি";
             } else {
                 $monthly_fee = FeeSetting::where('key', 'kitab_monthly_fee')->value('value') ?? 0;
                 $admission_fee = FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0;
-                $session = "প্রথম বর্ষ";
             }
-
 
             if (!$user) {
                 return error_response(null, 404, "শিক্ষার্থী পাওয়া যায়নি।");
@@ -99,7 +96,7 @@ class TrialStudentListController extends Controller
                 'user_id' => $id,
                 'student_id' => $student->id,
                 'department_id' => $department_id,
-                'session' => $session,
+                'session' => 1,
                 'year' => $request->year,
                 'fee_type' => $request->fee_type,
                 'fee' => $request->fee ?? null,

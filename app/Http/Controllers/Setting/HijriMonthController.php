@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Setting;
 
+use App\Enums\ArabicMonth;
 use App\Http\Controllers\Controller;
 use App\Models\HijriMonth;
 use Carbon\Carbon;
@@ -11,6 +12,21 @@ use Illuminate\Support\Facades\Validator;
 
 class HijriMonthController extends Controller
 {
+    public function month_list()
+    {
+        $values = ArabicMonth::values();
+
+        $list = [];
+        foreach ($values as $key => $name) {
+            $list[] = [
+                'id' => (int) $key,
+                'name' => $name,
+            ];
+        }
+
+        return $list;
+    } 
+
     public function index(Request $request)
     {
         $query = HijriMonth::query()->latest();
@@ -24,8 +40,8 @@ class HijriMonthController extends Controller
         }
 
         // Manual Pagination
-        $perPage = $request->input('per_page', 10); // Default 10
-        $page = $request->input('page', 1);         // Default page 1
+        $perPage = $request->input('per_page', 10);  
+        $page = $request->input('page', 1); 
 
         $total = $query->count();
         $results = $query->skip(($page - 1) * $perPage)

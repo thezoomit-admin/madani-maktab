@@ -17,28 +17,26 @@ use App\Http\Controllers\Admin\Employee\RolePermissionController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Common\CompanyCategoryApiController;
 use App\Http\Controllers\Common\CountryApiController;
+use App\Http\Controllers\Common\DepartmentController;
 use App\Http\Controllers\Common\DesignationApiController;
 use App\Http\Controllers\Common\DistrictApiController;
 use App\Http\Controllers\Common\DivisionApiController;
+use App\Http\Controllers\Common\FeeTypeController;
 use App\Http\Controllers\Common\RoleApiController;
+use App\Http\Controllers\Common\SessionController;
 use App\Http\Controllers\Common\UnionApiController;
 use App\Http\Controllers\Common\UpazilaApiController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Payment\PaymentController;
-use App\Http\Controllers\Setting\FeeSettingController;
-use App\Http\Controllers\Setting\HijriDateController;
-use App\Http\Controllers\Setting\HijriMonthController;
-use App\Http\Controllers\Setting\HijriYearController;
+use App\Http\Controllers\DashboardController; 
+use App\Http\Controllers\Payment\PaymentController; 
+use App\Http\Controllers\Setting\FeeSettingController; 
+use App\Http\Controllers\Setting\HijriMonthController; 
 use App\Http\Controllers\Student\StudentRegisterController;
 use App\Http\Controllers\Setting\MeetLinkSettingController;
 use App\Http\Controllers\Student\ExistingStudentController;
 use App\Http\Controllers\Student\ProfileController;
 use App\Http\Controllers\Student\StudentController;
-use App\Http\Controllers\Student\TeacherCommentController;
-use App\Models\TeacherComment;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use Twilio\Rest\Api\V2010\Account\Call\PaymentContext;
+use App\Http\Controllers\Student\TeacherCommentController; 
+use Illuminate\Support\Facades\Route; 
 
 /*
 |--------------------------------------------------------------------------
@@ -118,20 +116,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('profile/{id?}', [ProfileController::class, 'profile']);
     Route::get('payment-history/{id?}', [ProfileController::class, 'PaymentHistory']);
     Route::get('enroll-history/{id?}', [ProfileController::class, 'EnroleHistory']);
-    Route::get('change-fee-type/{id}', [ProfileController::class, 'ChangeFeeType']);
-
+    Route::get('change-fee-type/{id}', [ProfileController::class, 'ChangeFeeType']); 
 
     // Payment Route 
     Route::post('pay-now',[PaymentController::class,'payNow']);
     Route::get('payment-list',[PaymentController::class,'paymentList']);
-    Route::get('approve-payment/{id}',[PaymentController::class,'approvePayment']);
-    
-
-
-    
-
+    Route::get('approve-payment/{id}',[PaymentController::class,'approvePayment']); 
     
 });
+
+// Common 
+Route::get('month-list',[HijriMonthController::class,'month_list']);
+Route::get('maktab-session',[SessionController::class,'maktabSession']);
+Route::get('kitab-session',[SessionController::class,'kitabSession']);
+Route::get('fee-type',[FeeTypeController::class,'feeList']); 
+Route::get('departments',[DepartmentController::class,'index']);
 
 
  

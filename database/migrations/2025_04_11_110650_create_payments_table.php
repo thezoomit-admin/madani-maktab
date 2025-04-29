@@ -27,7 +27,7 @@ return new class extends Migration
         
             $table->string('year')->nullable();
             $table->string('reason');
-            $table->string('fee_type')->nullable();
+            $table->integer('fee_type')->nullable();
         
             $table->decimal('amount', 10, 2)->default(0);
             $table->decimal('paid', 10, 2)->default(0);

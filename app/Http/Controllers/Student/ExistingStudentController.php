@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ExistingStudentApproveRequest;
 use App\Http\Requests\ExistingStudentRegisterRequest;
 use App\Models\Admission;
 use App\Models\Enrole;
@@ -136,38 +137,11 @@ class ExistingStudentController extends Controller
             return error_response($e->getMessage(), 500);
         }
     }    
-    public function approve(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'fee_type' => 'required',
-            'reg_id' => ['required', 'regex:/^[0-9]+$/', 'unique:users,reg_id'],
-            'jamaat' => ['nullable', 'regex:/^[0-9]+$/'],
-        ], [
-            'fee_type.required' => 'ফি টাইপ দেওয়া আবশ্যক।',
-            'reg_id.required' => 'রেজিস্ট্রেশন আইডি দেওয়া আবশ্যক।',
-            'reg_id.regex' => 'রেজিস্ট্রেশন আইডি অবশ্যই শুধুমাত্র ইংরেজি সংখ্যা (0-9) হতে হবে।',
-            'reg_id.unique' => 'এই রেজিস্ট্রেশন আইডি ইতিমধ্যে ব্যবহার করা হয়েছে।',
-            'jamaat.regex' => 'জামাত অবশ্যই শুধুমাত্র ইংরেজি সংখ্যা (0-9) হতে হবে।',
-        ]);
-        
-        
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'ভ্যালিডেশন ত্রুটি।',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-               
-
-        if ($validator->fails()) {
-            return error_response(null, 422, $validator->errors());
-        }
-        
+    public function approve(ExistingStudentApproveRequest $request, $id)
+    {    
         DB::beginTransaction(); 
         try {
-            $admission = Admission::find($id);
-
+            $admission = Admission::find($id); 
             if (!$admission) {
                 return error_response(null, '404', "ভুল আইডি প্রদান করা হয়েছে, ভর্তি তথ্য পাওয়া যায়নি।");
             }
@@ -182,33 +156,35 @@ class ExistingStudentController extends Controller
 
             $student = Student::create([
                 'user_id' => $admission->user_id, 
-                'reg_id' => $admission->reg_id,
+                'reg_id' => $request->reg_id,
                 'jamaat' => $request->jamaat??null,
                 "average_marks" => $admission->average_marks,
                 "status" => 1
             ]);
-
+ 
             Enrole::create([
                 'user_id' => $admission->user_id,
                 'student_id' => $student->id,
-                'department_id' => $admission->department_id,
-                'session' => $admission->last_year_session,
+                'department_id' => $request->last_year_department_id,
+                'session' => $request->last_year_session,
                 'year' => 1445,
                 "marks" => $admission->total_marks,
                 "fee_type" => $request->fee_type,
                 "fee" => 0,
                 "status" => 2,
+                'is_yeada' => $request->is_yeada_last_year,
             ]);
 
             $enrole = Enrole::create([
                 'user_id' => $admission->user_id,
                 'student_id' => $student->id,
-                'department_id' => $admission->department_id,
-                'session' => $admission->interested_session,
+                'department_id' => $request->department_id,
+                'session' => $request->session,
                 'year' => 1446,
                 "fee_type" => $request->fee_type,
                 "fee" => $request->fee ?? null,
                 "status" => 1,
+                'is_yeada' => $request->is_yeada,
             ]);
 
             $admission->status = 1;
@@ -240,8 +216,12 @@ class ExistingStudentController extends Controller
                 'updated_by' => Auth::user()->id,
             ]);
 
-            if ($request->fee_type == "আংশিক") {
+            if ($request->fee_type == 2) {
                 $monthly_fee = $request->fee;
+            }
+
+            if ($request->fee_type == 3) {
+                $monthly_fee = 0;
             }
 
             Payment::create([
@@ -264,7 +244,7 @@ class ExistingStudentController extends Controller
             DB::rollBack();
             return error_response(null, '500', "❌ ভর্তি প্রক্রিয়ায় একটি ত্রুটি ঘটেছে: " . $e->getMessage());
         }
-    } 
+    }  
 
 }
 

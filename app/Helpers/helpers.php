@@ -45,3 +45,16 @@ if (!function_exists('getSlug')) {
     }
 }
 
+if (!function_exists('enum_name')) {
+    function enum_name($enumClass, $id)
+    {
+        if (!class_exists($enumClass)) {
+            return null;
+        }
+
+        $values = $enumClass::values();
+        return $values[$id] ?? null;
+    }
+}
+
+
