@@ -27,7 +27,8 @@ use App\Http\Controllers\Common\SessionController;
 use App\Http\Controllers\Common\UnionApiController;
 use App\Http\Controllers\Common\UpazilaApiController;
 use App\Http\Controllers\DashboardController; 
-use App\Http\Controllers\Payment\PaymentController; 
+use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\Report\OjifaDetailsReportController;
 use App\Http\Controllers\Setting\FeeSettingController; 
 use App\Http\Controllers\Setting\HijriMonthController; 
 use App\Http\Controllers\Student\StudentRegisterController;
@@ -121,7 +122,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Payment Route 
     Route::post('pay-now',[PaymentController::class,'payNow']);
     Route::get('payment-list',[PaymentController::class,'paymentList']);
-    Route::get('approve-payment/{id}',[PaymentController::class,'approvePayment']); 
+    Route::get('approve-payment/{id}',[PaymentController::class,'approvePayment']);  
+
+    // Report 
+    Route::get('ojifa-report',[OjifaDetailsReportController::class,'ojifaReport']);
     
 });
 
