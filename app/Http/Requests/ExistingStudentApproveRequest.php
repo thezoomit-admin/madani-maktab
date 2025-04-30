@@ -39,13 +39,11 @@ class ExistingStudentApproveRequest extends FormRequest
             'reg_id' => ['required', 'regex:/^[0-9]+$/', 'unique:students,reg_id'],
             'jamaat' => ['nullable', 'regex:/^[0-9]+$/'],
             'department_id' => ['required'],
-            'session' => ['required', 'string'],
-            'is_yeada' => ['nullable', 'boolean'], 
+            'session' => ['required', 'string'], 
             'fee' => ['nullable', 'numeric', 'min:0'],
 
             'last_year_department_id' => ['required'],
-            'last_year_session' => ['required'], 
-            'is_yeada_last_year' => ['nullable', 'boolean'], 
+            'last_year_session' => ['required'],  
         ];
     }
 
@@ -67,10 +65,7 @@ class ExistingStudentApproveRequest extends FormRequest
 
             'last_year_department_id.required' => 'গত বছরের বিভাগ নির্বাচন করা আবশ্যক।', 
 
-            'last_year_session.required' => 'গত বছরের সেশন দেওয়া আবশ্যক।',
-
-            'is_yeada.boolean' => 'বর্তমান ইয়ারদা স্টেটাস অবশ্যই সত্য/মিথ্যা হতে হবে।',
-            'is_yeada_last_year.boolean' => 'গত বছরের ইয়ারদা স্টেটাস অবশ্যই সত্য/মিথ্যা হতে হবে।',
+            'last_year_session.required' => 'গত বছরের সেশন দেওয়া আবশ্যক।', 
 
             'fee.numeric' => 'ফি অবশ্যই সংখ্যা হতে হবে।',
             'fee.min' => 'ফি অবশ্যই ০ বা তার বেশি হতে হবে।',

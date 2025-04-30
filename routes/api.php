@@ -28,6 +28,7 @@ use App\Http\Controllers\Common\UnionApiController;
 use App\Http\Controllers\Common\UpazilaApiController;
 use App\Http\Controllers\DashboardController; 
 use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\Report\OjifaCollectReportController;
 use App\Http\Controllers\Report\OjifaDetailsReportController;
 use App\Http\Controllers\Setting\FeeSettingController; 
 use App\Http\Controllers\Setting\HijriMonthController; 
@@ -125,10 +126,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('approve-payment/{id}',[PaymentController::class,'approvePayment']);  
 
     // Report 
-    Route::get('ojifa-report',[OjifaDetailsReportController::class,'ojifaReport']);
+    Route::get('ojifa-report',[OjifaDetailsReportController::class,'OjifaReport']);
+    Route::get('ojifa-collect-report',[OjifaCollectReportController::class,'getStudentPaymentReport']);
     
-});
-
+}); 
 // Common 
 Route::get('month-list',[HijriMonthController::class,'month_list']);
 Route::get('maktab-session',[SessionController::class,'maktabSession']);
@@ -136,5 +137,6 @@ Route::get('kitab-session',[SessionController::class,'kitabSession']);
 Route::get('fee-type',[FeeTypeController::class,'feeList']); 
 Route::get('departments',[DepartmentController::class,'index']);
 
+ 
 
  

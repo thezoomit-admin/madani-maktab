@@ -12,6 +12,7 @@ class Payment extends Model
     protected $fillable = [
         'user_id',
         'student_id', 
+        'enrole_id',
         'hijri_month_id',
         'reason',
         'year',

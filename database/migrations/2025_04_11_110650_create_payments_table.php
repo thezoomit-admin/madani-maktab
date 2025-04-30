@@ -20,6 +20,10 @@ return new class extends Migration
             $table->foreignId('student_id')
                 ->constrained('students')
                 ->onDelete('cascade'); 
+
+            $table->foreignId('enrole_id')
+                ->constrained('enroles')
+                ->onDelete('cascade');
         
             $table->foreignId('hijri_month_id')
                 ->constrained('hijri_months')

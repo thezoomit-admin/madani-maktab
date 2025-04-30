@@ -171,8 +171,7 @@ class ExistingStudentController extends Controller
                 "marks" => $admission->total_marks,
                 "fee_type" => $request->fee_type,
                 "fee" => 0,
-                "status" => 2,
-                'is_yeada' => $request->is_yeada_last_year,
+                "status" => 2, 
             ]);
 
             $enrole = Enrole::create([
@@ -183,8 +182,7 @@ class ExistingStudentController extends Controller
                 'year' => 1446,
                 "fee_type" => $request->fee_type,
                 "fee" => $request->fee ?? null,
-                "status" => 1,
-                'is_yeada' => $request->is_yeada,
+                "status" => 1, 
             ]);
 
             $admission->status = 1;
@@ -207,8 +205,9 @@ class ExistingStudentController extends Controller
             Payment::create([
                 'user_id' => $admission->user_id,
                 'student_id' => $student->id,
+                'enrole_id' => $enrole->id,
                 'hijri_month_id' => $active_month->id,
-                'reason' => "ভর্তি ফি",
+                'reason' => 1,
                 'year' => $enrole->year,
                 'amount' => $admission_fee,
                 'due' => $admission_fee,
@@ -227,8 +226,9 @@ class ExistingStudentController extends Controller
             Payment::create([
                 'user_id' => $admission->user_id,
                 'student_id' => $student->id,
+                'enrole_id' => $enrole->id,
                 'hijri_month_id' => $active_month->id,
-                'reason' => "মাসিক ফি",
+                'reason' => 2,
                 'year' => $enrole->year,
                 'fee_type' => $request->fee_type,
                 'amount' => $monthly_fee,
