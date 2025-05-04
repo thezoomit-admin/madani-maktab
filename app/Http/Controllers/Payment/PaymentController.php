@@ -92,7 +92,7 @@ class PaymentController extends Controller
                             'id'                => @$item->id,
                             'name'              => @$item->user->name,
                             'reg_id'            => @$item->user->reg_id, 
-                            'payment_method'    => @$item->payment_method,
+                            'payment_method'    => @$item->paymentMethod->name??"-",
                             'payer_account'     => @$item->payer_account,
                             'amount'            => $item->amount,
                             'is_approved'       => $item->is_approved,

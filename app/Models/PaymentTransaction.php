@@ -41,4 +41,8 @@ class PaymentTransaction extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    public function paymentMethod(){
+        return $this->belongsTo(PaymentMethod::class,'payment_method_id');
+    }
+
 }
