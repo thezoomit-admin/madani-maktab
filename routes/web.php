@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\Admission\InterviewController;
 use App\Models\Admission;
 use App\Models\Enrole;
 use App\Models\Payment;
+use App\Models\PaymentMethod;
 use App\Models\PaymentTransaction;
 use App\Models\Student;
 use App\Models\StudentRegister;
@@ -42,6 +43,13 @@ Route::get('/refresh', function () {
      Payment::truncate();
      PaymentTransaction::truncate();
      TeacherComment::truncate();
+     $payments_methods = PaymentMethod::all();
+     foreach($payments_methods as $method){
+          $method->income_in_hand = 0;
+          $method->expense_in_hand = 0;
+          $method->balance = 0; 
+          $method->save();
+     }
  
      DB::statement('SET FOREIGN_KEY_CHECKS=1;');
  

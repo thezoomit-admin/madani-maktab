@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Admission;
 
+use App\Enums\FeeType;
 use App\Http\Controllers\Controller;
 use App\Models\Enrole;
 use App\Models\FeeSetting;
@@ -90,13 +91,32 @@ class TrialStudentListController extends Controller
                 'status' => 1
             ]);
 
+            if ($department_id  == 1) {
+                $monthly_fee = FeeSetting::where('key', 'maktab_monthly_fee')->value('value') ?? 0;
+                $admission_fee = FeeSetting::where('key', 'maktab_admission_fee')->value('value') ?? 0;
+            } else {
+                $monthly_fee = FeeSetting::where('key', 'kitab_monthly_fee')->value('value') ?? 0;
+                $admission_fee = FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0;
+            }
+
+            $fee_type = $request->fee_type;
+            if ($fee_type == FeeType::Half) {
+                $monthly_fee = $request->fee;
+            }elseif($fee_type == FeeType::Guest){
+                $monthly_fee = 0;
+            }elseif($fee_type == FeeType::HalfButThisMonthGeneral){
+                $fee_type == FeeType::Half;
+            }elseif($fee_type == FeeType::GuestButThisMonthGeneral){
+                $fee_type == FeeType::Guest;
+            } 
+
             $enrole = Enrole::create([
                 'user_id' => $id,
                 'student_id' => $student->id,
                 'department_id' => $department_id,
                 'session' => 1,
                 'year' => $request->year,
-                'fee_type' => $request->fee_type,
+                'fee_type' =>  $fee_type,
                 'fee' => $request->fee ?? null,
                 'status' => 1,
             ]);
@@ -118,11 +138,7 @@ class TrialStudentListController extends Controller
                 'due' => $admission_fee,
                 'created_by' => Auth::user()->id,
                 'updated_by' => Auth::user()->id,
-            ]);
-
-            if ($request->fee_type == 2) {
-                $monthly_fee = $request->fee;
-            }
+            ]); 
 
             Payment::create([
                 'user_id' => $id,

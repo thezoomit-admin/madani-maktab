@@ -121,8 +121,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('enroll-history/{id?}', [ProfileController::class, 'EnroleHistory']);
     Route::get('change-fee-type/{id}', [ProfileController::class, 'ChangeFeeType']); 
 
-    // Payment Route 
-    
+    // Payment Route  
     Route::resource('payment-method',PaymentMethodController::class);
     Route::post('pay-now',[PaymentController::class,'payNow']);
     Route::get('payment-list',[PaymentController::class,'paymentList']);

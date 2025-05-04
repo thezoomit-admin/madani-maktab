@@ -43,9 +43,9 @@ class PaymentMethodController extends Controller
             'name' => $request->name,
             'icon' => $iconPath,
             'info' => $request->info,
-            'income_in_hand' => $request->income_in_hand,
-            'expense_in_hand' => $request->expense_in_hand,
-            'balance' => $request->balance,
+            'income_in_hand' => $request->income_in_hand??0,
+            'expense_in_hand' => $request->expense_in_hand??0,
+            'balance' => $request->balance??0,
         ]);
     
         return success_response(null, "সফলভাবে তৈরি হয়েছে");
@@ -85,9 +85,9 @@ class PaymentMethodController extends Controller
         $paymentMethod->update([
             'name' => $request->name,
             'info' => $request->info,
-            'income_in_hand' => $request->income_in_hand,
-            'expense_in_hand' => $request->expense_in_hand,
-            'balance' => $request->balance,
+            'income_in_hand' => $request->income_in_hand??0,
+            'expense_in_hand' => $request->expense_in_hand??0,
+            'balance' => $request->balance??0,
         ]);
     
         return success_response(null, "সফলভাবে আপডেট হয়েছে");

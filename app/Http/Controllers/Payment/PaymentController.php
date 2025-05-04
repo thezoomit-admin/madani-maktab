@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Models\PaymentMethod;
 use App\Models\PaymentTransaction;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -114,8 +115,7 @@ class PaymentController extends Controller
     public function approvePayment($id)
     {
         try {
-            DB::beginTransaction();
-    
+            DB::beginTransaction(); 
             $paymentTransaction = PaymentTransaction::find($id);
             if (!$paymentTransaction) {
                 return error_response(null, 404, "পেমেন্ট ডাটা খুঁজে পাওয়া যায়নি।");
@@ -129,14 +129,21 @@ class PaymentController extends Controller
             if (!$payment) {
                 DB::rollBack();
                 return error_response(null, 404, "পেমেন্ট রেকর্ড খুঁজে পাওয়া যায়নি।");
-            }
+            } 
+            $amount = $payment->amount; 
     
-            $payment->paid = $payment->amount;
+            $payment->paid = $amount;
             $payment->due = 0;
-            $payment->save();
-    
-            DB::commit();
-    
+            $payment->save(); 
+
+            $bank = PaymentMethod::find($paymentTransaction->payment_method_id); 
+            if ($bank) {
+                $bank->income_in_hand += $amount;
+                $bank->balance += $amount;
+                $bank->save();
+            }
+
+            DB::commit(); 
             return success_response(null, "পেমেন্ট অনুমোদন সম্পূর্ণ হয়েছে।");
         } catch (\Exception $e) {
             DB::rollBack();
