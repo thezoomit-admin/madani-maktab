@@ -70,7 +70,7 @@ class HijriMonthController extends Controller
         ->map(function ($item) {
             return [
                 'year' => $item->year,
-                'month' => enum_name(HijriMonth::class, $item->month),
+                'month' => enum_name(ArabicMonth::class, $item->month),
                 'start_date' => $item->start_date,
                 'end_date' => $item->end_date,
                 'is_active' => $item->is_active,
