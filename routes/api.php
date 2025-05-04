@@ -34,6 +34,7 @@ use App\Http\Controllers\Setting\FeeSettingController;
 use App\Http\Controllers\Setting\HijriMonthController; 
 use App\Http\Controllers\Student\StudentRegisterController;
 use App\Http\Controllers\Setting\MeetLinkSettingController;
+use App\Http\Controllers\Setting\PaymentMethodController;
 use App\Http\Controllers\Student\ExistingStudentController;
 use App\Http\Controllers\Student\ProfileController;
 use App\Http\Controllers\Student\StudentController;
@@ -51,6 +52,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::post('login', [AuthController::class, 'login'])->name('login'); 
+Route::post('forget-password',[AuthController::class,"forgetPassword"]);
 Route::post('register', [AuthController::class, 'register']);
 Route::get('roles',RoleApiController::class);
 Route::get('designations',DesignationApiController::class);
@@ -74,8 +76,7 @@ Route::get('student/{id}', [AdmissionStudentController::class,'student']);
 Route::get('student-register-last-stage', [AdmissionStudentController::class,'isCompleted']);
 Route::get('dashboard',DashboardController::class);
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::post('change-password',[AuthController::class,"changePassword"]);
-    Route::post('forget-password',[AuthController::class,"forgetPassword"]);
+    Route::post('change-password',[AuthController::class,"changePassword"]); 
     
     Route::resource('role', RoleController::class); 
     Route::resource('role-permission',RolePermissionController::class);
@@ -121,6 +122,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('change-fee-type/{id}', [ProfileController::class, 'ChangeFeeType']); 
 
     // Payment Route 
+    
+    Route::resource('payment-method',PaymentMethodController::class);
     Route::post('pay-now',[PaymentController::class,'payNow']);
     Route::get('payment-list',[PaymentController::class,'paymentList']);
     Route::get('approve-payment/{id}',[PaymentController::class,'approvePayment']);  

@@ -16,9 +16,10 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('student_id')->constrained('students');
             $table->foreignId('payment_id')->constrained('payments');
-            $table->string('payment_method');
-            $table->string('payer_account')->nullable();  
+            $table->foreignId('payment_method_id')->constrained('payment_methods');
+            $table->text('payer_account')->nullable();
             $table->decimal('amount', 10, 2);
+            $table->string('image')->nullable();
             $table->boolean('is_approved')->default(false);
             $table->foreignId('approved_by')->nullable()->constrained('users');
             $table->timestamps();

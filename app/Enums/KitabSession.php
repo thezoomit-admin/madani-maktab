@@ -5,13 +5,13 @@ namespace App\Enums;
 final class KitabSession
 {
     const PROTHOM_BORSHO  = 1;
-    const YEADA           = 2;
-    const DITYO_BORSHO    = 3;
-    const TRITIO_BORSHO   = 4;
-    const CHOTURTHO_BORSHO = 5;
-    const PONCHOM_BORSHO  = 6;
-    const SOYOM_BORSHO    = 7;
-    const SOPTOM_BORSHO   = 8;
+    const YEADA           = 0;
+    const DITYO_BORSHO    = 2;
+    const TRITIO_BORSHO   = 3;
+    const CHOTURTHO_BORSHO = 4;
+    const PONCHOM_BORSHO  = 5;
+    const SOYOM_BORSHO    = 6;
+    const SOPTOM_BORSHO   = 7;
 
     public static function values()
     {

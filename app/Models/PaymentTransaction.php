@@ -13,9 +13,10 @@ class PaymentTransaction extends Model
         'user_id',
         'student_id',
         'payment_id',
-        'payment_method',
+        'payment_method_id',
         'payer_account',  
         'amount',
+        'image',
         'is_approved',
         'approved_by',
     ]; 
