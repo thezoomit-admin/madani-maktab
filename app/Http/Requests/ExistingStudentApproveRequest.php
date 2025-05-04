@@ -35,7 +35,7 @@ class ExistingStudentApproveRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'fee_type' => 'required|in:1,2,3',
+            'fee_type' => 'required|in:1,2,3,4,5',
             'reg_id' => ['required', 'regex:/^[0-9]+$/', 'unique:students,reg_id'],
             'jamaat' => ['nullable', 'regex:/^[0-9]+$/'],
             'department_id' => ['required'],
