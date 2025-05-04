@@ -138,167 +138,120 @@ class ExistingStudentController extends Controller
             return error_response($e->getMessage(), 500);
         }
     }    
-
     public function approve(ExistingStudentApproveRequest $request, $id)
-    {
+    {    
         DB::beginTransaction(); 
         try {
-            $admission = $this->getAdmission($id);
+            $admission = Admission::find($id); 
             if (!$admission) {
                 return error_response(null, '404', "ভুল আইডি প্রদান করা হয়েছে, ভর্তি তথ্য পাওয়া যায়নি।");
             }
-    
+
             if ($admission->status == 1) {
                 return error_response(null, '409', "এই শিক্ষার্থী ইতোমধ্যে ভর্তি হয়েছে।");
             }
-    
-            $user = $this->updateUserRegId($admission->user_id, $request->reg_id);
-    
-            $student = $this->createStudent($admission, $request);
-    
-            [$monthly_fee, $admission_fee] = $this->getFees($admission->department_id);
-    
-            $fee_type = $this->resolveFeeType($request->fee_type);
-            $monthly_fee = $this->calculateMonthlyFee($fee_type, $request->fee);
-    
-            $this->createPreviousEnrole($admission, $student, $request, $fee_type);
-    
-            $enrole = $this->createCurrentEnrole($admission, $student, $request, $fee_type);
-    
+
+            $user = User::find($admission->user_id);
+            $user->reg_id = $request->reg_id;
+            $user->save();
+
+            $student = Student::create([
+                'user_id' => $admission->user_id, 
+                'reg_id' => $request->reg_id,
+                'jamaat' => $request->jamaat??null,
+                "average_marks" => $admission->average_marks,
+                "status" => 1
+            ]); 
+
+            if ($admission->department_id == 1) {
+                $monthly_fee = FeeSetting::where('key', 'maktab_monthly_fee')->value('value') ?? 0;
+                $admission_fee = FeeSetting::where('key', 'maktab_admission_fee')->value('value') ?? 0;
+            } else {
+                $monthly_fee = FeeSetting::where('key', 'kitab_monthly_fee')->value('value') ?? 0;
+                $admission_fee = FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0;
+            }
+
+            $fee_type = $request->fee_type;
+            if ($fee_type == FeeType::Half) {
+                $monthly_fee = $request->fee;
+            }elseif($fee_type == FeeType::Guest){
+                $monthly_fee = 0;
+            }elseif($fee_type == FeeType::HalfButThisMonthGeneral){
+                $fee_type == FeeType::Half;
+            }elseif($fee_type == FeeType::GuestButThisMonthGeneral){
+                $fee_type == FeeType::Guest;
+            }
+
+ 
+            Enrole::create([
+                'user_id' => $admission->user_id,
+                'student_id' => $student->id,
+                'department_id' => $request->last_year_department_id,
+                'session' => $request->last_year_session,
+                'year' => 1445,
+                "marks" => $admission->total_marks,
+                "fee_type" => $fee_type,
+                "fee" => 0,
+                "status" => 2, 
+            ]);
+
+            $enrole = Enrole::create([
+                'user_id' => $admission->user_id,
+                'student_id' => $student->id,
+                'department_id' => $request->department_id,
+                'session' => $request->session,
+                'year' => 1446,
+                "fee_type" => $fee_type,
+                "fee" => $request->fee ?? null,
+                "status" => 1, 
+            ]);
+
             $admission->status = 1;
             $admission->save();
-    
+
             $active_month = HijriMonth::where('is_active', true)->first();
             if (!$active_month) {
                 DB::rollBack();
                 return error_response(null, '422', "কোনো সক্রিয় হিজরি মাস পাওয়া যায়নি। অনুগ্রহ করে আগে সক্রিয় মাস নির্ধারণ করুন।");
-            }
-    
-            // Create Payments
-            $this->createPayment($admission, $student, $enrole, $active_month, 1, $admission_fee);
-            $this->createPayment($admission, $student, $enrole, $active_month, 2, $monthly_fee, $fee_type);
-    
+            } 
+
+            Payment::create([
+                'user_id' => $admission->user_id,
+                'student_id' => $student->id,
+                'enrole_id' => $enrole->id,
+                'hijri_month_id' => $active_month->id,
+                'reason' => 1,
+                'year' => $enrole->year,
+                'amount' => $admission_fee,
+                'due' => $admission_fee,
+                'created_by' => Auth::user()->id,
+                'updated_by' => Auth::user()->id,
+            ]);
+
+           
+
+            Payment::create([
+                'user_id' => $admission->user_id,
+                'student_id' => $student->id,
+                'enrole_id' => $enrole->id,
+                'hijri_month_id' => $active_month->id,
+                'reason' => 2,
+                'year' => $enrole->year,
+                'fee_type' => $request->fee_type,
+                'amount' => $monthly_fee,
+                'due' => $monthly_fee,
+                'created_by' => Auth::user()->id,
+                'updated_by' => Auth::user()->id,
+            ]);
+
             DB::commit();
             return success_response(null, "✅ ভর্তি সফলভাবে সম্পন্ন হয়েছে।");
-    
+
         } catch (\Exception $e) {
             DB::rollBack();
             return error_response(null, '500', "❌ ভর্তি প্রক্রিয়ায় একটি ত্রুটি ঘটেছে: " . $e->getMessage());
         }
-    } 
-
-    private function getAdmission($id)
-    {
-        return Admission::find($id);
-    }
-
-    private function updateUserRegId($user_id, $reg_id)
-    {
-        $user = User::find($user_id);
-        $user->reg_id = $reg_id;
-        $user->save();
-        return $user;
-    }
-
-    private function createStudent($admission, $request)
-    {
-        return Student::create([
-            'user_id' => $admission->user_id,
-            'reg_id' => $request->reg_id,
-            'jamaat' => $request->jamaat ?? null,
-            'average_marks' => $admission->average_marks,
-            'status' => 1
-        ]);
-    }
-
-    private function getFees($department_id)
-    {
-        if ($department_id == 1) {
-            return [
-                FeeSetting::where('key', 'maktab_monthly_fee')->value('value') ?? 0,
-                FeeSetting::where('key', 'maktab_admission_fee')->value('value') ?? 0,
-            ];
-        }
-
-        return [
-            FeeSetting::where('key', 'kitab_monthly_fee')->value('value') ?? 0,
-            FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0,
-        ];
-    }
-
-    private function resolveFeeType($fee_type)
-    {
-        if ($fee_type == FeeType::HalfButThisMonthGeneral) {
-            return FeeType::Half;
-        }
-
-        if ($fee_type == FeeType::GuestButThisMonthGeneral) {
-            return FeeType::Guest;
-        }
-
-        return $fee_type;
-    }
-
-    private function calculateMonthlyFee($fee_type, $custom_fee)
-    {
-        if ($fee_type == FeeType::Half) {
-            return $custom_fee;
-        }
-
-        if ($fee_type == FeeType::Guest) {
-            return 0;
-        }
-
-        return $custom_fee; 
-    }
-
-    private function createPreviousEnrole($admission, $student, $request, $fee_type)
-    {
-        Enrole::create([
-            'user_id' => $admission->user_id,
-            'student_id' => $student->id,
-            'department_id' => $request->last_year_department_id,
-            'session' => $request->last_year_session,
-            'year' => 1445,
-            'marks' => $admission->total_marks,
-            'fee_type' => $fee_type,
-            'fee' => 0,
-            'status' => 2,
-        ]);
-    }
-
-    private function createCurrentEnrole($admission, $student, $request, $fee_type)
-    {
-        return Enrole::create([
-            'user_id' => $admission->user_id,
-            'student_id' => $student->id,
-            'department_id' => $request->department_id,
-            'session' => $request->session,
-            'year' => 1446,
-            'fee_type' => $fee_type,
-            'fee' => $request->fee ?? null,
-            'status' => 1,
-        ]);
-    }
-
-    private function createPayment($admission, $student, $enrole, $active_month, $reason, $amount, $fee_type = null)
-    {
-        Payment::create([
-            'user_id' => $admission->user_id,
-            'student_id' => $student->id,
-            'enrole_id' => $enrole->id,
-            'hijri_month_id' => $active_month->id,
-            'reason' => $reason,
-            'year' => $enrole->year,
-            'fee_type' => $fee_type,
-            'amount' => $amount,
-            'due' => $amount,
-            'created_by' => Auth::id(),
-            'updated_by' => Auth::id(),
-        ]);
-    }
-
-     
+    }  
 
 }
 
