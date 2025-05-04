@@ -132,6 +132,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 }); 
 // Common 
 Route::get('month-list',[HijriMonthController::class,'month_list']);
+Route::get('year-list',[HijriMonthController::class,'year_list']);
 Route::get('maktab-session',[SessionController::class,'maktabSession']);
 Route::get('kitab-session',[SessionController::class,'kitabSession']);
 Route::get('fee-type',[FeeTypeController::class,'feeList']); 

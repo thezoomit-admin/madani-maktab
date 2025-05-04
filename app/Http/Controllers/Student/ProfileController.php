@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Enums\FeeReason;
+use App\Enums\FeeType;
 use App\Http\Controllers\Controller;
 use App\Models\Enrole;
 use App\Models\Payment;
@@ -97,8 +99,8 @@ class ProfileController extends Controller
                 $datas[] = [
                     'id' => $payment->id,
                     'month' => optional($payment->hijriMonth)->month . ' - ' . optional($payment->hijriMonth)->year,
-                    'reason' => $payment->reason,
-                    'fee_type' => $payment->fee_type,
+                    'reason' => enum_name(FeeReason::class, $payment->reason),
+                    'fee_type' => enum_name(FeeType::class, $payment->fee_type),
                     'amount' => $payment->amount,
                     'status' => $status,
                 ];
@@ -161,7 +163,7 @@ class ProfileController extends Controller
                     'session' => $enrole->session,
                     'year' => $enrole->year,
                     'marks' => $enrole->marks,
-                    'fee_type' => $enrole->fee_type,
+                    'fee_type' => enum_name(FeeType::class, $enrole->fee_type),
                     'fee' => $enrole->fee,
                     'status' => $enrole->status,
                 ];

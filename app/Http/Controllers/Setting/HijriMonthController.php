@@ -27,6 +27,26 @@ class HijriMonthController extends Controller
         return $list;
     } 
 
+    public function year_list(Request $request)
+    {
+        $keyword = $request->input('keyword');
+    
+        $query = HijriMonth::query()
+            ->select('year')
+            ->distinct();
+    
+        if (!empty($keyword)) {
+            $query->where('year', 'like', '%' . $keyword . '%');
+        }
+    
+        $years = $query->orderByDesc('year')
+            ->limit(10)
+            ->pluck('year');
+    
+        return success_response($years);
+    }
+    
+
     public function index(Request $request)
     {
         $query = HijriMonth::query()->latest();
@@ -63,7 +83,7 @@ class HijriMonthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'year' => 'sometimes|required|string|max:10',
-            'month' => 'sometimes|required|string|max:10',
+            'month' => 'sometimes|required|integer',
             'start_date' => 'sometimes|required|date',
             'end_date' => 'sometimes|date',
             'is_active' => 'sometimes|boolean', 
@@ -98,7 +118,7 @@ class HijriMonthController extends Controller
         $hijriMonth = HijriMonth::findOrFail($id); 
         $validator = Validator::make($request->all(), [
             'year' => 'sometimes|required|string|max:10',
-            'month' => 'sometimes|required|string|max:10',
+            'month' => 'sometimes|required|integer',
             'start_date' => 'sometimes|required|date',
             'end_date' => 'sometimes|date',
             'is_active' => 'sometimes|boolean',
