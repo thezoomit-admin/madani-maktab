@@ -59,10 +59,8 @@ class TrialStudentListController extends Controller
     {
         $id = $request->id; 
         DB::beginTransaction();
-        try { 
-            
-            $user = User::find($id); 
-
+        try {  
+            $user = User::find($id);  
             $department_id = @$user->studentRegister->department_id;
             if ($department_id == 1) {
                 $monthly_fee = FeeSetting::where('key', 'maktab_monthly_fee')->value('value') ?? 0;
@@ -122,7 +120,7 @@ class TrialStudentListController extends Controller
                 'updated_by' => Auth::user()->id,
             ]);
 
-            if ($request->fee_type == "আংশিক") {
+            if ($request->fee_type == 2) {
                 $monthly_fee = $request->fee;
             }
 

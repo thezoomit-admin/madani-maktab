@@ -8,6 +8,7 @@ use App\Models\Payment;
 use App\Models\PaymentTransaction;
 use App\Models\Student;
 use App\Models\StudentRegister;
+use App\Models\TeacherComment;
 use App\Models\User;
 use App\Services\PhoneMessageService;
 use Illuminate\Support\Facades\DB;
@@ -40,6 +41,7 @@ Route::get('/refresh', function () {
      Enrole::truncate();
      Payment::truncate();
      PaymentTransaction::truncate();
+     TeacherComment::truncate();
  
      DB::statement('SET FOREIGN_KEY_CHECKS=1;');
  

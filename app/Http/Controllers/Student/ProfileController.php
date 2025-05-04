@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Enums\ArabicMonth;
+use App\Enums\Department;
 use App\Enums\FeeReason;
 use App\Enums\FeeType;
+use App\Enums\KitabSession;
+use App\Enums\MaktabSession;
 use App\Http\Controllers\Controller;
 use App\Models\Enrole;
 use App\Models\Payment;
@@ -95,10 +99,10 @@ class ProfileController extends Controller
                     $status = "Unpaid";
                 }
                 
-                
+                $month_id = optional($payment->hijriMonth)->month;
                 $datas[] = [
                     'id' => $payment->id,
-                    'month' => optional($payment->hijriMonth)->month . ' - ' . optional($payment->hijriMonth)->year,
+                    'month' => enum_name(ArabicMonth::class, $month_id) . ' - ' . optional($payment->hijriMonth)->year,
                     'reason' => enum_name(FeeReason::class, $payment->reason),
                     'fee_type' => enum_name(FeeType::class, $payment->fee_type),
                     'amount' => $payment->amount,
@@ -156,11 +160,17 @@ class ProfileController extends Controller
                 ->get();
  
             $data = $enroles->map(function ($enrole) {
+                if($enrole->department_id==1){
+                    $session =  enum_name(MaktabSession::class, $enrole->session);
+                }else{
+                    $session =  enum_name(KitabSession::class, $enrole->session);
+                } 
+
                 return [
                     'id' => $enrole->id,
                     'student_id' => $enrole->student_id,
-                    'department_id' => $enrole->department_id,
-                    'session' => $enrole->session,
+                    'department_id' => enum_name(Department::class,  $enrole->department_id),
+                    'session' => $session,
                     'year' => $enrole->year,
                     'marks' => $enrole->marks,
                     'fee_type' => enum_name(FeeType::class, $enrole->fee_type),

@@ -39,7 +39,7 @@ class ExistingStudentApproveRequest extends FormRequest
             'reg_id' => ['required', 'regex:/^[0-9]+$/', 'unique:students,reg_id'],
             'jamaat' => ['nullable', 'regex:/^[0-9]+$/'],
             'department_id' => ['required'],
-            'session' => ['required', 'string'], 
+            'session' => ['required'],
             'fee' => ['nullable', 'numeric', 'min:0'],
 
             'last_year_department_id' => ['required'],
