@@ -65,12 +65,18 @@ class HijriMonthController extends Controller
 
         $total = $query->count();
         $results = $query->skip(($page - 1) * $perPage)
-            ->take($perPage)
-            ->get()
-            ->map(function ($item) {
-                $item->month = enum_name(HijriMonth::class, $item->month);
-                return $item;
-            });
+        ->take($perPage)
+        ->get()
+        ->map(function ($item) {
+            return [
+                'year' => $item->year,
+                'month' => enum_name(HijriMonth::class, $item->month),
+                'start_date' => $item->start_date,
+                'end_date' => $item->end_date,
+                'is_active' => $item->is_active,
+            ];
+        });
+    
 
 
         return success_response([
