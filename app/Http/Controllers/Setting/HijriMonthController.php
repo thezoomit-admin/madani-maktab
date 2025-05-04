@@ -69,6 +69,7 @@ class HijriMonthController extends Controller
         ->get()
         ->map(function ($item) {
             return [
+                'id' => $item->id,
                 'year' => $item->year,
                 'month' => enum_name(ArabicMonth::class, $item->month),
                 'start_date' => $item->start_date,
