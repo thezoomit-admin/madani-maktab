@@ -110,22 +110,22 @@ class TrialStudentListController extends Controller
                 $fee_type = FeeType::Guest;
             } 
 
-            $enrole = Enrole::create([
-                'user_id' => $id,
-                'student_id' => $student->id,
-                'department_id' => $department_id,
-                'session' => 1,
-                'year' => $request->year,
-                'fee_type' =>  $fee_type,
-                'fee' => $request->fee ?? null,
-                'status' => 1,
-            ]);
-
             $active_month = HijriMonth::where('is_active', true)->first();
             if (!$active_month) {
                 DB::rollBack();
                 return error_response(null, 400, "কোন অ্যাকটিভ হিজরি মাস নেই।");
             } 
+
+            $enrole = Enrole::create([
+                'user_id' => $id,
+                'student_id' => $student->id,
+                'department_id' => $department_id,
+                'session' => 1,
+                'year' => $active_month->year,
+                'fee_type' =>  $fee_type,
+                'fee' => $request->fee ?? null,
+                'status' => 1,
+            ]); 
 
             Payment::create([
                 'user_id' => $id,
@@ -133,7 +133,7 @@ class TrialStudentListController extends Controller
                 'enrole_id' => $enrole->id,
                 'hijri_month_id' => $active_month->id,
                 'reason' => 1,
-                'year' => $request->year,
+                'year' => $active_month->year,
                 'amount' => $admission_fee,
                 'due' => $admission_fee,
                 'created_by' => Auth::user()->id,
@@ -146,7 +146,7 @@ class TrialStudentListController extends Controller
                 'enrole_id' => $enrole->id,
                 'hijri_month_id' => $active_month->id,
                 'reason' => 2,
-                'year' => $request->year,
+                'year' => $active_month->year,
                 'fee_type' => $request->fee_type,
                 'amount' => $monthly_fee,
                 'due' => $monthly_fee,

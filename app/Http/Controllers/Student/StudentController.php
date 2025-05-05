@@ -7,6 +7,7 @@ use App\Enums\FeeType;
 use App\Enums\KitabSession;
 use App\Enums\MaktabSession;
 use App\Http\Controllers\Controller;
+use App\Models\HijriMonth;
 use App\Models\Student;
 use Illuminate\Http\Request;
 
@@ -16,13 +17,14 @@ class StudentController extends Controller
     {
         try {
             $perPage = $request->input('per_page', 10);
-            $page = $request->input('page', 1);
-            $year = $request->input('year', 1446);
+            $page = $request->input('page', 1); 
+            $active_month = HijriMonth::where('is_active', true)->first();
+            $year = $request->input('year', $active_month->year??1446);
 
             $students = Student::with([
                 'user:id,name,reg_id,phone,profile_image,blood_group',
                 'enroles' => function ($query) use ($year) {
-                    $query->where('year', $year)
+                    $query->where('year', $year)->where('status',1)
                         ->select('id', 'student_id', 'department_id', 'session', 'fee_type', 'status', 'year');
                 }
             ])
