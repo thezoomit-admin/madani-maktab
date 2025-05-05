@@ -127,15 +127,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('payment-method',PaymentMethodController::class);
     Route::post('pay-now',[PaymentController::class,'payNow']);
     Route::get('payment-list',[PaymentController::class,'paymentList']);
-    Route::get('approve-payment/{id}',[PaymentController::class,'approvePayment']);  
-
-    Route::get('income-balance',[BalanceController::class,'incomeBalance']);
-    Route::post('deposit',[OfficeTransactionController::class,'deposit']);
-    Route::get('deposit-list',[OfficeTransactionController::class,'depositList']);
+    Route::get('approve-payment/{id}',[PaymentController::class,'approvePayment']);   
 
     // Report 
     Route::get('ojifa-report',[OjifaDetailsReportController::class,'OjifaReport']);
     Route::get('ojifa-collect-report',[OjifaCollectReportController::class,'getStudentPaymentReport']);
+
+    // Income Report 
+    Route::get('income-balance',[BalanceController::class,'incomeBalance']);
+    Route::post('deposit',[OfficeTransactionController::class,'deposit']);
+    Route::get('deposit-list',[OfficeTransactionController::class,'depositList']);
+
+    // Expense Reprot 
+    
+    Route::get('expense-balance',[BalanceController::class,'expenseBalance']);
     
 }); 
 // Common 
