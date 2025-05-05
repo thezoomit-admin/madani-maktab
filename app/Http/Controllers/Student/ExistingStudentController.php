@@ -177,9 +177,9 @@ class ExistingStudentController extends Controller
             }elseif($fee_type == FeeType::Guest){
                 $monthly_fee = 0;
             }elseif($fee_type == FeeType::HalfButThisMonthGeneral){
-                $fee_type == FeeType::Half;
+                $fee_type = FeeType::Half;
             }elseif($fee_type == FeeType::GuestButThisMonthGeneral){
-                $fee_type == FeeType::Guest;
+                $fee_type = FeeType::Guest;
             }
 
  

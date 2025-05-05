@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\FeeType;
 use App\Helpers\ReportingService;
 use App\Http\Controllers\Admin\Admission\InterviewController;
 use App\Models\Admission;
@@ -27,7 +28,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::get('/refresh', function () {
+Route::get('/refresh', function () { 
+     dd(FeeType::HalfButThisMonthGeneral);
      // $messageService = new PhoneMessageService;
      // $message = "Test";
      // return $messageService->sendMessage(+8801766774016, $message); 
@@ -50,9 +52,7 @@ Route::get('/refresh', function () {
           $method->balance = 0; 
           $method->save();
      }
- 
-     DB::statement('SET FOREIGN_KEY_CHECKS=1;');
- 
+     DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
      return 'Refresh completed successfully!';
 });
  
