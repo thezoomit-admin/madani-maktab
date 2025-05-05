@@ -51,34 +51,54 @@ class HijriMonthController extends Controller
     {
         $query = HijriMonth::query()->latest();
 
-        if ($request->filled('year')) {
-            $query->where('year', $request->year);
+        if ($request->filled('keyword')) {
+            $keyword = $request->keyword;
+
+            if (is_numeric($keyword)) {
+                $query->where('year', 'like', '%' . $keyword . '%');
+            } else {
+                $monthNames = ArabicMonth::values();
+                $month = array_search($keyword, $monthNames);
+
+                if ($month) {
+                    $query->where('month', 'like', '%' . $month . '%');
+                }
+            }
         }
 
-        if ($request->filled('month')) {
-            $query->where('month', $request->month);
+        if ($request->input('select2') == true) {
+            $results = $query->limit(12)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'text' => $item->year . '-' . enum_name(ArabicMonth::class, $item->month),
+                    ];
+                });
+
+            return success_response([
+                'data' => $results,
+            ]);
         }
 
-        // Manual Pagination
-        $perPage = $request->input('per_page', 10);  
-        $page = $request->input('page', 1); 
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
 
         $total = $query->count();
-        $results = $query->skip(($page - 1) * $perPage)
-        ->take($perPage)
-        ->get()
-        ->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'year' => $item->year,
-                'month' => enum_name(ArabicMonth::class, $item->month),
-                'start_date' => $item->start_date,
-                'end_date' => $item->end_date,
-                'is_active' => $item->is_active,
-            ];
-        });
-    
 
+        $results = $query->skip(($page - 1) * $perPage)
+            ->take($perPage)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'year' => $item->year,
+                    'month' => enum_name(ArabicMonth::class, $item->month),
+                    'start_date' => $item->start_date,
+                    'end_date' => $item->end_date,
+                    'is_active' => $item->is_active,
+                ];
+            });
 
         return success_response([
             'data' => $results,
@@ -89,7 +109,8 @@ class HijriMonthController extends Controller
                 'last_page' => ceil($total / $perPage),
             ],
         ]);
-    } 
+    }
+
 
     public function store(Request $request)
     {

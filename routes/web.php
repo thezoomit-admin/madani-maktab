@@ -5,6 +5,7 @@ use App\Helpers\ReportingService;
 use App\Http\Controllers\Admin\Admission\InterviewController;
 use App\Models\Admission;
 use App\Models\Enrole;
+use App\Models\OfficeTransaction;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\PaymentTransaction;
@@ -51,6 +52,7 @@ Route::get('/refresh', function () {
           $method->balance = 0; 
           $method->save();
      }
+     OfficeTransaction::truncate();
      DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
      return 'Refresh completed successfully!';
 });

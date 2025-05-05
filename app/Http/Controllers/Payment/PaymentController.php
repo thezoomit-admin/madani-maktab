@@ -15,6 +15,7 @@ class PaymentController extends Controller
 {
     public function payNow(Request $request)
     {
+        DB::beginTransaction();
         try {
             $payment_id = $request->payment_id;
             $payment = Payment::find($payment_id);
@@ -38,12 +39,21 @@ class PaymentController extends Controller
             $user = User::find(Auth::user()->id);
             $is_approved = false;
             $approved_by = null;
+            $amount = $payment->amount;
             if($user->user_type=='teacher'){
                 $is_approved = true;
                 $approved_by = $user->id;
-                $payment->paid = $payment->amount;
+                $payment->paid = $amount;
                 $payment->due = 0;
                 $payment->save(); 
+
+                $bank = PaymentMethod::find($request->payment_method_id); 
+                if ($bank) {
+                    $bank->income_in_hand += $amount;
+                    $bank->balance += $amount;
+                    $bank->save();
+                }
+
             }  
 
              PaymentTransaction::create([
@@ -53,13 +63,15 @@ class PaymentController extends Controller
                 'payer_account' => $request->payer_account,
                 'transaction_id' => uniqid('TRX'),
                 'payment_method_id' => $request->payment_method_id,
-                'amount' => $payment->amount,
+                'amount' => $amount,
                 'is_approved' => $is_approved,
                 'approved_by' => $approved_by,
             ]);
 
+            DB::commit(); 
             return success_response(null, 'পেমেন্ট অনুরোধ সফলভাবে জমা হয়েছে। অনুমোদনের জন্য অপেক্ষা করুন।');
         } catch (\Exception $e) {
+            DB::rollBack();
             return error_response(null, 500, $e->getMessage());
         }
     }  

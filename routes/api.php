@@ -26,7 +26,9 @@ use App\Http\Controllers\Common\RoleApiController;
 use App\Http\Controllers\Common\SessionController;
 use App\Http\Controllers\Common\UnionApiController;
 use App\Http\Controllers\Common\UpazilaApiController;
-use App\Http\Controllers\DashboardController; 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Payment\BalanceController;
+use App\Http\Controllers\Payment\OfficeTransactionController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Report\OjifaCollectReportController;
 use App\Http\Controllers\Report\OjifaDetailsReportController;
@@ -126,6 +128,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('pay-now',[PaymentController::class,'payNow']);
     Route::get('payment-list',[PaymentController::class,'paymentList']);
     Route::get('approve-payment/{id}',[PaymentController::class,'approvePayment']);  
+
+    Route::get('income-balance',[BalanceController::class,'incomeBalance']);
+    Route::post('deposit',[OfficeTransactionController::class,'deposit']);
+    Route::get('deposit-list',[OfficeTransactionController::class,'depositList']);
 
     // Report 
     Route::get('ojifa-report',[OjifaDetailsReportController::class,'OjifaReport']);

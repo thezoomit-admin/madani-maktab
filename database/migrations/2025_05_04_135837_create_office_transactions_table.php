@@ -13,11 +13,15 @@ return new class extends Migration
     {
         Schema::create('office_transactions', function (Blueprint $table) {
             $table->id();
-            $table->integer('type')->comment('1=Joma, 2 = uttolon');
+            $table->tinyInteger('type')->comment('1 = Deposit (Joma), 2 = Withdraw (Uttolon)');
+            $table->foreignId('hijri_month_id')->constrained('hijri_months');
             $table->foreignId('payment_method_id')->constrained('payment_methods');
-            $table->decimal('amount');
-            $table->text('description');
-            $table->text('image');
+            $table->text('description')->nullable();
+            $table->decimal('amount', 10, 2);
+            $table->string('image')->nullable();
+            $table->boolean('is_approved')->default(false);
+            $table->foreignId('approved_by')->nullable()->constrained('users');
+            $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
         });
     }
