@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Payment;
 
+use App\Enums\ArabicMonth;
 use App\Http\Controllers\Controller;
 use App\Models\OfficeTransaction;
 use App\Models\PaymentMethod;
@@ -61,7 +62,7 @@ class OfficeTransactionController extends Controller
             DB::rollBack();
             return error_response($e->getMessage()); 
         }
-    } 
+    }
 
     private function uploadImage(Request $request, string $inputName, string $folder)
     {
@@ -83,13 +84,27 @@ class OfficeTransactionController extends Controller
 
     public function depositList(Request $request)
     {
-        $query = OfficeTransaction::where('type', 1); 
+        $query = OfficeTransaction::with(['hijriMonth', 'paymentMethod'])
+            ->where('type', 1)
+            ->select('id', 'hijri_month_id', 'payment_method_id', 'description', 'amount', 'image');
+
         $perPage = $request->input('per_page', 10);  
         $page = $request->input('page', 1);  
         $total = $query->count();  
+
         $results = $query->skip(($page - 1) * $perPage)   
                         ->take($perPage)  
-                        ->get();  
+                        ->get()
+                        ->map(function ($item) {
+                            return [
+                                'id' => $item->id,
+                                'hijri_month' => $item->hijriMonth ? $item->hijriMonth->year . '-' . enum_name(ArabicMonth::class, $item->hijriMonth->month) : null,
+                                'payment_method_icon' => $item->paymentMethod->icon ?? null,
+                                'description' => $item->description,
+                                'amount' => $item->amount,
+                                'image' => $item->image,
+                            ];
+                        });
 
         return success_response([
             'data' => $results,
@@ -101,5 +116,6 @@ class OfficeTransactionController extends Controller
             ],
         ]);
     }
+
 
 }
