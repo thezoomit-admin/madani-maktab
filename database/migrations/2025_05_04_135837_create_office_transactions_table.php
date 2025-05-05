@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('office_transactions', function (Blueprint $table) {
             $table->id();
-            $table->
+            $table->integer('type')->comment('1=Joma, 2 = uttolon');
+            $table->foreignId('payment_method_id')->constrained('payment_methods');
+            $table->decimal('amount');
+            $table->text('description');
+            $table->text('image');
             $table->timestamps();
         });
     }
