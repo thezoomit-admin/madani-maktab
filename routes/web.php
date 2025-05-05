@@ -28,8 +28,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::get('/refresh', function () { 
-     dd(FeeType::HalfButThisMonthGeneral);
+Route::get('/refresh', function () {  
      // $messageService = new PhoneMessageService;
      // $message = "Test";
      // return $messageService->sendMessage(+8801766774016, $message); 
