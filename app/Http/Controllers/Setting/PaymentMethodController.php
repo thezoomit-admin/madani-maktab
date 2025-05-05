@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Setting;
 
 use App\Http\Controllers\Controller;
+use App\Models\OfficeTransaction;
 use App\Models\PaymentMethod;
 use App\Models\PaymentTransaction;
 use Illuminate\Http\Request;
@@ -11,10 +12,23 @@ use Illuminate\Support\Facades\Validator;
 class PaymentMethodController extends Controller
 {
     public function index()
-    {
-        $paymentMethods = PaymentMethod::all();
-        return success_response($paymentMethods);
-    }
+{
+    $paymentMethods = PaymentMethod::all();
+
+    $totalIncome = $paymentMethods->sum('income_in_hand');
+    $totalExpense = $paymentMethods->sum('expense_in_hand');
+    $totalBalance = $paymentMethods->sum('balance');
+
+    return success_response([
+        'payment_methods' => $paymentMethods,
+        'summary' => [
+            'total_income_in_hand' => $totalIncome,
+            'total_expense_in_hand' => $totalExpense,
+            'total_balance' => $totalBalance,
+        ]
+    ]);
+}
+
     
     public function store(Request $request)
     { 
@@ -97,8 +111,9 @@ class PaymentMethodController extends Controller
     {
         $paymentMethod = PaymentMethod::findOrFail($id);
         $payment_transaction = PaymentTransaction::where('payment_method_id', $id)->count();
+        $office_transaction = OfficeTransaction::where('payment_method_id',$id)->count();
         
-        if ($payment_transaction > 0) {
+        if ($payment_transaction > 0 || $office_transaction > 0) {
             return error_response(null, 404, "এই পেমেন্ট মেথডে ট্রান্সঅ্যাকশন আছে, তাই ডিলিট করা যাবে না");
         }
     

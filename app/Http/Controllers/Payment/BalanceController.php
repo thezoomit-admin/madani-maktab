@@ -14,7 +14,7 @@ class BalanceController extends Controller
     public function incomeBalance()
     {
         $payment_methods = PaymentMethod::select('id','icon','name','income_in_hand as balance')->get();
-        $total = $payment_methods->sum('income_in_hand'); 
+        $total = $payment_methods->sum('balance'); 
         return success_response([
             'payment_methods' => $payment_methods,
             'total' => $total,
@@ -23,7 +23,7 @@ class BalanceController extends Controller
 
     public function expenseBalance(){
         $payment_methods = PaymentMethod::select('id','icon','name','expense_in_hand as balance')->get();
-        $total = $payment_methods->sum('income_in_hand'); 
+        $total = $payment_methods->sum('balance'); 
         return success_response([
             'payment_methods' => $payment_methods,
             'total' => $total,

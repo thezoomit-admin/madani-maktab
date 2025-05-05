@@ -30,8 +30,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Payment\BalanceController;
 use App\Http\Controllers\Payment\OfficeTransactionController;
 use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\Report\CollectionController;
+use App\Http\Controllers\Report\ExpenseController;
 use App\Http\Controllers\Report\OjifaCollectReportController;
 use App\Http\Controllers\Report\OjifaDetailsReportController;
+use App\Http\Controllers\Setting\ExpenseCategoryController;
 use App\Http\Controllers\Setting\FeeSettingController; 
 use App\Http\Controllers\Setting\HijriMonthController; 
 use App\Http\Controllers\Student\StudentRegisterController;
@@ -138,9 +141,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('deposit',[OfficeTransactionController::class,'deposit']);
     Route::get('deposit-list',[OfficeTransactionController::class,'depositList']);
 
-    // Expense Reprot 
-    
+    // Expense Reprot  
     Route::get('expense-balance',[BalanceController::class,'expenseBalance']);
+    Route::resource('expense-category',ExpenseCategoryController::class);
+    Route::resource('expense',ExpenseController::class);
+    Route::post('colection',[CollectionController::class,'colection']);
+    Route::get('colection-list',[CollectionController::class,'colectionList']);
+    
+
     
 }); 
 // Common 

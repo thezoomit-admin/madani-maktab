@@ -11,18 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('office_transactions', function (Blueprint $table) {
+        Schema::create('expenses', function (Blueprint $table) {
             $table->id();
-            $table->tinyInteger('type')->comment('1 = Deposit to head office, 2 = Receive form head office');
-            $table->foreignId('hijri_month_id')->constrained('hijri_months');
-            $table->foreignId('payment_method_id')->constrained('payment_methods');
-            $table->text('description')->nullable();
+            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('expense_category_id')->constrained()->onDelete('cascade');
+            $table->foreignId('payment_method_id')->constrained()->onDelete('payment_methods');
             $table->decimal('amount', 10, 2);
+            $table->text('note')->nullable();
             $table->string('image')->nullable();
             $table->boolean('is_approved')->default(false);
             $table->foreignId('approved_by')->nullable()->constrained('users');
-            $table->foreignId('created_by')->constrained('users');
-            
             $table->timestamps();
         });
     }
@@ -32,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('office_transactions');
+        Schema::dropIfExists('expenses');
     }
 };
