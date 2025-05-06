@@ -35,7 +35,7 @@ class ExpenseController extends Controller
                                     'payment_method_id' => $item->paymentMethod->id ?? null,  
                                     'payment_method_icon' => $item->paymentMethod->icon ?? null,  
                                     'amount' => $item->amount,
-                                    'note' => $item->note,
+                                    'description' => $item->description,
                                     'image' => $item->image,
                                 ];
                             }); 
@@ -60,7 +60,7 @@ class ExpenseController extends Controller
             'expense_category_id' => 'required|exists:expense_categories,id',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'amount' => 'required|numeric',
-            'note' => 'nullable|string',
+            'description' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
         ]);
 
@@ -89,7 +89,7 @@ class ExpenseController extends Controller
                 'expense_category_id' => $request->expense_category_id,
                 'payment_method_id' => $request->payment_method_id,
                 'amount' => $request->amount,
-                'note' => $request->note,
+                'description' => $request->description,
                 'image' => $imagePath,
                 'is_approved' => false,
             ]); 
@@ -120,7 +120,7 @@ class ExpenseController extends Controller
         $validator = Validator::make($request->all(), [
             'expense_category_id' => 'required|exists:expense_categories,id',
             'amount' => 'required|numeric',
-            'note' => 'nullable|string',
+            'description' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
         ]);
 
@@ -139,7 +139,7 @@ class ExpenseController extends Controller
             $expense->update([
                 'expense_category_id' => $request->expense_category_id,
                 'amount' => $request->amount,
-                'note' => $request->note,
+                'description' => $request->description,
             ]);
 
             return success_response($expense, 'Expense updated successfully.');

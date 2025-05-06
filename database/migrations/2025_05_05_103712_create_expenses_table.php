@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('expense_category_id')->constrained('expense_categories')->onDelete('cascade');
             $table->foreignId('payment_method_id')->constrained('payment_methods')->onDelete('cascade');
             $table->decimal('amount', 10, 2);
-            $table->text('note')->nullable();
+            $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->boolean('is_approved')->default(false);
             $table->foreignId('approved_by')->nullable()->constrained('users');

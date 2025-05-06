@@ -14,7 +14,7 @@ class Expense extends Model
         'expense_category_id',
         'payment_method_id',
         'amount',
-        'note',
+        'description',
         'image',
         'is_approved',
         'approved_by',
