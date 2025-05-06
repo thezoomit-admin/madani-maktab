@@ -33,7 +33,7 @@ class ExpenseController extends Controller
                                     'expense_category_id' => $item->expense_category_id,
                                     'expense_category_name' => $item->category->name ?? null, 
                                     'payment_method_id' => $item->paymentMethod->id ?? null,  
-                                    'payment_method_name' => $item->paymentMethod->name ?? null,  
+                                    'payment_method_icon' => $item->paymentMethod->icon ?? null,  
                                     'amount' => $item->amount,
                                     'note' => $item->note,
                                     'image' => $item->image,
