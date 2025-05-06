@@ -16,7 +16,7 @@ class ExpenseController extends Controller
     {
         try { 
             $query = Expense::with(['user', 'approvedBy', 'category', 'paymentMethod'])  
-                ->select('id', 'user_id', 'expense_category_id', 'payment_method_id', 'amount', 'note', 'image')
+                ->select('id', 'user_id', 'expense_category_id', 'payment_method_id', 'amount', 'description', 'image')
                 ->latest(); 
             $perPage = $request->input('per_page', 10);
             $page = $request->input('page', 1);
