@@ -68,7 +68,7 @@ class PaymentMethodController extends Controller
     public function update(Request $request, $id)
     { 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
             'info' => 'nullable',
             'income_in_hand' => 'nullable|numeric',
