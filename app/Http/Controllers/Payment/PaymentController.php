@@ -108,6 +108,7 @@ class PaymentController extends Controller
                             'payment_method'    => @$item->paymentMethod->name??"-",
                             'payer_account'     => @$item->payer_account,
                             'amount'            => $item->amount,
+                            'image'             => $item->image,
                             'is_approved'       => $item->is_approved,
                         ];
                     });

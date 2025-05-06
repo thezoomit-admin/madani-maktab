@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 
 class CollectionController extends Controller
 {
-    public function colection(Request $request)
+    public function collection(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'hijri_month_id' => 'required|exists:hijri_months,id',
@@ -77,9 +77,8 @@ class CollectionController extends Controller
         }
 
         return null;
-    }
-
-    public function colectionList(Request $request)
+    }  
+    public function collectionList(Request $request)
     {
         $query = OfficeTransaction::with(['hijriMonth', 'paymentMethod'])
             ->where('type', 2)
