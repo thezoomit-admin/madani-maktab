@@ -35,7 +35,7 @@ class PaymentMethodController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
-            'info' => 'required',
+            'info' => 'nullable',
             'income_in_hand' => 'nullable|numeric',
             'expense_in_hand' => 'nullable|numeric',
             'balance' => 'nullable|numeric',
@@ -69,8 +69,8 @@ class PaymentMethodController extends Controller
     { 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'icon' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', 
-            'info' => 'required',
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'info' => 'nullable',
             'income_in_hand' => 'nullable|numeric',
             'expense_in_hand' => 'nullable|numeric',
             'balance' => 'nullable|numeric',
