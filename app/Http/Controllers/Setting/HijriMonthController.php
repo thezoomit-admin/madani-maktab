@@ -50,21 +50,20 @@ class HijriMonthController extends Controller
     public function index(Request $request)
     {
         $query = HijriMonth::query()->latest();
+        // if ($request->filled('keyword')) {
+        //     $keyword = $request->keyword;
 
-        if ($request->filled('keyword')) {
-            $keyword = $request->keyword;
+        //     if (is_numeric($keyword)) {
+        //         $query->where('year', 'like', '%' . $keyword . '%');
+        //     } else {
+        //         $monthNames = ArabicMonth::values();
+        //         $month = array_search($keyword, $monthNames);
 
-            if (is_numeric($keyword)) {
-                $query->where('year', 'like', '%' . $keyword . '%');
-            } else {
-                $monthNames = ArabicMonth::values();
-                $month = array_search($keyword, $monthNames);
-
-                if ($month) {
-                    $query->where('month', 'like', '%' . $month . '%');
-                }
-            }
-        }
+        //         if ($month) {
+        //             $query->where('month', 'like', '%' . $month . '%');
+        //         }
+        //     }
+        // }
 
         if ($request->input('select2') == true) {
             $results = $query->limit(12)
