@@ -146,10 +146,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('expense-category',ExpenseCategoryController::class);
     Route::resource('expense',ExpenseController::class);
     Route::post('colection',[CollectionController::class,'colection']);
-    Route::get('colection-list',[CollectionController::class,'colectionList']);
-    
-
-    
+    Route::get('colection-list',[CollectionController::class,'colectionList']); 
 }); 
 // Common 
 Route::get('month-list',[HijriMonthController::class,'month_list']);
