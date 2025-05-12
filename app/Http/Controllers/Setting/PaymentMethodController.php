@@ -12,23 +12,22 @@ use Illuminate\Support\Facades\Validator;
 class PaymentMethodController extends Controller
 {
     public function index()
-{
-    $paymentMethods = PaymentMethod::all();
+    {
+        $paymentMethods = PaymentMethod::all();
 
-    $totalIncome = $paymentMethods->sum('income_in_hand');
-    $totalExpense = $paymentMethods->sum('expense_in_hand');
-    $totalBalance = $paymentMethods->sum('balance');
+        $totalIncome = $paymentMethods->sum('income_in_hand');
+        $totalExpense = $paymentMethods->sum('expense_in_hand');
+        $totalBalance = $paymentMethods->sum('balance');
 
-    return success_response([
-        'payment_methods' => $paymentMethods,
-        'summary' => [
-            'total_income_in_hand' => $totalIncome,
-            'total_expense_in_hand' => $totalExpense,
-            'total_balance' => $totalBalance,
-        ]
-    ]);
-}
-
+        return success_response([
+            'payment_methods' => $paymentMethods,
+            'summary' => [
+                'total_income_in_hand' => $totalIncome,
+                'total_expense_in_hand' => $totalExpense,
+                'total_balance' => $totalBalance,
+            ]
+        ]);
+    } 
     
     public function store(Request $request)
     { 

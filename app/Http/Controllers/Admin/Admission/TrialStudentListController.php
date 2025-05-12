@@ -99,6 +99,10 @@ class TrialStudentListController extends Controller
                 $admission_fee = FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0;
             }
 
+            if(isset($request->admission_fee) && $request->admission_fee!=null){
+                $admission_fee = $request->admission_fee;
+            }
+
             $fee_type = $request->fee_type;
             if ($fee_type == FeeType::Half) {
                 $monthly_fee = $request->fee;
@@ -120,7 +124,7 @@ class TrialStudentListController extends Controller
                 'user_id' => $id,
                 'student_id' => $student->id,
                 'department_id' => $department_id,
-                'session' => 1,
+                'session' => $request->session,
                 'year' => $active_month->year,
                 'fee_type' =>  $fee_type,
                 'fee' => $request->fee ?? null,
