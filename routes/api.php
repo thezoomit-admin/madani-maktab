@@ -147,7 +147,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('expense',ExpenseController::class);
     Route::post('collection',[CollectionController::class,'collection']);
     Route::get('collection-list',[CollectionController::class,'collectionList']); 
-}); 
+});  
+
 // Common 
 Route::get('month-list',[HijriMonthController::class,'month_list']);
 Route::get('year-list',[HijriMonthController::class,'year_list']);

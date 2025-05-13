@@ -172,14 +172,19 @@ class ExistingStudentController extends Controller
             }
 
             $fee_type = $request->fee_type;
+            $regular_monthly_fee = $monthly_fee;
             if ($fee_type == FeeType::Half) {
                 $monthly_fee = $request->fee;
+                $regular_monthly_fee = $request->fee;
             }elseif($fee_type == FeeType::Guest){
                 $monthly_fee = 0;
+                $regular_monthly_fee = 0;
             }elseif($fee_type == FeeType::HalfButThisMonthGeneral){
                 $fee_type = FeeType::Half;
+                $regular_monthly_fee = $request->fee;
             }elseif($fee_type == FeeType::GuestButThisMonthGeneral){
                 $fee_type = FeeType::Guest;
+                $regular_monthly_fee = 0;
             }
 
  
@@ -243,6 +248,23 @@ class ExistingStudentController extends Controller
                 'created_by' => Auth::user()->id,
                 'updated_by' => Auth::user()->id,
             ]);
+
+            $months = HijriMonth::where('id',">",$active_month->id)->get();
+            foreach($months as $month){
+                Payment::create([
+                    'user_id' => $admission->user_id,
+                    'student_id' => $student->id,
+                    'enrole_id' => $enrole->id,
+                    'hijri_month_id' => $month->id,
+                    'reason' => 2,
+                    'year' => $enrole->year,
+                    'fee_type' => $enrole->fee_type,
+                    'amount' => $regular_monthly_fee,
+                    'due' => $regular_monthly_fee,
+                    'created_by' => Auth::user()->id,
+                    'updated_by' => Auth::user()->id,
+                ]);
+            }
 
             DB::commit();
             return success_response(null, "✅ ভর্তি সফলভাবে সম্পন্ন হয়েছে।");
