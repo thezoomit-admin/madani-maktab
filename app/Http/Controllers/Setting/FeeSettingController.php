@@ -15,8 +15,10 @@ class FeeSettingController extends Controller
         $data = [
             'maktab_monthly_fee' => FeeSetting::where('key', 'maktab_monthly_fee')->value('value') ?? 0,
             'maktab_admission_fee' => FeeSetting::where('key', 'maktab_admission_fee')->value('value') ?? 0,
+            'maktab_new_admission_fee' => FeeSetting::where('key', 'maktab_new_admission_fee')->value('value') ?? 0,
             'kitab_monthly_fee' => FeeSetting::where('key', 'kitab_monthly_fee')->value('value') ?? 0,
             'kitab_admission_fee' => FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0,
+            'kitab_new_admission_fee' => FeeSetting::where('key', 'kitab_new_admission_fee')->value('value') ?? 0,
         ]; 
 
         return success_response($data);
@@ -27,19 +29,22 @@ class FeeSettingController extends Controller
         $request->validate([
             'maktab_monthly_fee' => 'required|numeric|min:0',
             'maktab_admission_fee' => 'required|numeric|min:0',
+            'maktab_new_admission_fee' => 'required|numeric|min:0',
             'kitab_monthly_fee' => 'required|numeric|min:0',
             'kitab_admission_fee' => 'required|numeric|min:0',
+            'kitab_new_admission_fee' => 'required|numeric|min:0',
         ]);
 
         try {
-            DB::beginTransaction();
-
+            DB::beginTransaction(); 
             $authId = Auth::id();
             $fees = [
                 'maktab_monthly_fee',
                 'maktab_admission_fee',
+                'maktab_new_admission_fee',
                 'kitab_monthly_fee',
                 'kitab_admission_fee',
+                'kitab_new_admission_fee',
             ];
 
             foreach ($fees as $feeKey) {

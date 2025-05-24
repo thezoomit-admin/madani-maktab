@@ -35,8 +35,10 @@ use App\Http\Controllers\Report\ExpenseController;
 use App\Http\Controllers\Report\OjifaCollectReportController;
 use App\Http\Controllers\Report\OjifaDetailsReportController;
 use App\Http\Controllers\Setting\ExpenseCategoryController;
+use App\Http\Controllers\Setting\ExpenseSubCategoryController;
 use App\Http\Controllers\Setting\FeeSettingController; 
-use App\Http\Controllers\Setting\HijriMonthController; 
+use App\Http\Controllers\Setting\HijriMonthController;
+use App\Http\Controllers\Setting\MeasurmentUnitController;
 use App\Http\Controllers\Student\StudentRegisterController;
 use App\Http\Controllers\Setting\MeetLinkSettingController;
 use App\Http\Controllers\Setting\PaymentMethodController;
@@ -144,6 +146,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Expense Reprot  
     Route::get('expense-balance',[BalanceController::class,'expenseBalance']);
     Route::resource('expense-category',ExpenseCategoryController::class);
+    Route::resource('expense-sub-category',ExpenseSubCategoryController::class);
+    Route::resource('measurment-unit',MeasurmentUnitController::class);
     Route::resource('expense',ExpenseController::class);
     Route::post('collection',[CollectionController::class,'collection']);
     Route::get('collection-list',[CollectionController::class,'collectionList']); 
