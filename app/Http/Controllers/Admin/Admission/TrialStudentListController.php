@@ -65,10 +65,10 @@ class TrialStudentListController extends Controller
             $department_id = @$user->studentRegister->department_id;
             if ($department_id == 1) {
                 $monthly_fee = FeeSetting::where('key', 'maktab_monthly_fee')->value('value') ?? 0;
-                $admission_fee = FeeSetting::where('key', 'maktab_admission_fee')->value('value') ?? 0;
+                $admission_fee = FeeSetting::where('key', 'maktab_new_admission_fee')->value('value') ?? 0;
             } else {
                 $monthly_fee = FeeSetting::where('key', 'kitab_monthly_fee')->value('value') ?? 0;
-                $admission_fee = FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0;
+                $admission_fee = FeeSetting::where('key', 'kitab_new_admission_fee')->value('value') ?? 0;
             }
 
             if (!$user) {

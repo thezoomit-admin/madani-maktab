@@ -42,6 +42,7 @@ use App\Http\Controllers\Setting\MeasurmentUnitController;
 use App\Http\Controllers\Student\StudentRegisterController;
 use App\Http\Controllers\Setting\MeetLinkSettingController;
 use App\Http\Controllers\Setting\PaymentMethodController;
+use App\Http\Controllers\Setting\VendorController;
 use App\Http\Controllers\Student\ExistingStudentController;
 use App\Http\Controllers\Student\ProfileController;
 use App\Http\Controllers\Student\StudentController;
@@ -112,6 +113,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('meet-link',[MeetLinkSettingController::class,'index']);
     Route::post('meet-link',[MeetLinkSettingController::class,'update']);
     Route::resource('fee-setting',FeeSettingController::class);
+    Route::resource('expense-category',ExpenseCategoryController::class);
+    Route::resource('expense-sub-category',ExpenseSubCategoryController::class);
+    Route::resource('measurment-unit',MeasurmentUnitController::class);
+    Route::resource('vendor',VendorController::class);
 
     // Hijri Date  
     Route::resource('hijri-month',HijriMonthController::class); 
@@ -144,13 +149,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('deposit-list',[OfficeTransactionController::class,'depositList']);
 
     // Expense Reprot  
-    Route::get('expense-balance',[BalanceController::class,'expenseBalance']);
-    Route::resource('expense-category',ExpenseCategoryController::class);
-    Route::resource('expense-sub-category',ExpenseSubCategoryController::class);
-    Route::resource('measurment-unit',MeasurmentUnitController::class);
+    Route::get('expense-balance',[BalanceController::class,'expenseBalance']); 
     Route::resource('expense',ExpenseController::class);
     Route::post('collection',[CollectionController::class,'collection']);
-    Route::get('collection-list',[CollectionController::class,'collectionList']); 
+    Route::get('collection-list',[CollectionController::class,'collectionList']);
 });  
 
 // Common 

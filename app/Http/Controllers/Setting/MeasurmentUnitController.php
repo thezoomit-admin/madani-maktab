@@ -20,14 +20,12 @@ class MeasurmentUnitController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'short_name' => 'required|string|max:50',
-        ]);
-
+        ]); 
         if ($validator->fails()) {
             return error_response($validator->errors(), 422, 'Validation failed.');
-        }
-
+        } 
         $unit = MeasurmentUnit::create($request->only('name', 'short_name'));
-        return success_response($unit, 'Measurement unit created successfully.');
+        return success_response(null, 'Measurement unit created successfully.');
     }
 
     public function show($id)
@@ -59,7 +57,7 @@ class MeasurmentUnitController extends Controller
         }
 
         $unit->update($request->only('name', 'short_name'));
-        return success_response($unit, 'Measurement unit updated successfully.');
+        return success_response(null, 'Measurement unit updated successfully.');
     }
 
     public function destroy($id)
