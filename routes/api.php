@@ -46,6 +46,7 @@ use App\Http\Controllers\Student\StudentRegisterController;
 use App\Http\Controllers\Setting\MeetLinkSettingController;
 use App\Http\Controllers\Setting\PaymentMethodController;
 use App\Http\Controllers\Setting\VendorController;
+use App\Http\Controllers\Student\AttendanceController;
 use App\Http\Controllers\Student\ExistingStudentController;
 use App\Http\Controllers\Student\ProfileController;
 use App\Http\Controllers\Student\StudentController;
@@ -159,7 +160,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('expense-balance',[BalanceController::class,'expenseBalance']); 
     Route::resource('expense',ExpenseController::class);
     Route::post('collection',[CollectionController::class,'collection']);
-    Route::get('collection-list',[CollectionController::class,'collectionList']);
+    Route::get('collection-list',[CollectionController::class,'collectionList']); 
+
+
+    // Attendance  
+    Route::get('attendance/{reg_id}',[AttendanceController::class,'attendance']);
 });  
 
 // Common 
