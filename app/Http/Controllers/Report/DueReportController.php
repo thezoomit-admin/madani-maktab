@@ -66,7 +66,7 @@ class DueReportController extends Controller
         ]);
     }
 
-    public function payment(Request $request)
+    public function paymentList(Request $request)
     {
         $year = $request->input('year');
         $vendorId = $request->input('vendor_id');  

@@ -30,11 +30,13 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Payment\BalanceController;
 use App\Http\Controllers\Payment\OfficeTransactionController;
 use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\Payment\VendorPaymentController;
 use App\Http\Controllers\Report\CollectionController;
 use App\Http\Controllers\Report\DueReportController;
 use App\Http\Controllers\Report\ExpenseController;
 use App\Http\Controllers\Report\OjifaCollectReportController;
 use App\Http\Controllers\Report\OjifaDetailsReportController;
+use App\Http\Controllers\Report\TotalIncomeReportController;
 use App\Http\Controllers\Setting\ExpenseCategoryController;
 use App\Http\Controllers\Setting\ExpenseSubCategoryController;
 use App\Http\Controllers\Setting\FeeSettingController; 
@@ -144,6 +146,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('ojifa-report',[OjifaDetailsReportController::class,'OjifaReport']);
     Route::get('ojifa-collect-report',[OjifaCollectReportController::class,'getStudentPaymentReport']);
     Route::get('due-report',[DueReportController::class,'index']);
+    Route::get('due-payment-report',[DueReportController::class,'paymentList']);
+    Route::post('due-pay',[VendorPaymentController::class,'payment']);
+    Route::get('total-report',[TotalIncomeReportController::class,'index']);
 
     // Income Report 
     Route::get('income-balance',[BalanceController::class,'incomeBalance']);
