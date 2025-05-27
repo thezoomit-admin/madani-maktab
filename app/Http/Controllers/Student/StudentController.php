@@ -9,6 +9,7 @@ use App\Enums\MaktabSession;
 use App\Http\Controllers\Controller;
 use App\Models\HijriMonth;
 use App\Models\Student;
+use App\Services\AttendanceService;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
