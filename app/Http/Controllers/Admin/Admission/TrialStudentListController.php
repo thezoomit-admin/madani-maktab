@@ -89,15 +89,7 @@ class TrialStudentListController extends Controller
                 'jamaat' => $request->jamaat,
                 'average_marks' => 0,
                 'status' => 1
-            ]);
-
-            if ($department_id  == 1) {
-                $monthly_fee = FeeSetting::where('key', 'maktab_monthly_fee')->value('value') ?? 0;
-                $admission_fee = FeeSetting::where('key', 'maktab_admission_fee')->value('value') ?? 0;
-            } else {
-                $monthly_fee = FeeSetting::where('key', 'kitab_monthly_fee')->value('value') ?? 0;
-                $admission_fee = FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0;
-            }
+            ]); 
 
             if(isset($request->admission_fee) && $request->admission_fee!=null){
                 $admission_fee = $request->admission_fee;

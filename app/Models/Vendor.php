@@ -13,4 +13,16 @@ class Vendor extends Model
         'contact_person',
         'phone',
     ];
+
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(VendorPayment::class);
+    }
+
+    
 }

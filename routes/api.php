@@ -31,6 +31,7 @@ use App\Http\Controllers\Payment\BalanceController;
 use App\Http\Controllers\Payment\OfficeTransactionController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Report\CollectionController;
+use App\Http\Controllers\Report\DueReportController;
 use App\Http\Controllers\Report\ExpenseController;
 use App\Http\Controllers\Report\OjifaCollectReportController;
 use App\Http\Controllers\Report\OjifaDetailsReportController;
@@ -142,6 +143,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Report 
     Route::get('ojifa-report',[OjifaDetailsReportController::class,'OjifaReport']);
     Route::get('ojifa-collect-report',[OjifaCollectReportController::class,'getStudentPaymentReport']);
+    Route::get('due-report',[DueReportController::class,'index']);
 
     // Income Report 
     Route::get('income-balance',[BalanceController::class,'incomeBalance']);

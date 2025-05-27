@@ -7,22 +7,33 @@ use Illuminate\Database\Eloquent\Model;
 
 class Expense extends Model
 {
-    use HasFactory; 
-
-    protected $fillable = [
+    use HasFactory;  
+     protected $fillable = [
         'user_id',
         'expense_category_id',
-        'payment_method_id',
+        'expense_sub_category_id',
+        'vendor_id',
+        'payment_method_id', 
+        'approved_by',
         'amount',
+        'total_amount',
         'description',
+        'measurement',
+        'measurement_unit_id',
         'image',
         'is_approved',
-        'approved_by',
-    ]; 
+    ];
+
+    // Relationships
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function approvedBy()
@@ -34,10 +45,24 @@ class Expense extends Model
     {
         return $this->belongsTo(ExpenseCategory::class, 'expense_category_id');
     }
-    
+
+    public function subCategory()
+    {
+        return $this->belongsTo(ExpenseSubCategory::class, 'expense_sub_category_id');
+    }
+
+     public function measurmentUnit()
+    {
+        return $this->belongsTo(MeasurmentUnit::class, 'measurement_unit_id');
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
 
     public function paymentMethod()
     {
-        return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
+        return $this->belongsTo(PaymentMethod::class);
     }
 }

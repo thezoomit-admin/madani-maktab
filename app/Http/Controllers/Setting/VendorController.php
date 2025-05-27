@@ -3,16 +3,19 @@
 namespace App\Http\Controllers\Setting;
 
 use App\Http\Controllers\Controller;
+use App\Models\HijriDate;
+use App\Models\HijriMonth;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class VendorController extends Controller
 {
-    public function index()
-    {
+    public function index(Request $request)
+    { 
         $vendors = Vendor::all();
-        return success_response($vendors, 'Vendors fetched successfully.');
+        return success_response($vendors);    
     }
 
     public function store(Request $request)
