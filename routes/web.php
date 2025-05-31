@@ -33,17 +33,16 @@ use Illuminate\Support\Facades\Route;
 Route::get('/refresh', function () {  
    
      DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-
-     // Update operations
-     Admission::where('status', 1)->update(['status' => 0]);
-     User::whereNotNull('reg_id')->update(['reg_id' => null]);
  
-     // Truncate tables
-     Student::truncate();
-     Enrole::truncate();
-     Payment::truncate();
+     // Admission::where('status', 1)->update(['status' => 0]);
+     // User::whereNotNull('reg_id')->update(['reg_id' => null]);
+  
+     // Student::truncate();
+     // Enrole::truncate();
+     // TeacherComment::truncate();
+     // Payment::truncate();
      PaymentTransaction::truncate();
-     TeacherComment::truncate();
+     
      $payments_methods = PaymentMethod::all();
      foreach($payments_methods as $method){
           $method->income_in_hand = 0;

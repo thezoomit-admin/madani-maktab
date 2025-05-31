@@ -11,11 +11,9 @@ class TotalIncomeReportController extends Controller
 {
     public function index(Request $request)
 {
-    try {
-        // 1. মোট ইনকাম
+    try { 
         $totalIncome = PaymentTransaction::where('is_approved', true)->sum('amount');
-
-        // 2. ক্যাটাগরি অনুযায়ী খরচ
+ 
         $categoryExpenses = Expense::with('category')
             ->selectRaw('expense_category_id, SUM(total_amount) as total')
             ->groupBy('expense_category_id')
@@ -26,14 +24,11 @@ class TotalIncomeReportController extends Controller
                     'total_expense' => $item->total,
                 ];
             });
-
-        // 3. মোট খরচ
+ 
         $totalExpense = $categoryExpenses->sum('total_expense');
-
-        // 4. লাভ বা ক্ষতি
+ 
         $profitOrLoss = $totalIncome - $totalExpense;
-
-        // রিটার্ন
+ 
         return success_response([
             'category_wise_expense' => $categoryExpenses,
             'total_expense' => $totalExpense,
