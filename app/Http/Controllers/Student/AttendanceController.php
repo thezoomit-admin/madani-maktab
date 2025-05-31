@@ -73,7 +73,7 @@ class AttendanceController extends Controller
 
             return response()->json([
                 'registration_id' => $reg_id,
-                'attendance' => $attendance,
+                'attendance' =>array_reverse($attendance),
             ]);
         }  
 }
