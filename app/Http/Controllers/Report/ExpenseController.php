@@ -38,7 +38,7 @@ class ExpenseController extends Controller
                 ->map(function ($item) {
                     return [
                         'id' => $item->id,
-                        'month' => app(HijriDateService::class)->getHijri($item->created_at), // If service not injected
+                        'month' => app(HijriDateService::class)->getHijri($item->created_at),  
                         'expense_category_name' => optional($item->category)->name,
                         'expense_sub_category_name' => optional($item->subCategory)->name,
                         'description' => $item->description,

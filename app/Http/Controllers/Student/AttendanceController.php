@@ -5,14 +5,19 @@ namespace App\Http\Controllers\Student;
 use App\Helpers\HijriDateService;
 use App\Http\Controllers\Controller;
 use App\Models\HijriMonth;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 class AttendanceController extends Controller
 {
-      public function attendance(Request $request, $reg_id)
+      public function attendance(Request $request, $reg_id=null)
     {
+        if($reg_id==null){
+            $reg_id = User::find(Auth::user()->id)->reg_id;
+        }
         $month_id = $request->month_id;
         if($month_id){
             $month = HijriMonth::find($month_id); 

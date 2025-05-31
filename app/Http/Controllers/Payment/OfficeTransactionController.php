@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Payment;
 
 use App\Enums\ArabicMonth;
+use App\Helpers\HijriDateService;
 use App\Http\Controllers\Controller;
 use App\Models\OfficeTransaction;
 use App\Models\PaymentMethod;
@@ -15,8 +16,7 @@ class OfficeTransactionController extends Controller
 {
     public function deposit(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'hijri_month_id' => 'required|exists:hijri_months,id',
+        $validator = Validator::make($request->all(), [ 
             'payment_method_id' => 'required|exists:payment_methods,id',
             'amount' => 'required|numeric',
             'description' => 'nullable|string', 
@@ -43,8 +43,7 @@ class OfficeTransactionController extends Controller
 
             OfficeTransaction::create([
                 'type' => 1,
-                'payment_method_id' => $request->payment_method_id,
-                'hijri_month_id' => $request->hijri_month_id,
+                'payment_method_id' => $request->payment_method_id, 
                 'description' => $request->description ?? null,
                 'amount' => $amount,
                 'image' => $imagePath, 
@@ -86,7 +85,7 @@ class OfficeTransactionController extends Controller
     {
         $query = OfficeTransaction::with(['hijriMonth', 'paymentMethod'])
             ->where('type', 1)
-            ->select('id', 'hijri_month_id', 'payment_method_id', 'description', 'amount', 'image');
+            ->select('id', 'payment_method_id', 'description', 'amount', 'image','created_at');
 
         $perPage = $request->input('per_page', 10);  
         $page = $request->input('page', 1);  
@@ -98,7 +97,7 @@ class OfficeTransactionController extends Controller
                         ->map(function ($item) {
                             return [
                                 'id' => $item->id,
-                                'hijri_month' => $item->hijriMonth ? $item->hijriMonth->year . '-' . enum_name(ArabicMonth::class, $item->hijriMonth->month) : null,
+                                'date' => app(HijriDateService::class)->getHijri($item->created_at),
                                 'payment_method_icon' => $item->paymentMethod->icon ?? null,
                                 'description' => $item->description,
                                 'amount' => $item->amount,
