@@ -151,7 +151,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('due-payment-report',[DueReportController::class,'paymentList']);
     Route::post('due-pay',[VendorPaymentController::class,'payment']);
     Route::get('total-report',[TotalIncomeReportController::class,'index']);
-    Route::get('montwise-expense',[ExpenseReportController::class,'getArabicMonthWiseExpenseReport']);
+    Route::get('monthwise-expense',[ExpenseReportController::class,'getArabicMonthWiseExpenseReport']);
 
     // Income Report 
     Route::get('income-balance',[BalanceController::class,'incomeBalance']);
