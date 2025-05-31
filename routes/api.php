@@ -166,7 +166,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
     // Attendance  
-    Route::get('attendance/{reg_id}',[AttendanceController::class,'attendance']);
+    Route::get('attendance/{reg_id?}',[AttendanceController::class,'attendance']);
 });  
 
 // Common 
