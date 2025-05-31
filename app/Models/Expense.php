@@ -19,7 +19,7 @@ class Expense extends Model
         'total_amount',
         'description',
         'measurement',
-        'measurement_unit_id',
+        'measurment_unit_id',
         'image',
         'is_approved',
     ];
@@ -53,7 +53,7 @@ class Expense extends Model
 
      public function measurmentUnit()
     {
-        return $this->belongsTo(MeasurmentUnit::class, 'measurement_unit_id');
+        return $this->belongsTo(MeasurmentUnit::class, 'measurment_unit_id');
     }
 
     public function vendor()
