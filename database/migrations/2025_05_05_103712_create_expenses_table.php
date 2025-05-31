@@ -21,8 +21,8 @@ return new class extends Migration
             $table->foreignId('payment_method_id')->nullable()->constrained('payment_methods')->onDelete('cascade'); 
             $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
  
-            $table->decimal('amount', 10, 2)->nullable();  
-            $table->decimal('total_amount', 10, 2);   
+            $table->decimal('amount', 10, 2)->nullable();
+            $table->decimal('total_amount', 10, 2);
             $table->text('description')->nullable();
             $table->string('measurement')->nullable();
             $table->foreignId('measurment_unit_id')->nullable()->constrained('measurment_units')->onDelete('set null');
