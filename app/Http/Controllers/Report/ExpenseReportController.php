@@ -15,7 +15,7 @@ class ExpenseReportController extends Controller
     $expenses = Expense::with('category')->get();
 
     // Arabic month names from enum
-    $arabicMonths = ArabicMonth::values(); // [1 => "Muharram", ..., 12 => "Dhul Hijjah"]
+    $arabicMonths = ArabicMonth::values(); 
     $monthNames = array_values($arabicMonths); // Just the names in order
 
     $report = [];
@@ -48,7 +48,7 @@ class ExpenseReportController extends Controller
     $final = [];
 
     // Header row
-    $headerRow = array_merge(['Category'], $monthNames);
+    $headerRow = array_merge(['খাত/মাস'], $monthNames);
     $final[] = $headerRow;
 
     // Total row initialization
