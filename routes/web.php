@@ -31,9 +31,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/refresh', function () {  
-     // $messageService = new PhoneMessageService;
-     // $message = "Test";
-     // return $messageService->sendMessage(+8801766774016, $message); 
+   
      DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
      // Update operations
