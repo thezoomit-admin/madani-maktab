@@ -67,6 +67,96 @@ class ExpenseController extends Controller
 
 
 
+    // public function store(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'expense_category_id' => 'required|exists:expense_categories,id',
+    //         'expense_sub_category_id' => 'required|exists:expense_sub_categories,id',
+    //         'vendor_id' => 'nullable|exists:vendors,id',
+    //         'payment_method_id' => 'required|exists:payment_methods,id',
+
+    //         'description' => 'nullable|array',
+    //         'description.*' => 'nullable|string|max:1000',
+
+    //         'measurement' => 'nullable|array',
+    //         'measurement.*' => 'nullable|string|max:255',
+
+    //         'measurment_unit_id' => 'nullable|array',
+    //         'measurment_unit_id.*' => 'nullable|integer|exists:measurment_units,id',
+
+    //         'amount' => 'nullable|array',
+    //         'amount.*' => 'nullable|numeric|min:0',
+
+    //         'total_amount' => 'required|array',
+    //         'total_amount.*' => 'required|numeric|min:0',
+
+    //         'image' => 'nullable|image|max:2048',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return error_response($validator->errors(), 422, 'Validation failed.');
+    //     }
+
+    //     DB::beginTransaction();
+    //     try {
+    //         $payment_method = PaymentMethod::find($request->payment_method_id);
+    //         $totalExpenses = array_sum($request->total_amount);
+
+    //         $vendor_id = $request->vendor_id;
+    //         if (!$vendor_id) {
+    //             if ($totalExpenses > $payment_method->expense_in_hand) {
+    //                 return error_response(null, 404, $payment_method->name . ' অ্যাকাউন্টে ' . $totalExpenses . ' টাকা নেই।');
+    //             }
+    //         } else {
+    //             $vendor = Vendor::find($vendor_id);
+    //             if (!$vendor) {
+    //                 return error_response(null, 404, "Vendor not found");
+    //             }
+    //         }
+
+    //         $imagePath = null;
+    //         if ($request->hasFile('image')) {
+    //             $image = $request->file('image');
+    //             $imageName = time() . '_' . $image->getClientOriginalName();
+    //             $image->move(public_path('uploads/expenses'), $imageName);
+    //             $imagePath = asset('uploads/expenses/' . $imageName);
+    //         }
+
+    //         foreach ($request->total_amount as $index => $total) {
+    //             Expense::create([
+    //                 'user_id' => Auth::id(),
+    //                 'expense_category_id' => $request->expense_category_id,
+    //                 'expense_sub_category_id' => $request->expense_sub_category_id,
+    //                 'vendor_id' => $vendor_id,
+    //                 'payment_method_id' => $request->payment_method_id,
+    //                 'amount' => $request->amount[$index] ?? null,
+    //                 'total_amount' => $total,
+    //                 'description' => $request->description[$index] ?? null,
+    //                 'measurement' => $request->measurement[$index] ?? null,
+    //                 'measurment_unit_id' => $request->measurment_unit_id[$index] ?? null,
+    //                 'image' => $imagePath,
+    //                 'is_approved' => true,
+    //             ]);
+    //         }
+
+    //         if (!$vendor_id) {
+    //             $payment_method->expense_in_hand -= $totalExpenses;
+    //             $payment_method->balance -= $totalExpenses;
+    //             $payment_method->save();
+    //         } else {
+    //             $vendor->due += $totalExpenses;
+    //             $vendor->save();
+    //         }
+
+    //         DB::commit();
+    //         return success_response(null, 'Expenses created successfully.');
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return error_response($e->getMessage(), 500, 'Failed to create expenses.');
+    //     }
+    // } 
+
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -75,20 +165,11 @@ class ExpenseController extends Controller
             'vendor_id' => 'nullable|exists:vendors,id',
             'payment_method_id' => 'required|exists:payment_methods,id',
 
-            'description' => 'nullable|array',
-            'description.*' => 'nullable|string|max:1000',
-
-            'measurement' => 'nullable|array',
-            'measurement.*' => 'nullable|string|max:255',
-
-            'measurment_unit_id' => 'nullable|array',
-            'measurment_unit_id.*' => 'nullable|integer|exists:measurment_units,id',
-
-            'amount' => 'nullable|array',
-            'amount.*' => 'nullable|numeric|min:0',
-
-            'total_amount' => 'required|array',
-            'total_amount.*' => 'required|numeric|min:0',
+            'expenses' => 'required|array|min:1',
+            'expenses.*.description' => 'nullable|string|max:1000',
+            'expenses.*.measurement' => 'nullable|string|max:255',
+            'expenses.*.measurement_unit_id' => 'nullable|integer|exists:measurment_units,id',
+            'expenses.*.amount' => 'nullable|numeric|min:0',
 
             'image' => 'nullable|image|max:2048',
         ]);
@@ -100,7 +181,7 @@ class ExpenseController extends Controller
         DB::beginTransaction();
         try {
             $payment_method = PaymentMethod::find($request->payment_method_id);
-            $totalExpenses = array_sum($request->total_amount);
+            $totalExpenses = array_sum(array_column($request->expenses, 'amount'));
 
             $vendor_id = $request->vendor_id;
             if (!$vendor_id) {
@@ -122,18 +203,18 @@ class ExpenseController extends Controller
                 $imagePath = asset('uploads/expenses/' . $imageName);
             }
 
-            foreach ($request->total_amount as $index => $total) {
+            foreach ($request->expenses as $expense) {
                 Expense::create([
                     'user_id' => Auth::id(),
                     'expense_category_id' => $request->expense_category_id,
                     'expense_sub_category_id' => $request->expense_sub_category_id,
                     'vendor_id' => $vendor_id,
                     'payment_method_id' => $request->payment_method_id,
-                    'amount' => $request->amount[$index] ?? null,
-                    'total_amount' => $total,
-                    'description' => $request->description[$index] ?? null,
-                    'measurement' => $request->measurement[$index] ?? null,
-                    'measurment_unit_id' => $request->measurment_unit_id[$index] ?? null,
+                    'amount' => $expense['amount'] ?? null,
+                    'total_amount' => $expense['amount'] ?? 0,
+                    'description' => $expense['description'] ?? null,
+                    'measurement' => $expense['measurement'] ?? null,
+                    'measurment_unit_id' => $expense['measurement_unit_id'] ?? null,
                     'image' => $imagePath,
                     'is_approved' => true,
                 ]);
@@ -155,6 +236,7 @@ class ExpenseController extends Controller
             return error_response($e->getMessage(), 500, 'Failed to create expenses.');
         }
     }
+
 
  
     public function show(Expense $expense)
