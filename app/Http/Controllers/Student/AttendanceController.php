@@ -13,71 +13,67 @@ use Illuminate\Support\Facades\Http;
 
 class AttendanceController extends Controller
 {
-      public function attendance(Request $request, $reg_id=null)
-    {
-        if($reg_id==null){
-            $reg_id = User::find(Auth::user()->id)->reg_id;
-        }
-        $month_id = $request->month_id;
-        if($month_id){
-            $month = HijriMonth::find($month_id); 
-        }else{
-            $month = HijriMonth::where('is_active',true)?->first(); 
-        }
-        if($month){
-            $startDate = $month->start_date;
-            $endDate = $month->end_date;
-        }else{
-            $startDate = Carbon::now()->startOfMonth()->toDateString();
-            $endDate = Carbon::now()->toDateString();
-        }
-      
+      public function attendance(Request $request, $reg_id = null)
+        {
+            $user = Auth::user();
+    
+            $reg_id = $reg_id ?? $user->reg_id;
+    
+            $month = $request->filled('month_id') 
+                ? HijriMonth::find($request->month_id) 
+                : null;
+    
+            if ($month) {
+                $startDate = $month->start_date;
+                $endDate = $month->end_date;
+            } else {
+                $endDate = Carbon::now();
+                $startDate = $endDate->copy()->subDays(30);
+            }
 
-        $data = [
-            'operation'  => 'fetch_log',
-            'auth_user'  => env('STELLAR_AUTH_USER'),
-            'auth_code'  => env('STELLAR_AUTH_CODE'),
-            'start_date' => $startDate,
-            'end_date'   => $endDate,
-            'start_time' => '00:00:00',
-            'end_time'   => '23:59:59', 
-        ];
+            $data = [
+                'operation'  => 'fetch_log',
+                'auth_user'  => env('STELLAR_AUTH_USER'),
+                'auth_code'  => env('STELLAR_AUTH_CODE'),
+                'start_date' => $startDate->toDateString(),
+                'end_date'   => $endDate->toDateString(),
+                'start_time' => '00:00:00',
+                'end_time'   => '23:59:59',
+            ];
 
-        $response = Http::post(env('STELLAR_API_BASE_URL'), $data);
+            $response = Http::post(env('STELLAR_API_BASE_URL'), $data);
 
-        if ($response->successful()) { 
- 
-            $logs = collect($response->json('log') ?? []) 
-                ->filter(fn($log) => (string) $log['registration_id'] === (string) $reg_id) 
+            if (!$response->successful()) {
+                return response()->json([
+                    'registration_id' => $reg_id,
+                    'attendance' => [],
+                    'error' => 'Failed to fetch logs',
+                ], 500);
+            }
+
+            $logs = collect($response->json('log') ?? [])
+                ->filter(fn($log) => (string) $log['registration_id'] === (string) $reg_id)
                 ->sortBy([
                     ['access_date', 'asc'],
                     ['access_time', 'asc'],
                 ])
                 ->values();
 
-            $attendance = []; 
+            $attendance = [];
             for ($i = 0; $i < $logs->count(); $i += 2) {
                 $inLog = $logs[$i];
                 $outLog = $logs[$i + 1] ?? null;
 
                 $attendance[] = [
-                    'date'     =>app(HijriDateService::class)->getHijri($inLog['access_date']),
+                    'date'     => app(HijriDateService::class)->getHijri($inLog['access_date']),
                     'in_time'  => $inLog['access_time'],
-                    'out_time' => $outLog['access_time'] ?? null, 
+                    'out_time' => $outLog['access_time'] ?? null,
                 ];
             }
 
             return response()->json([
                 'registration_id' => $reg_id,
-                'attendance'      => $attendance,
+                'attendance' => $attendance,
             ]);
-        }
-
-        return response()->json([
-            'registration_id' => $reg_id,
-            'attendance'      => [],
-            'error'           => 'Failed to fetch logs',
-        ], 500);
-    }
-
+        }  
 }
