@@ -17,7 +17,7 @@ class AttendanceController extends Controller
         if($month_id){
             $month = HijriMonth::find($month_id); 
         }else{
-            $month = HijriMonth::where('is_active',true)->first; 
+            $month = HijriMonth::where('is_active',true)?->first(); 
         }
         if($month){
             $startDate = $month->start_date;

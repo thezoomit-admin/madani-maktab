@@ -34,6 +34,7 @@ use App\Http\Controllers\Payment\VendorPaymentController;
 use App\Http\Controllers\Report\CollectionController;
 use App\Http\Controllers\Report\DueReportController;
 use App\Http\Controllers\Report\ExpenseController;
+use App\Http\Controllers\Report\ExpenseReportController;
 use App\Http\Controllers\Report\OjifaCollectReportController;
 use App\Http\Controllers\Report\OjifaDetailsReportController;
 use App\Http\Controllers\Report\TotalIncomeReportController;
@@ -150,6 +151,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('due-payment-report',[DueReportController::class,'paymentList']);
     Route::post('due-pay',[VendorPaymentController::class,'payment']);
     Route::get('total-report',[TotalIncomeReportController::class,'index']);
+    Route::get('monthly-expense',[ExpenseReportController::class,'getArabicMonthWiseExpenseReport']);
 
     // Income Report 
     Route::get('income-balance',[BalanceController::class,'incomeBalance']);
