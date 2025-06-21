@@ -133,6 +133,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::resource('teacher-comment',TeacherCommentController::class); 
     Route::get('student',[StudentController::class,'index']);
+    Route::delete('student/delete/{id}',[StudentController::class,'delete']);
     Route::get('profile/{id?}', [ProfileController::class, 'profile']);
     Route::get('payment-history/{id?}', [ProfileController::class, 'PaymentHistory']);
     Route::get('enroll-history/{id?}', [ProfileController::class, 'EnroleHistory']);
@@ -167,6 +168,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Attendance  
     Route::get('attendance/{reg_id?}',[AttendanceController::class,'attendance']);
+    Route::post('out-reason',[AttendanceController::class,'outReason']);
 });  
 
 // Common 
