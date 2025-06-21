@@ -3,6 +3,7 @@
 use App\Enums\FeeType;
 use App\Helpers\ReportingService;
 use App\Http\Controllers\Admin\Admission\InterviewController;
+use App\Http\Controllers\Student\AttendanceSyncController;
 use App\Models\Admission;
 use App\Models\Enrole;
 use App\Models\Expense;
@@ -28,6 +29,9 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+
+Route::get('/sync-attendance', [AttendanceSyncController::class, 'sync']);
 
 
 Route::get('/refresh', function () {  

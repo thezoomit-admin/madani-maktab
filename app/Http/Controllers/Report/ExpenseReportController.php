@@ -66,7 +66,7 @@ class ExpenseReportController extends Controller
     }
 
     // Add total row
-    $final[] = array_merge(['Total'], array_values($totalRow));
+    $final[] = array_merge(['মোট'], array_values($totalRow));
 
     return response()->json($final);
 }
