@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('vendor_id')->constrained('vendors');
             $table->foreignId('payment_method_id')->constrained('payment_methods');
             $table->decimal('amount');
+            $table->string('image')->nullable();
             $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
         });

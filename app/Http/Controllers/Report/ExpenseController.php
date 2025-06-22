@@ -8,30 +8,52 @@ use App\Models\Expense;
 use App\Models\ExpensePayment;
 use App\Models\PaymentMethod;
 use App\Models\Vendor;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class ExpenseController extends Controller
-{
-    
-    
-     public function index(Request $request)
-    {
+{ 
+    public function index(Request $request)
+    {  
+        $month = $request->filled('month_id')
+            ? \App\Models\HijriMonth::find($request->month_id)
+            : null;
+
+        if ($month) {
+            $startDate = Carbon::parse($month->start_date)->startOfDay();
+            $endDate = Carbon::parse($month->end_date)->endOfDay();
+        } else {
+            $endDate = Carbon::now()->endOfDay();
+            $startDate = $endDate->copy()->subDays(30)->startOfDay();
+        }
+
         try {
             $perPage = (int) $request->input('per_page', 10);
             $page = (int) $request->input('page', 1);
 
-            // Build base query with relationships and selected fields
+            // Main query with filters
             $query = Expense::with(['user', 'approvedBy', 'category', 'subCategory', 'paymentMethod', 'measurmentUnit', 'vendor'])
                 ->select('id', 'user_id', 'expense_category_id', 'expense_sub_category_id', 'vendor_id', 'payment_method_id',
                         'amount', 'total_amount', 'description', 'measurement', 'measurment_unit_id', 'image', 'created_at')
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->when($request->filled('expense_category_id'), function ($q) use ($request) {
+                    $q->where('expense_category_id', $request->expense_category_id);
+                })
+                ->when($request->filled('expense_sub_category_id'), function ($q) use ($request) {
+                    $q->where('expense_sub_category_id', $request->expense_sub_category_id);
+                })
+                ->when($request->filled('vendor_id'), function ($q) use ($request) {
+                    $q->where('vendor_id', $request->vendor_id);
+                })
                 ->latest();
 
-            $total = $query->count();
+            // Count total before pagination
+            $total = $query->count();  
 
-            // Get paginated results and transform
+            // Apply pagination
             $results = $query->skip(($page - 1) * $perPage)
                 ->take($perPage)
                 ->get()
@@ -51,7 +73,7 @@ class ExpenseController extends Controller
                     ];
                 });
 
-            // Return formatted response
+            // Success response
             return success_response([
                 'data' => $results,
                 'pagination' => [
@@ -65,6 +87,7 @@ class ExpenseController extends Controller
             return error_response($e->getMessage(), 500, 'Failed to retrieve expenses.');
         }
     }
+
 
  
 

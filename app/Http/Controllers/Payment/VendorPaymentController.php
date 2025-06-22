@@ -18,6 +18,7 @@ class VendorPaymentController extends Controller
             'vendor_id' => 'required|exists:vendors,id',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'amount' => 'required|numeric|min:0.01',
+            'image' => 'nullable|image|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -31,13 +32,23 @@ class VendorPaymentController extends Controller
             return error_response(null, 404, $payment_method->name . ' অ্যাকাউন্টে ' . $amount . ' টাকা নেই।');
         }
 
+         $imagePath = null;
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('uploads/due_pay'), $imageName);
+                $imagePath = asset('uploads/due_pay/' . $imageName);
+            }
+
+
         DB::beginTransaction();
 
         try {
-            $payment = VendorPayment::create([
+            VendorPayment::create([
                 'vendor_id' => $request->input('vendor_id'),
                 'payment_method_id' => $request->input('payment_method_id'),
                 'amount' => $amount,
+                'image' => $imagePath,
                 'created_by' => Auth::id(),
             ]);
 

@@ -137,20 +137,16 @@ class StudentController extends Controller
     }
 
     DB::beginTransaction();
-    try {
-        // ⚠️ Enrole থেকে student_id রেফারেন্স যুক্ত রেকর্ড মুছুন
+    try { 
         Enrole::where('student_id', $student->id)->delete();
-
-        // অন্যান্য ডেটা
+ 
         TeacherComment::where('student_id', $user->id)->delete();
         Payment::where('user_id', $user->id)->delete();
         Admission::where('user_id', $user->id)->update(['status' => 0]);
-
-        // ইউজারের reg_id null করা
+ 
         $user->reg_id = null;
         $user->save();
-
-        // Student ডিলিট
+ 
         $student->delete();
 
         DB::commit();

@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\HijriDateService;
 use App\Http\Controllers\Admin\Admission\AdmissionNoteController;
 use App\Http\Controllers\Admin\Admission\FailToPassController;
 use App\Http\Controllers\Admin\Admission\InterviewController;
@@ -51,7 +52,8 @@ use App\Http\Controllers\Student\AttendanceController;
 use App\Http\Controllers\Student\ExistingStudentController;
 use App\Http\Controllers\Student\ProfileController;
 use App\Http\Controllers\Student\StudentController;
-use App\Http\Controllers\Student\TeacherCommentController; 
+use App\Http\Controllers\Student\TeacherCommentController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route; 
 
 /*
@@ -178,6 +180,11 @@ Route::get('maktab-session',[SessionController::class,'maktabSession']);
 Route::get('kitab-session',[SessionController::class,'kitabSession']);
 Route::get('fee-type',[FeeTypeController::class,'feeList']); 
 Route::get('departments',[DepartmentController::class,'index']);
+
+Route::get('test-date',function(Request $request){
+    $hijriService = new HijriDateService();
+    return $hijriService->getHijri($request->date);
+});
 
  
 

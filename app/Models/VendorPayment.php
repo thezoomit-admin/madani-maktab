@@ -13,6 +13,7 @@ class VendorPayment extends Model
         'vendor_id',
         'payment_method_id',
         'amount',
+        'image',
         'created_by',
     ];
 
