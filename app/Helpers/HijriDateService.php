@@ -45,12 +45,10 @@ class HijriDateService
 
         $day = $startDate->diffInDays($currentDate) + 1;
         $monthNumber = $hijriMonth->month;  
-        $year = $hijriMonth->year;
-
+        $year = $hijriMonth->year; 
         $monthNames = ArabicMonth::values();
-        $monthName = $monthNames[$monthNumber] ?? 'অজানা মাস';  
-
-        return "{$day} {$monthName}, {$year} হিজরি";
+        $monthName = $monthNames[$monthNumber] ?? 'অজানা মাস';   
+        return "{$day} {$monthName}, {$year}";
     }
 
 }
