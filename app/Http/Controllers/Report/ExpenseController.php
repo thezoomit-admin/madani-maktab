@@ -146,7 +146,7 @@ class ExpenseController extends Controller
                     'vendor_id' => $vendor_id,
                     'payment_method_id' => $request->payment_method_id,
                     'amount' => $expense['amount'] ?? null,
-                    'total_amount' => $expense['amount'] ?? 0,
+                    'total_amount' => $expense['total'] ?? 0,
                     'description' => $expense['description'] ?? null,
                     'measurement' => $expense['measurement'] ?? null,
                     'measurment_unit_id' => $expense['measurement_unit_id'] ?? null,
