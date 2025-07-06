@@ -119,6 +119,7 @@ class TrialStudentListController extends Controller
 
             $enrole = Enrole::create([
                 'user_id' => $id,
+                'roll_number' => $request->roll_number,
                 'student_id' => $student->id,
                 'department_id' => $department_id,
                 'session' => $request->session,

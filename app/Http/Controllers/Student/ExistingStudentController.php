@@ -202,6 +202,7 @@ class ExistingStudentController extends Controller
 
             $enrole = Enrole::create([
                 'user_id' => $admission->user_id,
+                'roll_number' => $request->roll_number,
                 'student_id' => $student->id,
                 'department_id' => $request->department_id,
                 'session' => $request->session,
