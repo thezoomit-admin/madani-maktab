@@ -171,6 +171,11 @@ class ExistingStudentController extends Controller
                 $admission_fee = FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0;
             }
 
+            if(isset($request->admission_fee) && $request->admission_fee!=null){
+                $admission_fee = $request->admission_fee;
+            }
+            
+
             $fee_type = $request->fee_type;
             $regular_monthly_fee = $monthly_fee;
             if ($fee_type == FeeType::Half) {
