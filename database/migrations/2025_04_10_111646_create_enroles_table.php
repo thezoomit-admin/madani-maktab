@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('enroles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users'); 
+            $table->integer('roll_number')->nullable();
             $table->foreignId('student_id')->constrained('students'); 
             $table->integer('department_id')->nullable();
             $table->string('session')->nullable(); 

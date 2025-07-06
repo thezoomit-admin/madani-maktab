@@ -42,6 +42,7 @@ class ProfileController extends Controller
                 'dob_hijri' => $user->dob_hijri,
                 'blood_group' => $user->blood_group,
                 'reg_id' => $user->reg_id,
+                'roll_number' => @$user->enrole->roll_number??"",
                 'jamaat' => $user->student->jamaat,
                 'average_marks' => $user->student->average_marks,
             ];

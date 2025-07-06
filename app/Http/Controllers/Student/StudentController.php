@@ -27,17 +27,17 @@ class StudentController extends Controller
     {
         try {
             $perPage = $request->input('per_page', 10);
-            $page = $request->input('page', 1);
-
+            $page = $request->input('page', 1);  
+ 
             $active_month = HijriMonth::where('is_active', true)->first();
             $year = $request->input('year', $active_month->year ?? 1446);
-
+ 
             $students = Student::with([
                     'user:id,name,reg_id,phone,profile_image,blood_group',
                     'enroles' => function ($query) use ($year) {
                         $query->where('year', $year)
                             ->where('status', 1)
-                            ->select('id', 'student_id', 'department_id', 'session', 'fee_type', 'status', 'year');
+                            ->select('id','roll_number', 'student_id', 'department_id', 'session', 'fee_type', 'status', 'year');
                     }
                 ])
                 ->when($request->input('jamaat'), function ($query, $jamaat) {
@@ -47,15 +47,24 @@ class StudentController extends Controller
                     if ($request->filled('blood_group')) {
                         $query->where('blood_group', $request->input('blood_group'));
                     }
+                    if ($request->filled('name')) {
+                        $query->where('name', $request->input('name'));
+                    }
+                    if ($request->filled('reg_id')) {
+                        $query->where('reg_id', $request->input('reg_id'));  
+                    }
+                })
+                ->whereHas('enroles', function ($query) use ($request) {
+                    if ($request->filled('roll_number')) {
+                        $query->where('roll_number', $request->input('roll_number'));
+                    } 
                 })
                 ->select('id', 'user_id', 'jamaat', 'average_marks', 'status')
                 ->orderBy('id', 'desc')
                 ->paginate($perPage, ['*'], 'page', $page);
 
-            // ✅ Step 1: Collect all user IDs
             $userIds = $students->pluck('user_id')->unique();
-
-            // ✅ Step 2: Get last attendance per user efficiently
+ 
             $attendances = Attendance::whereIn('user_id', $userIds)
                 ->select('id', 'user_id', 'in_time', 'out_time')
                 ->latest('in_time')
@@ -63,7 +72,7 @@ class StudentController extends Controller
                 ->groupBy('user_id')
                 ->map(fn($records) => $records->first());
 
-            // ✅ Step 3: Transform student collection
+            // Transform and enrich student data
             $modified = $students->getCollection()->transform(function ($student) use ($attendances) {
                 $user = $student->user;
                 $enrole = $student->enroles->first();
@@ -85,6 +94,7 @@ class StudentController extends Controller
                 return [
                     'id' => $student->id,
                     'user_id' => $user->id,
+                    'roll_number' => $enrole->roll_number,
                     'reg_id' => $user->reg_id,
                     'jamaat' => $student->jamaat,
                     'average_marks' => $student->average_marks,
@@ -99,11 +109,23 @@ class StudentController extends Controller
                     'status' => $enrole->status ?? null,
                     'year' => $enrole->year ?? null,
 
+                    'department_id' => $departmentId,  
+                    'session_id' => $sessionId,     
                     'is_present' => $is_present,
                 ];
             });
-
-            $students->setCollection($modified);
+ 
+            $modified = $modified->sortBy([
+                ['department_id', 'asc'],
+                ['session_id', 'asc']
+            ]);
+ 
+            $modified = $modified->map(function ($item) {
+                unset($item['department_id'], $item['session_id']);
+                return $item;
+            });
+ 
+            $students->setCollection($modified->values());
 
             return success_response([
                 'data' => $students->items(),
@@ -119,42 +141,60 @@ class StudentController extends Controller
         }
     }
 
+
     public function delete($id)
-{
-    $student = Student::find($id);
-    if (!$student) {
-        return error_response(null, 404, 'স্টুডেন্ট খুঁজে পাওয়া যায়নি।');
+    {
+        $student = Student::find($id);
+        if (!$student) {
+            return error_response(null, 404, 'স্টুডেন্ট খুঁজে পাওয়া যায়নি।');
+        }
+
+        $payment_transaction = PaymentTransaction::where('student_id', $id)->first();
+        if ($payment_transaction) {
+            return error_response(null, 403, 'এই স্টুডেন্টের পেমেন্ট ট্রান্সাকশন রয়েছে, তাই ডিলিট করা যাবে না।');
+        }
+
+        $user = User::find($student->user_id);
+        if (!$user) {
+            return error_response(null, 404, 'সংশ্লিষ্ট ইউজার খুঁজে পাওয়া যায়নি।');
+        }
+
+        DB::beginTransaction();
+        try { 
+            Enrole::where('student_id', $student->id)->delete();
+    
+            TeacherComment::where('student_id', $user->id)->delete();
+            Payment::where('user_id', $user->id)->delete();
+            Admission::where('user_id', $user->id)->update(['status' => 0]);
+    
+            $user->reg_id = null;
+            $user->save();
+    
+            $student->delete();
+
+            DB::commit();
+            return success_response(null, 'স্টুডেন্ট ও সংশ্লিষ্ট তথ্য সফলভাবে ডিলিট করা হয়েছে।');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return error_response(null, 500, 'ডিলিট করার সময় একটি ত্রুটি ঘটেছে: ' . $e->getMessage());
+        }
+    } 
+
+    public function updateRoll($id, Request $request)
+    {
+        $enrole = Enrole::where('status', 1)
+            ->whereHas('user', function ($q) use ($id) {
+                $q->where('id', $id);
+            })
+            ->first();  
+        if (!$enrole) {
+            return error_response('Enrollment not found', 404);
+        }
+
+        $enrole->roll_number = $request->roll_number;
+        $enrole->save(); 
+        return success_response(null, "Roll number updated");
     }
 
-    $payment_transaction = PaymentTransaction::where('student_id', $id)->first();
-    if ($payment_transaction) {
-        return error_response(null, 403, 'এই স্টুডেন্টের পেমেন্ট ট্রান্সাকশন রয়েছে, তাই ডিলিট করা যাবে না।');
-    }
-
-    $user = User::find($student->user_id);
-    if (!$user) {
-        return error_response(null, 404, 'সংশ্লিষ্ট ইউজার খুঁজে পাওয়া যায়নি।');
-    }
-
-    DB::beginTransaction();
-    try { 
-        Enrole::where('student_id', $student->id)->delete();
- 
-        TeacherComment::where('student_id', $user->id)->delete();
-        Payment::where('user_id', $user->id)->delete();
-        Admission::where('user_id', $user->id)->update(['status' => 0]);
- 
-        $user->reg_id = null;
-        $user->save();
- 
-        $student->delete();
-
-        DB::commit();
-        return success_response(null, 'স্টুডেন্ট ও সংশ্লিষ্ট তথ্য সফলভাবে ডিলিট করা হয়েছে।');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return error_response(null, 500, 'ডিলিট করার সময় একটি ত্রুটি ঘটেছে: ' . $e->getMessage());
-    }
-}
 
 }

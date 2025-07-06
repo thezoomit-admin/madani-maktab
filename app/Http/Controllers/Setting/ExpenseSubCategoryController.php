@@ -9,11 +9,18 @@ use Illuminate\Support\Facades\Validator;
 
 class ExpenseSubCategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $subCategories = ExpenseSubCategory::with(['category:id,name'])->get();
-        return success_response($subCategories, 'Expense subcategories fetched successfully.');
+        $expense_category_id = $request->expense_category_id;  
+        $subCategories = ExpenseSubCategory::query();  
+        if ($expense_category_id) { 
+            $subCategories->where('category_id', $expense_category_id);
+        }  
+        $subCategories = $subCategories->get(); 
+        return success_response($subCategories);
     }
+
+
 
     public function store(Request $request)
     {

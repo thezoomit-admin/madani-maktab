@@ -48,6 +48,9 @@ class ExpenseController extends Controller
                 ->when($request->filled('vendor_id'), function ($q) use ($request) {
                     $q->where('vendor_id', $request->vendor_id);
                 })
+                ->when($request->filled('keyword'), function ($q) use ($request) {
+                    $q->where('description', $request->keyword);
+                })
                 ->latest();
 
             // Count total before pagination

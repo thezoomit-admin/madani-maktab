@@ -11,6 +11,7 @@ class Enrole extends Model
 
     protected $fillable = [
         'user_id',
+        "roll_number",
         'student_id',
         'department_id',
         'session',
