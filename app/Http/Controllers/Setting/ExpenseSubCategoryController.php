@@ -14,7 +14,7 @@ class ExpenseSubCategoryController extends Controller
         $expense_category_id = $request->expense_category_id;  
         $subCategories = ExpenseSubCategory::query();  
         if ($expense_category_id) { 
-            $subCategories->where('category_id', $expense_category_id);
+            $subCategories->where('categoriy_id', $expense_category_id);
         }  
         $subCategories = $subCategories->get(); 
         return success_response($subCategories);
