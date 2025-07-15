@@ -58,7 +58,35 @@ Route::get('/',function(Request $request){
         $startDate = $dates->start_date;
         $endDate = $dates->end_date;
 
-        dd($startDate,$endDate);
+        $vendors = Vendor::select('name','id')
+            ->withCount([
+                'expenses as total_expense' => function ($query) use ($startDate, $endDate) {
+                    $query->whereBetween('created_at', [$startDate, $endDate])
+                        ->select(DB::raw("COALESCE(SUM(total_amount), 0)"));
+                },
+                'payments as total_payment' => function ($query) use ($startDate, $endDate) {
+                    $query->whereBetween('created_at', [$startDate, $endDate])
+                        ->select(DB::raw("COALESCE(SUM(amount), 0)"));
+                }
+            ])
+            ->get()
+            ->map(function ($vendor) {
+                return [
+                    'id' => $vendor->id,
+                    'name' => $vendor->name,
+                    // 'total_expense' => $vendor->total_expense,
+                    // 'total_payment' => $vendor->total_payment,
+                    'total_due' => $vendor->due,
+                ];
+            });
+
+        // Calculate total due across all vendors
+        $totalDue = $vendors->sum('total_due');
+
+        return success_response([ 
+            'total_due' => $totalDue,
+            'vendors' => $vendors,
+        ]);
 });
 
 
