@@ -16,7 +16,6 @@ use App\Models\Student;
 use App\Models\StudentRegister;
 use App\Models\TeacherComment;
 use App\Models\User;
-use App\Models\Vendor;
 use App\Services\PhoneMessageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -75,9 +74,9 @@ Route::get('/',function(Request $request){
                 return [
                     'id' => $vendor->id,
                     'name' => $vendor->name,
-                    // 'total_expense' => $vendor->total_expense,
-                    // 'total_payment' => $vendor->total_payment,
-                    'total_due' => $vendor->due,
+                    'total_expense' => $vendor->total_expense,
+                    'total_payment' => $vendor->total_payment,
+                    'total_due' => $vendor->total_expense - $vendor->total_payment,
                 ];
             });
 

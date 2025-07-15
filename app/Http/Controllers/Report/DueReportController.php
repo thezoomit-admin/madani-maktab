@@ -51,9 +51,9 @@ class DueReportController extends Controller
                 return [
                     'id' => $vendor->id,
                     'name' => $vendor->name,
-                    // 'total_expense' => $vendor->total_expense,
-                    // 'total_payment' => $vendor->total_payment,
-                    'total_due' => $vendor->due,
+                    'total_expense' => $vendor->total_expense,
+                    'total_payment' => $vendor->total_payment,
+                    'total_due' => $vendor->total_expense - $vendor->total_payment,
                 ];
             });
 
