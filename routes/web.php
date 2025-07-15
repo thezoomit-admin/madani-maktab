@@ -7,6 +7,7 @@ use App\Http\Controllers\Student\AttendanceSyncController;
 use App\Models\Admission;
 use App\Models\Enrole;
 use App\Models\Expense;
+use App\Models\HijriMonth;
 use App\Models\OfficeTransaction;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
@@ -16,8 +17,10 @@ use App\Models\StudentRegister;
 use App\Models\TeacherComment;
 use App\Models\User;
 use App\Services\PhoneMessageService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use PhpParser\Node\Expr\FuncCall;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +35,31 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/sync-attendance', [AttendanceSyncController::class, 'sync']);
+
+Route::get('/',function(Request $request){
+     $year = $request->input('year'); 
+
+        if (!$year) {
+            $activeHijriDate = HijriMonth::where('is_active', true)->first();
+            if (!$activeHijriDate) {
+                return error_response(null, 404, 'Active Hijri year not found.');
+            }
+            $year = $activeHijriDate->year;
+        }
+
+        $dates = HijriMonth::where('year', $year)
+            ->selectRaw('MIN(start_date) as start_date, MAX(end_date) as end_date')
+            ->first();
+
+        if (!$dates || !$dates->start_date || !$dates->end_date) {
+            return error_response(null, 404, 'No Hijri months found for the specified year.');
+        }
+
+        $startDate = $dates->start_date;
+        $endDate = $dates->end_date;
+
+        dd($startDate,$endDate);
+});
 
 
 Route::get('/refresh', function () {  
