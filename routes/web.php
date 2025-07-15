@@ -16,6 +16,7 @@ use App\Models\Student;
 use App\Models\StudentRegister;
 use App\Models\TeacherComment;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Services\PhoneMessageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
