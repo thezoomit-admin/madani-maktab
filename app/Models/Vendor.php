@@ -12,6 +12,7 @@ class Vendor extends Model
         'name',
         'contact_person',
         'phone',
+        'due',
     ];
 
     public function expenses()

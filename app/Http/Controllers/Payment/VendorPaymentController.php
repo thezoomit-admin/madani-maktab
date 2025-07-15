@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
 use App\Models\PaymentMethod;
+use App\Models\Vendor;
 use App\Models\VendorPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,10 +52,15 @@ class VendorPaymentController extends Controller
                 'image' => $imagePath,
                 'created_by' => Auth::id(),
             ]);
+            
 
             $payment_method->expense_in_hand -= $amount;
             $payment_method->balance -= $amount;
             $payment_method->save();
+
+            $vendor = Vendor::find($request->input('vendor_id'));
+            $vendor->due = $vendor->$vendor - $amount;
+            $vendor->save();
 
             DB::commit(); 
             return success_response(null,'Payment recorded successfully.'); 
