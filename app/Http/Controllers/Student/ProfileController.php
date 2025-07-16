@@ -115,12 +115,12 @@ class ProfileController extends Controller
             ];
 
             $datas = [
-                $basic,
-                $education,
-                $user->address ?? null,
-                $guardian,
-                $family,
-                $user->answerFiles ?? [],
+                "basic" => $basic,
+                "education" => $education,
+                "address" => $user->address ?? null,
+                "guardian"=> $guardian,
+                "family" => $family,
+                "answerFiles" => $user->answerFiles ?? [],
             ];
 
             return success_response($datas);
