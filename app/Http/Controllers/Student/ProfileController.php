@@ -65,6 +65,7 @@ class ProfileController extends Controller
             $registration = $user->studentRegister;
 
             $education = [
+                "department_id" => optional($registration)->department_id,
                 "bangla_study_status" => optional($registration)->bangla_study_status,
                 "bangla_others_study" => optional($registration)->bangla_others_study,
                 "arabi_study_status" => optional($registration)->arabi_study_status,

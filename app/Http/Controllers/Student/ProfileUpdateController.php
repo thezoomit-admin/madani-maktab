@@ -3,10 +3,16 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\AnswerFile;
+use App\Models\Guardian;
+use App\Models\StudentRegister;
 use App\Models\User;
+use App\Models\UserAddress;
+use App\Models\UserFamily;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileUpdateController extends Controller
 {  
@@ -14,14 +20,14 @@ class ProfileUpdateController extends Controller
     {
         $user = User::findOrFail($id);
         $validator = Validator::make($request->all(), [
-            'name'          => 'sometimes|string|max:255',
-            'phone'         => 'sometimes|string|max:15',
-            'email'         => 'sometimes|email|max:255',
-            'profile_image' => 'sometimes|image|max:2048',
-            'dob'           => 'sometimes|date',
-            'dob_hijri'     => 'sometimes|string|max:30',
-            'blood_group'   => 'sometimes|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
-            'gender'        => 'sometimes|in:male,female,others',
+            'name'          => 'required|string|max:255',
+            'phone'         => 'required|string|max:15',
+            'email'         => 'nullable|email|max:255',
+            'profile_image' => 'nullable|image|max:2048',
+            'dob'           => 'nullable|date',
+            'dob_hijri'     => 'nullable|string|max:30',
+            'blood_group'   => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+            'gender'        => 'nullable|in:male,female,others',
         ]);
 
         if ($validator->fails()) {
@@ -39,71 +45,121 @@ class ProfileUpdateController extends Controller
             $user->profile_image = $profilePicPath;
         } 
 
-
+ 
         $user->fill($request->only([
             'name','phone','email','dob','dob_hijri','blood_group','gender'
-        ]))->save(); 
+        ]))->save();
+
+        $student_register = StudentRegister::where('user_id',$id)->first();
+        if($student_register){
+            $student_register->name = $user->name;
+            $student_register->save();
+        }
         return success_response(null,'মৌলিক তথ্য আপডেট হয়েছে।');
     }
 
     /* ---------- EDUCATION ---------- */
     public function updateEducation(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-        $reg  = StudentRegister::firstOrNew(['user_id'=>$id]);
+    { 
+        $reg  = StudentRegister::firstOrNew(['user_id'=>$id]); 
 
-        $request->validate([
-            'department_id'                => 'sometimes|integer',
-            'bangla_study_status'          => 'sometimes|string|max:255',
-            'bangla_others_study'          => 'sometimes|string|max:255',
-            'arabi_study_status'           => 'sometimes|string|max:255',
-            'arabi_others_study'           => 'sometimes|string|max:255',
-            'previous_education_details'   => 'sometimes|string',
-            'hifz_para'                    => 'sometimes|string|max:100',
-            'is_other_kitab_study'         => 'sometimes|boolean',
-            'kitab_jamat'                  => 'sometimes|string|max:100',
-            'is_bangla_handwriting_clear'  => 'sometimes|boolean',
-            'note'                         => 'sometimes|string',
-            'handwriting_image'            => 'sometimes|image|max:2048',
+        $validator = Validator::make($request->all(), [
+            'department_id'                => 'required|integer',
+            'bangla_study_status'          => 'nullable|string|max:255',
+            'bangla_others_study'          => 'nullable|string|max:255',
+            'arabi_study_status'           => 'nullable|string|max:255',
+            'arabi_others_study'           => 'nullable|string|max:255',
+            'previous_education_details'   => 'nullable|string',
+            'hifz_para'                    => 'nullable|string|max:100',
+            'is_other_kitab_study'         => 'nullable|boolean',
+            'kitab_jamat'                  => 'nullable|string|max:100',
+            'is_bangla_handwriting_clear'  => 'nullable|boolean',
+            'note'                         => 'nullable|string',
+            'handwriting_image'            => 'nullable|image|max:2048',
         ]);
 
-        if ($request->hasFile('handwriting_image')) {
-            $reg->handwriting_image = $request->file('handwriting_image')
-                                              ->store('handwriting_images', 'public');
+        if ($validator->fails()) {
+            return error_response($validator->errors()->first(), 422);
         }
 
+
+         if ($request->hasFile('handwriting_image')) { 
+            $handwritingImage = $request->file('handwriting_image'); 
+            $handwritingImageName = time() . '_' . $handwritingImage->getClientOriginalName(); 
+            $handwritingImage->move(public_path('uploads/handwriting_images'), $handwritingImageName); 
+            $handwritingImageUrl = asset('uploads/handwriting_images/' . $handwritingImageName);
+
+            $reg->handwriting_image = $handwritingImageUrl;
+        }  
+ 
         $reg->fill($request->except('handwriting_image'))->save();
 
-        return success_response(null, 200, 'শিক্ষাগত তথ্য আপডেট হয়েছে।');
+        return success_response(null, 'শিক্ষাগত তথ্য আপডেট হয়েছে।');
+        
     }
 
     /* ---------- ADDRESS ---------- */
-    public function updateAddress(Request $request, $id)
+   public function updateAddress(Request $request, $id)
     {
-        // address_type না দিলে permanent ধরা হল
-        $type    = $request->get('address_type', 'permanent');
-        $address = UserAddress::firstOrNew([
-            'user_id'      => $id,
-            'address_type' => $type,
+        $user = User::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [ 
+            'house_or_state'      => 'required|string|max:255',
+            'village_or_area'     => 'required|string|max:255',
+            'post_office'         => 'required|string|max:255',
+            'upazila_thana'       => 'required|string|max:255',
+            'district'            => 'required|string|max:255',
+            'division'            => 'required|string|max:255',
+ 
+            'same_address'                 => 'nullable|boolean',
+            'temporary_house_or_state'    => 'required_if:same_address,false|string|max:255',
+            'temporary_village_or_area'   => 'required_if:same_address,false|string|max:255',
+            'temporary_post_office'       => 'required_if:same_address,false|string|max:255',
+            'temporary_upazila_thana'     => 'required_if:same_address,false|string|max:255',
+            'temporary_district'          => 'required_if:same_address,false|string|max:255',
+            'temporary_division'          => 'required_if:same_address,false|string|max:255',
         ]);
 
-        $request->validate([
-            'address_type'     => 'sometimes|in:permanent,temporary',
-            'house_or_state'   => 'sometimes|string|max:255',
-            'village_or_area'  => 'sometimes|string|max:255',
-            'post_office'      => 'sometimes|string|max:255',
-            'upazila_thana'    => 'sometimes|string|max:255',
-            'district'         => 'sometimes|string|max:255',
-            'division'         => 'sometimes|string|max:255',
-        ]);
+        if ($validator->fails()) {
+            return error_response($validator->errors()->first(), 422);
+        }
+ 
+        UserAddress::updateOrCreate(
+            ['user_id' => $user->id, 'address_type' => 'permanent'],
+            [
+                'house_or_state'    => $request->house_or_state,
+                'village_or_area'   => $request->village_or_area,
+                'post_office'       => $request->post_office,
+                'upazila_thana'     => $request->upazila_thana,
+                'district'          => $request->district,
+                'division'          => $request->division,
+            ]
+        );
+ 
+        if (!$request->same_address) {
+            UserAddress::updateOrCreate(
+                ['user_id' => $user->id, 'address_type' => 'temporary'],
+                [
+                    'house_or_state'    => $request->temporary_house_or_state,
+                    'village_or_area'   => $request->temporary_village_or_area,
+                    'post_office'       => $request->temporary_post_office,
+                    'upazila_thana'     => $request->temporary_upazila_thana,
+                    'district'          => $request->temporary_district,
+                    'division'          => $request->temporary_division,
+                ]
+            );
+        } else { 
+            UserAddress::where('user_id', $user->id)->where('address_type', 'temporary')->delete();
+        }
 
-        $address->fill($request->only([
-            'address_type','house_or_state','village_or_area','post_office',
-            'upazila_thana','district','division'
-        ]))->save();
+        $guardian = Guardian::where('user_id',$id)->first();
+        if($guardian){
+            $guardian->same_address =  $request->same_address;
+        }
 
-        return success_response(null, 200, 'ঠিকানা আপডেট হয়েছে।');
+        return success_response(null, 'ঠিকানা সফলভাবে আপডেট হয়েছে।', 200);
     }
+
 
     /* ---------- GUARDIAN ---------- */
     public function updateGuardian(Request $request, $id)
@@ -111,17 +167,16 @@ class ProfileUpdateController extends Controller
         $guardian = Guardian::firstOrNew(['user_id'=>$id]);
 
         $request->validate([
-            'guardian_name'              => 'sometimes|string|max:255',
-            'guardian_relation'          => 'sometimes|string|max:100',
-            'guardian_occupation_details'=> 'sometimes|string',
-            'guardian_education'         => 'sometimes|string',
-            'children_count'             => 'sometimes|integer',
-            'child_education'            => 'sometimes|array',
-            'contact_number_1'           => 'sometimes|string|max:15',
-            'contact_number_2'           => 'sometimes|string|max:15',
-            'whatsapp_number'            => 'sometimes|string|max:15',
-            'same_address'               => 'sometimes|boolean',
-            'father_name'                => 'sometimes|string|max:255',
+            'guardian_name'              => 'required|string|max:255',
+            'guardian_relation'          => 'required|string|max:100',
+            'guardian_occupation_details'=> 'required|string',
+            'guardian_education'         => 'required|string',
+            'children_count'             => 'nullable|integer',
+            'child_education'            => 'nullable|array',
+            'contact_number_1'           => 'nullable|string|max:15',
+            'contact_number_2'           => 'nullable|string|max:15',
+            'whatsapp_number'            => 'nullable|string|max:15', 
+            'father_name'                => 'nullable|string|max:255',
         ]);
 
         $guardian->fill($request->except(['father_name','child_education']));
@@ -132,13 +187,14 @@ class ProfileUpdateController extends Controller
 
         // father_name → student_registers
         if ($request->filled('father_name')) {
-            StudentRegister::updateOrCreate(
-                ['user_id'=>$id],
-                ['father_name'=>$request->father_name]
-            );
+            $student_register = StudentRegister::where('user_id', $id)->first();
+            if($student_register){
+                $student_register->father_name = $request->father_name;
+                $student_register->save();
+            } 
         }
 
-        return success_response(null, 200, 'অভিভাবকের তথ্য আপডেট হয়েছে।');
+        return success_response(null, 'অভিভাবকের তথ্য আপডেট হয়েছে।');
     }
 
     /* ---------- FAMILY ---------- */
@@ -169,37 +225,41 @@ class ProfileUpdateController extends Controller
 
         $family->fill($request->all())->save();
 
-        return success_response(null, 200, 'পারিবারিক তথ্য আপডেট হয়েছে।');
+        return success_response(null, 'পারিবারিক তথ্য আপডেট হয়েছে।');
     }
-
-    /* ---------- ANSWER FILES ---------- */
+ 
     public function storeAnswerFile(Request $request, $id)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'file' => 'required|mimetypes:application/pdf,image/*,video/*,audio/*|max:5120',
         ]);
-
+ 
         $path = $request->file('file')->store('answer_files', 'public');
-
+ 
+        $fileUrl = asset('storage/' . $path); 
         AnswerFile::create([
-            'user_id'=> $id,
-            'name'   => $request->name,
-            'link'   => $path,
-            'type'   => $request->file('file')->getClientMimeType(),
+            'user_id' => $id,
+            'name' => $request->name,
+            'link' => $fileUrl,
+            'type' => $request->file('file')->getClientMimeType(),
         ]);
 
         return success_response(null, 201, 'ফাইল সেভ হয়েছে।');
     }
 
-    public function destroyAnswerFile($id, $fileId)
-    {
-        $file = AnswerFile::where('user_id',$id)->find($fileId);
-        if (!$file) return error_response(null,404,'ফাইল পাওয়া যায়নি।');
 
-        Storage::disk('public')->delete($file->link);
+    public function destroyAnswerFile($fileId)
+    {
+        $file = AnswerFile::find($fileId);
+        if (!$file) return error_response(null, 404, 'ফাইল পাওয়া যায়নি।');
+ 
+        $relativePath = str_replace(asset('storage/') . '/', '', $file->link);
+
+        Storage::disk('public')->delete($relativePath);
         $file->delete();
 
-        return success_response(null,200,'ফাইল ডিলিট হয়েছে।');
+        return success_response(null, 200, 'ফাইল ডিলিট হয়েছে।');
     }
+
 }

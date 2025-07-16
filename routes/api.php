@@ -153,7 +153,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // Answer-files
         Route::post   ('/answer-file',        [ProfileUpdateController::class, 'storeAnswerFile']);
-        Route::delete ('/answer-file/{file}', [ProfileUpdateController::class, 'destroyAnswerFile']);
+        Route::delete ('/answer-file', [ProfileUpdateController::class, 'destroyAnswerFile']);
     });
 
     // Payment Route  
