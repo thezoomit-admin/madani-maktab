@@ -23,35 +23,112 @@ class ProfileController extends Controller
             if (!$id) {
                 $id = Auth::user()->id;
             }
-     
-            $user = User::find($id);
- 
-    
+
+            $user = User::with([
+                    'studentRegister',
+                    'address',
+                    'guardian',
+                    'userFamily',
+                    'admissionProgress',
+                    'answerFiles',
+                    'student'
+                ])
+                ->where('id', $id)
+                ->orWhereHas('studentRegister', function ($query) use ($id) {
+                    $query->where('reg_id', $id);
+                })
+                ->first();
+
             if (!$user) {
                 return error_response(null, 404, "ইউজার পাওয়া যায়নি।");
             }
-    
+
             if (!$user->student) {
-                return error_response(null, 404, "এই ইউজারের শিক্ষার্থী তথ্য পাওয়া যায়নি।"); 
+                return error_response(null, 404, "এই ইউজারের শিক্ষার্থী তথ্য পাওয়া যায়নি।");
             }
-     
-            $datas = [
+
+            $basic = [
                 'name' => $user->name,
                 'phone' => $user->phone,
+                'email' => $user->email,
                 'profile_image' => $user->profile_image,
-                'dob_hijri' => $user->dob_hijri,
-                'blood_group' => $user->blood_group,
                 'reg_id' => $user->reg_id,
-                'roll_number' => @$user->enrole->roll_number??"",
-                'jamaat' => $user->student->jamaat,
-                'average_marks' => $user->student->average_marks,
+                'dob_hijri' => $user->dob_hijri,
+                'dob_english' => $user->dob,
+                'age' => $user->age,
+                'blood_group' => $user->blood_group,
+                'jamaat' => optional($user->student)->jamaat,
+                'average_marks' => optional($user->student)->average_marks,
+                'status' => optional($user->student)->status == 1 ? "Running" : "Completed",
             ];
-    
+
+            $registration = $user->studentRegister;
+
+            $education = [
+                "bangla_study_status" => optional($registration)->bangla_study_status,
+                "bangla_others_study" => optional($registration)->bangla_others_study,
+                "arabi_study_status" => optional($registration)->arabi_study_status,
+                "arabi_others_study" => optional($registration)->arabi_others_study,
+                "previous_education_details" => optional($registration)->previous_education_details,
+                "hifz_para" => optional($registration)->hifz_para,
+                "is_other_kitab_study" => optional($registration)->is_other_kitab_study,
+                "kitab_jamat" => optional($registration)->kitab_jamat,
+                "is_bangla_handwriting_clear" => optional($registration)->is_bangla_handwriting_clear,
+                "note" => optional($registration)->note,
+                "handwriting_image" => optional($registration)->handwriting_image,
+            ];
+
+            $guardian_data = $user->guardian;
+            $guardian = [
+                'father_name' => optional($registration)->father_name,
+                'guardian_name' => optional($guardian_data)->guardian_name,
+                'guardian_relation' => optional($guardian_data)->guardian_relation,
+                'guardian_occupation_details' => optional($guardian_data)->guardian_occupation_details,
+                'guardian_education' => optional($guardian_data)->guardian_education,
+                'children_count' => optional($guardian_data)->children_count,
+                'child_education' => optional($guardian_data)->child_education,
+                'contact_number_1' => optional($guardian_data)->contact_number_1,
+                'contact_number_2' => optional($guardian_data)->contact_number_2,
+                'whatsapp_number' => optional($guardian_data)->whatsapp_number,
+            ];
+
+            $family_data = $user->userFamily;
+            $family = [
+                'deeni_steps' => optional($family_data)->deeni_steps,
+                'follow_porada' => optional($family_data)->follow_porada,
+                'shariah_compliant' => optional($family_data)->shariah_compliant,
+                'motivation' => optional($family_data)->motivation,
+                'info_src' => optional($family_data)->info_src,
+                'first_contact' => optional($family_data)->first_contact,
+                'preparation' => optional($family_data)->preparation,
+                'clean_lang' => optional($family_data)->clean_lang,
+                'future_plan' => optional($family_data)->future_plan,
+                'years_at_inst' => optional($family_data)->years_at_inst,
+                'reason_diff_edu' => optional($family_data)->reason_diff_edu,
+                'separation_experience' => optional($family_data)->separation_experience,
+                'is_organize_items' => optional($family_data)->is_organize_items,
+                'is_wash_clothes' => optional($family_data)->is_wash_clothes,
+                'is_join_meal' => optional($family_data)->is_join_meal,
+                'is_clean_after_bath' => optional($family_data)->is_clean_after_bath,
+                'health_issue_details' => optional($family_data)->health_issue_details,
+                'is_bath_before_sleep' => optional($family_data)->is_bath_before_sleep,
+            ];
+
+            $datas = [
+                $basic,
+                $education,
+                $user->address ?? null,
+                $guardian,
+                $family,
+                $user->answerFiles ?? [],
+            ];
+
             return success_response($datas);
         } catch (\Exception $e) {
-            return error_response($e->getMessage()); 
+            return error_response($e->getMessage());
         }
-    } 
+    }
+
 
     public function PaymentHistory(Request $request, $id = null)
     {
