@@ -16,6 +16,7 @@ use App\Models\Student;
 use App\Models\StudentRegister;
 use App\Models\TeacherComment;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Services\PhoneMessageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +40,7 @@ Route::get('/sync-attendance', [AttendanceSyncController::class, 'sync']);
 Route::get('/',function(Request $request){
      $year = $request->input('year'); 
 
+     
         if (!$year) {
             $activeHijriDate = HijriMonth::where('is_active', true)->first();
             if (!$activeHijriDate) {
