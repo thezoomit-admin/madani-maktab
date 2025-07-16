@@ -51,6 +51,7 @@ use App\Http\Controllers\Setting\VendorController;
 use App\Http\Controllers\Student\AttendanceController;
 use App\Http\Controllers\Student\ExistingStudentController;
 use App\Http\Controllers\Student\ProfileController;
+use App\Http\Controllers\Student\ProfileUpdateController;
 use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Student\TeacherCommentController;
 use Illuminate\Http\Request;
@@ -141,6 +142,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('payment-history/{id?}', [ProfileController::class, 'PaymentHistory']);
     Route::get('enroll-history/{id?}', [ProfileController::class, 'EnroleHistory']);
     Route::get('change-fee-type/{id}', [ProfileController::class, 'ChangeFeeType']); 
+
+    // update profile  
+    Route::prefix('profile/update/{id}')->group(function () {
+        Route::post('/basic',       [ProfileUpdateController::class, 'updateBasic']);
+        Route::post('/education',   [ProfileUpdateController::class, 'updateEducation']);
+        Route::post('/address',     [ProfileUpdateController::class, 'updateAddress']);
+        Route::post('/guardian',    [ProfileUpdateController::class, 'updateGuardian']);
+        Route::post('/family',      [ProfileUpdateController::class, 'updateFamily']);
+
+        // Answer-files
+        Route::post   ('/answer-file',        [ProfileUpdateController::class, 'storeAnswerFile']);
+        Route::delete ('/answer-file/{file}', [ProfileUpdateController::class, 'destroyAnswerFile']);
+    });
 
     // Payment Route  
     Route::resource('payment-method',PaymentMethodController::class);
