@@ -6,14 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ProfileUpdateController extends Controller
 {  
     public function updateBasic(Request $request, $id)
     {
         $user = User::findOrFail($id);
-
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'name'          => 'sometimes|string|max:255',
             'phone'         => 'sometimes|string|max:15',
             'email'         => 'sometimes|email|max:255',
@@ -23,6 +23,11 @@ class ProfileUpdateController extends Controller
             'blood_group'   => 'sometimes|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
             'gender'        => 'sometimes|in:male,female,others',
         ]);
+
+        if ($validator->fails()) {
+            return error_response($validator->errors()->first(), 422);
+        }
+         
 
         if ($request->hasFile('profile_image')) {
             $path = $request->file('profile_image')->store('profile_images', 'public');
