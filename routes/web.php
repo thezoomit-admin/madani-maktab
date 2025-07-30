@@ -53,13 +53,12 @@ Route::get('/refresh', function () {
      // Enrole::truncate();
      // TeacherComment::truncate();
      // Payment::truncate();
-     PaymentTransaction::truncate();
-     
+     // PaymentTransaction::truncate(); 
      $payments_methods = PaymentMethod::all();
      foreach($payments_methods as $method){
-          $method->income_in_hand = 0;
+          // $method->income_in_hand = 0;
           $method->expense_in_hand = 0;
-          $method->balance = 0; 
+          $method->balance = $method->income_in_hand; 
           $method->save();
      }
      OfficeTransaction::truncate();

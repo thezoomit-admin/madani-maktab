@@ -16,16 +16,15 @@ class DueReportController extends Controller
     {
         $year = $request->input('year'); 
 
-        if (!$year) {
-            $activeHijriDate = HijriMonth::where('is_active', true)->first();
-            if (!$activeHijriDate) {
-                return error_response(null, 404, 'Active Hijri year not found.');
-            }
-            $year = $activeHijriDate->year;
-        }
+        // if (!$year) {
+        //     $activeHijriDate = HijriMonth::where('is_active', true)->first();
+        //     if (!$activeHijriDate) {
+        //         return error_response(null, 404, 'Active Hijri year not found.');
+        //     }
+        //     $year = $activeHijriDate->year;
+        // }
 
-        $dates = HijriMonth::where('year', $year)
-            ->selectRaw('MIN(start_date) as start_date, MAX(end_date) as end_date')
+        $dates = HijriMonth::selectRaw('MIN(start_date) as start_date, MAX(end_date) as end_date')
             ->first();
 
         if (!$dates || !$dates->start_date || !$dates->end_date) {

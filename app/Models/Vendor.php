@@ -11,8 +11,7 @@ class Vendor extends Model
     protected $fillable = [
         'name',
         'contact_person',
-        'phone',
-        'due',
+        'phone', 
     ];
 
     public function expenses()

@@ -141,7 +141,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('profile/{id?}', [ProfileController::class, 'profile']);
     Route::get('payment-history/{id?}', [ProfileController::class, 'PaymentHistory']);
     Route::get('enroll-history/{id?}', [ProfileController::class, 'EnroleHistory']);
-    Route::get('change-fee-type/{id}', [ProfileController::class, 'ChangeFeeType']); 
+    Route::get('change-fee-type/{id}', [ProfileController::class, 'ChangeFeeType']);
 
     // update profile  
     Route::prefix('profile/update/{id}')->group(function () {

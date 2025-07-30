@@ -9,15 +9,24 @@ class Attendance extends Model
 {
     use HasFactory;  
     protected $fillable = [
-        'user_id',
-        'reg_id',
+        'attendance_id',
         'in_time',
-        'in_access_id',
         'out_time',
+        'device_id',
+        'in_access_id',
         'out_access_id',
+        'latitude',
+        'longitude',
         'comment',
-        'comment_by',
-    ];  
+    ];
+
+    /**
+     * Get the attendance that owns the log.
+     */
+    public function attendance()
+    {
+        return $this->belongsTo(Attendance::class);
+    }
     
     /**
      * Get the user that owns the attendance.
