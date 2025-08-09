@@ -61,7 +61,7 @@ Route::get('/refresh', function () {
           $method->balance = $method->income_in_hand; 
           $method->save();
      }
-     OfficeTransaction::truncate();
+     // OfficeTransaction::truncate();
      Expense::truncate();
      DB::statement('SET FOREIGN_KEY_CHECKS=1;');
      return 'Refresh completed successfully!';

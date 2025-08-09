@@ -32,6 +32,7 @@ use App\Http\Controllers\Payment\BalanceController;
 use App\Http\Controllers\Payment\OfficeTransactionController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Payment\VendorPaymentController;
+use App\Http\Controllers\Report\ActionLogReportController;
 use App\Http\Controllers\Report\CollectionController;
 use App\Http\Controllers\Report\DueReportController;
 use App\Http\Controllers\Report\ExpenseController;
@@ -186,6 +187,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Attendance  
     Route::get('attendance/{reg_id?}',[AttendanceController::class,'attendance']);
     Route::post('out-reason',[AttendanceController::class,'outReason']);
+
+    Route::get('/action-log',[ActionLogReportController::class,'index']);
 });  
 
 // Common 
