@@ -22,16 +22,16 @@ use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
-      
     public function index(Request $request)
     {
         try {
             $perPage = $request->input('per_page', 10);
             $page = $request->input('page', 1);  
- 
+
             $active_month = HijriMonth::where('is_active', true)->first();
             $year = $request->input('year', $active_month->year ?? 1446);
- 
+            $session = $request->input('session');
+
             $students = Student::with([
                     'user:id,name,reg_id,phone,profile_image,blood_group',
                     'enroles' => function ($query) use ($year) {
@@ -42,6 +42,20 @@ class StudentController extends Controller
                 ])
                 ->when($request->input('jamaat'), function ($query, $jamaat) {
                     $query->where('jamaat', $jamaat);
+                })
+                ->when($request->filled('session'), function ($query) use ($session) {
+                    $query->whereHas('enroles', function ($q) use ($session) {
+                        if ($session >= 1 && $session <= 5) {
+                            $q->where('department_id', 1)
+                            ->where('session', $session);
+                        } else {
+                            if( $session!=0){
+                                $session =  $session-5;
+                            }
+                            $q->where('department_id', 2) 
+                            ->where('session', $session);
+                        }
+                    });
                 })
                 ->whereHas('user', function ($query) use ($request) {
                     if ($request->filled('blood_group')) {
@@ -57,14 +71,14 @@ class StudentController extends Controller
                 ->whereHas('enroles', function ($query) use ($request) {
                     if ($request->filled('roll_number')) {
                         $query->where('roll_number', $request->input('roll_number'));
-                    } 
+                    }
                 })
                 ->select('id', 'user_id', 'jamaat', 'average_marks', 'status')
                 ->orderBy('id', 'desc')
                 ->paginate($perPage, ['*'], 'page', $page);
 
             $userIds = $students->pluck('user_id')->unique();
- 
+
             $attendances = Attendance::whereIn('user_id', $userIds)
                 ->select('id', 'user_id', 'in_time', 'out_time')
                 ->latest('in_time')
@@ -114,17 +128,17 @@ class StudentController extends Controller
                     'is_present' => $is_present,
                 ];
             });
- 
+
             $modified = $modified->sortBy([
                 ['department_id', 'asc'],
                 ['session_id', 'asc']
             ]);
- 
+
             $modified = $modified->map(function ($item) {
                 unset($item['department_id'], $item['session_id']);
                 return $item;
             });
- 
+
             $students->setCollection($modified->values());
 
             return success_response([
@@ -140,7 +154,6 @@ class StudentController extends Controller
             return error_response(null, 500, $e->getMessage());
         }
     }
-
 
     public function delete($id)
     {
