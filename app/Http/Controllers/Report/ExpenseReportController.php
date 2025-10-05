@@ -41,7 +41,7 @@ class ExpenseReportController extends Controller
         }
 
         // Add expense to corresponding month
-        $report[$categoryName][$monthName] += $expense->amount;
+        $report[$categoryName][$monthName] += $expense->total_amount;
     }
 
     // Build final table-style array

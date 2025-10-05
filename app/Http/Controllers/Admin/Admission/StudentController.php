@@ -32,7 +32,6 @@ class StudentController extends Controller
         }
     }
 
-
     
 
     public function isCompleted(Request $request)

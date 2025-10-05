@@ -29,7 +29,7 @@ class InterviewStudentListController extends Controller
             $q->whereHas('admissionProgress',function($q){
                 $q->where('is_interview_scheduled',1)->where('is_passed_interview',null);
             });
-        }) 
+        })
         ->when($status=="pass",function($q){
             $q->whereHas('admissionProgress',function($q){
                 $q->where('is_passed_interview',1);

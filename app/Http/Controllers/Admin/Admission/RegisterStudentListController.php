@@ -31,7 +31,7 @@ class RegisterStudentListController extends Controller
         ->with('guardian')
         ->get();
         return success_response($data);
-    }
+    } 
 
     public function delete($id){
         try{

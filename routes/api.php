@@ -93,6 +93,13 @@ Route::get('student/{id}', [AdmissionStudentController::class,'student']);
 Route::get('student-register-last-stage', [AdmissionStudentController::class,'isCompleted']);
 Route::get('dashboard',DashboardController::class);
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('registerd-students', RegisterStudentListController::class);
+    Route::get('interview-students', InterviewStudentListController::class);
+    Route::get('trial-students', TrialStudentListController::class);
+
+
+
+
     Route::post('change-password',[AuthController::class,"changePassword"]); 
     
     Route::resource('role', RoleController::class); 
@@ -105,9 +112,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('pre-trial-attend',[PreAdmissionTrialController::class,'attend']);
     Route::post('pre-trial-result',[PreAdmissionTrialController::class,'result']);
 
-    Route::get('registerd-students', RegisterStudentListController::class); 
-    Route::get('interview-students', InterviewStudentListController::class); 
-    Route::get('trial-students', TrialStudentListController::class);
+    
+    
     Route::post('admission', [TrialStudentListController::class,'admission']);
 
     Route::delete('delete-registerd-students/{id}', [RegisterStudentListController::class,'delete']);
