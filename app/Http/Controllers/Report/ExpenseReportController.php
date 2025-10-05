@@ -65,6 +65,10 @@ class ExpenseReportController extends Controller
         $final[] = array_merge([$category], array_values($monthValues));
     }
 
+    foreach ($monthNames as $monthName) {
+        $totalRow[$monthName] = number_format($totalRow[$monthName], 2, '.', '');
+    }
+
     // Add total row
     $final[] = array_merge(['মোট'], array_values($totalRow));
 
