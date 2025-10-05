@@ -44,16 +44,21 @@ class StudentController extends Controller
                     $query->where('jamaat', $jamaat);
                 })
                 ->when($request->filled('session'), function ($query) use ($session) {
-                    $query->whereHas('enroles', function ($q) use ($session) { 
-                        $q->latest('id')->limit(1);
+                    $query->whereHas('enroles', function ($q) use ($session) {
+                        $q->whereIn('id', function ($subquery) {
+                            $subquery->selectRaw('MAX(id)')
+                                    ->from('enroles')
+                                    ->groupBy('student_id');
+                        });
+
                         if ($session >= 1 && $session <= 5) {
                             $q->where('department_id', 1)
                             ->where('session', $session);
                         } else {
-                            if( $session!=0){
-                                $session =  $session-5;
+                            if ($session != 0) {
+                                $session = $session - 5;
                             }
-                            $q->where('department_id', 2) 
+                            $q->where('department_id', 2)
                             ->where('session', $session);
                         }
                     });
