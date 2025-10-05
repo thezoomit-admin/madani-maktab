@@ -44,7 +44,8 @@ class StudentController extends Controller
                     $query->where('jamaat', $jamaat);
                 })
                 ->when($request->filled('session'), function ($query) use ($session) {
-                    $query->whereHas('enroles', function ($q) use ($session) {
+                    $query->whereHas('enroles', function ($q) use ($session) { 
+                        $q->latest('id')->limit(1);
                         if ($session >= 1 && $session <= 5) {
                             $q->where('department_id', 1)
                             ->where('session', $session);
