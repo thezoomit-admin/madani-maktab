@@ -171,7 +171,7 @@ class ExistingStudentController extends Controller
                 $admission_fee = FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0;
             }
 
-            if(isset($request->admission_fee) && $request->admission_fee!=null){
+            if(isset($request->admission_fee)){
                 $admission_fee = $request->admission_fee;
             }
             

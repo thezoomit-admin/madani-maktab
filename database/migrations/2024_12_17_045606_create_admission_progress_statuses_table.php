@@ -18,9 +18,12 @@ return new class extends Migration
             $table->boolean('is_send_step_2_link')->nullable();
             $table->boolean('is_registration_complete')->nullable();
             $table->boolean('is_interview_scheduled')->nullable();
+            $table->boolean('is_first_exam_completed')->nullable();
             $table->boolean('is_passed_interview')->nullable();  
             $table->boolean('is_invited_for_trial')->nullable();
-            $table->boolean('is_passed_trial')->nullable(); 
+            $table->boolean('is_present_in_madrasa')->nullable();
+            $table->boolean('is_passed_trial')->nullable();
+            $table->boolean('is_admission_completed')->nullable();
             
             $table->boolean('is_send_fail_message')->nullable();
             $table->boolean('is_send_final_pass_message')->nullable();
@@ -28,6 +31,10 @@ return new class extends Migration
             $table->timestamps();
         });
     }
+ 
+    //is_first_exam_completed
+    //is_present_in_madrasa
+    //is_admission_completed
 
     /**
      * Reverse the migrations.

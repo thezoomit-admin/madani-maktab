@@ -143,7 +143,7 @@ class ProfileController extends Controller
                 return error_response(null, 404, "ইউজার পাওয়া যায়নি।");
             }
 
-            $perPage = 50;
+            $perPage = $request->input('per_page', 10);
             $page = $request->input('page', 1); 
  
             $year = $request->input('year', null);

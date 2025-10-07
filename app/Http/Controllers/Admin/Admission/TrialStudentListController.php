@@ -90,8 +90,8 @@ class TrialStudentListController extends Controller
                 'average_marks' => 0,
                 'status' => 1
             ]); 
-
-            if(isset($request->admission_fee) && $request->admission_fee!=null){
+ 
+            if(isset($request->admission_fee)){
                 $admission_fee = $request->admission_fee;
             }
 
