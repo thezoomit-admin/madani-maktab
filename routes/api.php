@@ -100,6 +100,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
     Route::get('admission-student',[AdmissionStudentController::class,'index']);
+    Route::post('admission', [AdmissionStudentController::class,'admission']);
 
 
     Route::post('change-password',[AuthController::class,"changePassword"]); 
@@ -116,7 +117,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     
     
-    Route::post('admission', [TrialStudentListController::class,'admission']);
+    
 
     Route::delete('delete-registerd-students/{id}', [RegisterStudentListController::class,'delete']);
 
