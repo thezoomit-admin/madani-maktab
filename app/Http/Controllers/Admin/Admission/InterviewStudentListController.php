@@ -40,6 +40,7 @@ class InterviewStudentListController extends Controller
                 $q->where('is_passed_interview',0);
             });
         })
+        
         ->with('admissionProgress') 
         ->with('studentRegister')
         ->with('address')

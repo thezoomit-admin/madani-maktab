@@ -115,20 +115,7 @@ class StudentController extends Controller
         ->with('guardian')
         ->get();
         return success_response($data);
-    }
-
-
-  
-//  
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
+    } 
 
 
     public function student($id)
