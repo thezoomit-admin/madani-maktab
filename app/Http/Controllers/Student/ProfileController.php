@@ -47,10 +47,11 @@ class ProfileController extends Controller
                 return error_response(null, 404, "এই ইউজারের শিক্ষার্থী তথ্য পাওয়া যায়নি।");
             }
 
+            $registration = $user->studentRegister;
+            
             $basic = [
                 'name' => $user->name,
-                'phone' => $user->phone,
-                'email' => $user->email,
+                // 'phone' => $user->phone, 
                 'profile_image' => $user->profile_image,
                 'reg_id' => $user->reg_id,
                 'dob_hijri' => $user->dob_hijri,
@@ -59,25 +60,24 @@ class ProfileController extends Controller
                 'blood_group' => $user->blood_group,
                 'jamaat' => optional($user->student)->jamaat,
                 'average_marks' => optional($user->student)->average_marks,
-                'status' => optional($user->student)->status == 1 ? "Running" : "Completed",
-            ];
-
-            $registration = $user->studentRegister;
-
-            $education = [
-                "department_id" => optional($registration)->department_id,
-                "bangla_study_status" => optional($registration)->bangla_study_status,
-                "bangla_others_study" => optional($registration)->bangla_others_study,
-                "arabi_study_status" => optional($registration)->arabi_study_status,
-                "arabi_others_study" => optional($registration)->arabi_others_study,
                 "previous_education_details" => optional($registration)->previous_education_details,
-                "hifz_para" => optional($registration)->hifz_para,
-                "is_other_kitab_study" => optional($registration)->is_other_kitab_study,
-                "kitab_jamat" => optional($registration)->kitab_jamat,
-                "is_bangla_handwriting_clear" => optional($registration)->is_bangla_handwriting_clear,
-                "note" => optional($registration)->note,
-                "handwriting_image" => optional($registration)->handwriting_image,
+                'status' => optional($user->student)->status,
             ];
+
+            // $education = [
+            //     "department_id" => optional($registration)->department_id,
+            //     "bangla_study_status" => optional($registration)->bangla_study_status,
+            //     "bangla_others_study" => optional($registration)->bangla_others_study,
+            //     "arabi_study_status" => optional($registration)->arabi_study_status,
+            //     "arabi_others_study" => optional($registration)->arabi_others_study,
+            //     "previous_education_details" => optional($registration)->previous_education_details,
+            //     "hifz_para" => optional($registration)->hifz_para,
+            //     "is_other_kitab_study" => optional($registration)->is_other_kitab_study,
+            //     "kitab_jamat" => optional($registration)->kitab_jamat,
+            //     "is_bangla_handwriting_clear" => optional($registration)->is_bangla_handwriting_clear,
+            //     "note" => optional($registration)->note,
+            //     "handwriting_image" => optional($registration)->handwriting_image,
+            // ];
 
             $guardian_data = $user->guardian;
             $guardian = [
@@ -91,36 +91,37 @@ class ProfileController extends Controller
                 'contact_number_1' => optional($guardian_data)->contact_number_1,
                 'contact_number_2' => optional($guardian_data)->contact_number_2,
                 'whatsapp_number' => optional($guardian_data)->whatsapp_number,
+                'email' => $user->email,
             ];
 
-            $family_data = $user->userFamily;
-            $family = [
-                'deeni_steps' => optional($family_data)->deeni_steps,
-                'follow_porada' => optional($family_data)->follow_porada,
-                'shariah_compliant' => optional($family_data)->shariah_compliant,
-                'motivation' => optional($family_data)->motivation,
-                'info_src' => optional($family_data)->info_src,
-                'first_contact' => optional($family_data)->first_contact,
-                'preparation' => optional($family_data)->preparation,
-                'clean_lang' => optional($family_data)->clean_lang,
-                'future_plan' => optional($family_data)->future_plan,
-                'years_at_inst' => optional($family_data)->years_at_inst,
-                'reason_diff_edu' => optional($family_data)->reason_diff_edu,
-                'separation_experience' => optional($family_data)->separation_experience,
-                'is_organize_items' => optional($family_data)->is_organize_items,
-                'is_wash_clothes' => optional($family_data)->is_wash_clothes,
-                'is_join_meal' => optional($family_data)->is_join_meal,
-                'is_clean_after_bath' => optional($family_data)->is_clean_after_bath,
-                'health_issue_details' => optional($family_data)->health_issue_details,
-                'is_bath_before_sleep' => optional($family_data)->is_bath_before_sleep,
-            ];
+            // $family_data = $user->userFamily;
+            // $family = [
+            //     'deeni_steps' => optional($family_data)->deeni_steps,
+            //     'follow_porada' => optional($family_data)->follow_porada,
+            //     'shariah_compliant' => optional($family_data)->shariah_compliant,
+            //     'motivation' => optional($family_data)->motivation,
+            //     'info_src' => optional($family_data)->info_src,
+            //     'first_contact' => optional($family_data)->first_contact,
+            //     'preparation' => optional($family_data)->preparation,
+            //     'clean_lang' => optional($family_data)->clean_lang,
+            //     'future_plan' => optional($family_data)->future_plan,
+            //     'years_at_inst' => optional($family_data)->years_at_inst,
+            //     'reason_diff_edu' => optional($family_data)->reason_diff_edu,
+            //     'separation_experience' => optional($family_data)->separation_experience,
+            //     'is_organize_items' => optional($family_data)->is_organize_items,
+            //     'is_wash_clothes' => optional($family_data)->is_wash_clothes,
+            //     'is_join_meal' => optional($family_data)->is_join_meal,
+            //     'is_clean_after_bath' => optional($family_data)->is_clean_after_bath,
+            //     'health_issue_details' => optional($family_data)->health_issue_details,
+            //     'is_bath_before_sleep' => optional($family_data)->is_bath_before_sleep,
+            // ];
 
             $datas = [
                 "basic" => $basic,
-                "education" => $education,
+                // "education" => $education,
                 "address" => $user->address ?? null,
                 "guardian"=> $guardian,
-                "family" => $family,
+                // "family" => $family,
                 "answerFiles" => $user->answerFiles ?? [],
             ];
 
@@ -144,10 +145,8 @@ class ProfileController extends Controller
             }
 
             $perPage = $request->input('per_page', 10);
-            $page = $request->input('page', 1); 
- 
-            $year = $request->input('year', null);
-
+            $page = $request->input('page', 1);  
+            $year = $request->input('year', null);  
             $query = Payment::with('hijriMonth')->where('user_id', $id);
  
             if ($year) {

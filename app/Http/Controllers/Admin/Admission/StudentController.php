@@ -22,6 +22,7 @@ class StudentController extends Controller
     public function index(Request $request){
         $status = $request->status; 
         $department = $request->department;
+        $year = $request->year;
         $data = User::where('user_type','student')
         ->whereHas('studentRegister',function($q) use($department){
             $q->where('department_id',$department);
@@ -286,9 +287,11 @@ class StudentController extends Controller
                 ]);
             }
 
+
+            $user->admissionProgress->is_admission_completed=1;
+            $user->admissionProgress->save();
             DB::commit();
             return success_response(null, "ভর্তি সফলভাবে সম্পন্ন হয়েছে।", 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return error_response(null, 500, "ভর্তি প্রক্রিয়ায় সমস্যা হয়েছে: " . $e->getMessage());

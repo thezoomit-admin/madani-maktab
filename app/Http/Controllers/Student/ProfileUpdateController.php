@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\AnswerFile;
 use App\Models\Guardian;
 use App\Models\StudentRegister;
+use App\Models\Student;
+use App\Models\Enrole;
 use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\UserFamily;
@@ -20,42 +22,50 @@ class ProfileUpdateController extends Controller
     {
         $user = User::findOrFail($id);
         $validator = Validator::make($request->all(), [
-            'name'          => 'required|string|max:255',
-            'phone'         => 'required|string|max:15',
-            'email'         => 'nullable|email|max:255',
+            'name' => 'required|string|max:255',
+            'roll_number' => 'nullable|integer',
             'profile_image' => 'nullable|image|max:2048',
-            'dob'           => 'nullable|date',
-            'dob_hijri'     => 'nullable|string|max:30',
-            'blood_group'   => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
-            'gender'        => 'nullable|in:male,female,others',
+            'reg_id' => 'nullable|integer',
+            'dob' => 'nullable|date',
+            'dob_hijri' => 'nullable|string|max:30',
+            'blood_group' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+            'jamaat' => 'nullable|integer',
+            'gender' => 'nullable|in:male,female,others',
+            'status' => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {
             return error_response($validator->errors()->first(), 422);
         }
-         
 
         if ($request->hasFile('profile_image')) {
             $path = $request->file('profile_image')->store('profile_images', 'public');
             $user->profile_image = $path;
         }
- 
-        if ($request->hasFile('profile_image')) {
-            $profilePicPath = $request->file('profile_image')->store('profile_images', 'public');
-            $user->profile_image = $profilePicPath;
-        } 
 
- 
         $user->fill($request->only([
-            'name','phone','email','dob','dob_hijri','blood_group','gender'
+            'name', 'dob', 'dob_hijri', 'blood_group', 'gender'
         ]))->save();
 
-        $student_register = StudentRegister::where('user_id',$id)->first();
-        if($student_register){
+        $student = Student::where('user_id', $id)->first();
+        if ($student) {
+            $student->fill($request->only([
+                'reg_id', 'jamaat', 'status'
+            ]))->save();
+
+            $enrole = Enrole::where('student_id', $student->id)->latest()->first();
+            if ($enrole) {
+                $enrole->roll_number = $request->roll_number;
+                $enrole->save();
+            }
+        }
+
+        $student_register = StudentRegister::where('user_id', $id)->first();
+        if ($student_register) {
             $student_register->name = $user->name;
             $student_register->save();
         }
-        return success_response(null,'মৌলিক তথ্য আপডেট হয়েছে।');
+        return success_response(null, 'মৌলিক তথ্য আপডেট হয়েছে।');
     }
 
     /* ---------- EDUCATION ---------- */
@@ -165,9 +175,9 @@ class ProfileUpdateController extends Controller
     public function updateGuardian(Request $request, $id)
     {
         $guardian = Guardian::firstOrNew(['user_id'=>$id]);
-
         $request->validate([
             'guardian_name'              => 'required|string|max:255',
+            'email'                      => 'enamul@gmail.com',
             'guardian_relation'          => 'required|string|max:100',
             'guardian_occupation_details'=> 'required|string',
             'guardian_education'         => 'required|string',
@@ -178,6 +188,11 @@ class ProfileUpdateController extends Controller
             'whatsapp_number'            => 'nullable|string|max:15', 
             'father_name'                => 'nullable|string|max:255',
         ]);
+        
+        $user = User::find($id);
+        if($user){
+            $user->email = $request->email;
+        }
 
         $guardian->fill($request->except(['father_name','child_education']));
         if ($request->has('child_education')) {
