@@ -1,30 +1,52 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace Database\Seeders;
 
-return new class extends Migration
+use Carbon\Carbon;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
+class PermissionSeeder extends Seeder
 {
     /**
-     * Run the migrations.
+     * Run the database seeds.
      */
-    public function up(): void
+    public function run(): void
     {
-        Schema::create('permissions', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->unique();
-            $table->string('slug')->unique();
-            $table->string('guard_name')->default('web');
-            $table->timestamps();
-        });
-    }
+        // key = English slug, value = Bangla name
+        $permissions = [
+            'dashboard' => 'ড্যাশবোর্ড',
+            'maktab-entry' => 'মক্তব-দাখেলা',
+            'kitab-entry' => 'কিতাব-দাখেলা',
+            'talibe-ilm' => 'তালিবে-ইলম',
+            'payment-list' => 'পেমেন্ট-লিস্ট',
+            'payment-approval' => 'পেমেন্ট-অনুমোদন',
+            'income-expense-report' => 'আয়-ব্যয়ের প্রতিবেদন',
+            'ajifa-report' => 'অজিফা প্রতিবেদন',
+            'ajifa-collection-report' => 'অজিফা সংগ্রহ প্রতিবেদন',
+            'department-deposit' => 'দফতরের জমা',
+            'department-deposit-report' => 'দফতরের জমা প্রতিবেদন',
+            'expense' => 'খরচ',
+            'expense-report' => 'খরচের প্রতিবেদন',
+            'due-report' => 'বকেয়া প্রতিবেদন',
+            'payment-report' => 'পরিশোধ প্রতিবেদন',
+            'monthly-expense-report' => 'মাসিক ব্যয়ের প্রতিবেদন',
+            'receive' => 'গ্রহন',
+            'receive-report' => 'গ্রহনের রিপোর্ট',
+            'log' => 'লগ',
+            'settings' => 'সেটিংস',
+        ];
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('permissions');
+        foreach ($permissions as $slug => $name) {
+            DB::table('permissions')->insert([
+                'name' => $name,
+                'slug' => Str::slug($slug, '-'),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+        }
+
+        $this->command->info('✅ Permissions seeded successfully!');
     }
-};
+}

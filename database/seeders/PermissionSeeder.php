@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use Carbon\Carbon;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PermissionSeeder extends Seeder
 {
@@ -13,34 +13,39 @@ class PermissionSeeder extends Seeder
      * Run the database seeds.
      */
     public function run(): void
-    {
+    { 
         $permissions = [
-            'ড্যাশবোর্ড',
-            'মক্তব',  
-            'মক্তব-স্বাভাবিক-মাযেরাত',
-            'মক্তব-নিবন্ধিত-তালিবে-ইলম',
-            'মক্তব-প্রাথমিক-পরীক্ষায়-মাযেরাত',
-            'মক্তব-প্রাথমিক-পরীক্ষায়-উত্তীর্ণ',
-            'মক্তব-চূড়ান্ত-পরীক্ষায়-মাযেরাত',
-            'মক্তব-চূড়ান্ত-পরীক্ষায়-উত্তীর্ণ',
-            'কিতাব',
-            'কিতাব-স্বাভাবিক-মাযেরাত',
-            'কিতাব-নিবন্ধিত-তালিবে-ইলম',
-            'কিতাব-প্রাথমিক-পরীক্ষায়-মাযেরাত',
-            'কিতাব-প্রাথমিক-পরীক্ষায়-উত্তীর্ণ',
-            'কিতাব-চূড়ান্ত-পরীক্ষায়-মাযেরাত',
-            'কিতাব-চূড়ান্ত-পরীক্ষায়-উত্তীর্ণ'  
+            'dashboard' => 'ড্যাশবোর্ড',
+            'maktab-entry' => 'মক্তব-দাখেলা',
+            'kitab-entry' => 'কিতাব-দাখেলা',
+            'talibe-ilm' => 'তালিবে-ইলম',
+            'payment-list' => 'পেমেন্ট-লিস্ট',
+            'payment-approval' => 'পেমেন্ট-অনুমোদন',
+            'income-expense-report' => 'আয়-ব্যয়ের প্রতিবেদন',
+            'ajifa-report' => 'অজিফা প্রতিবেদন',
+            'ajifa-collection-report' => 'অজিফা সংগ্রহ প্রতিবেদন',
+            'department-deposit' => 'দফতরের জমা',
+            'department-deposit-report' => 'দফতরের জমা প্রতিবেদন',
+            'expense' => 'খরচ',
+            'expense-report' => 'খরচের প্রতিবেদন',
+            'due-report' => 'বকেয়া প্রতিবেদন',
+            'payment-report' => 'পরিশোধ প্রতিবেদন',
+            'monthly-expense-report' => 'মাসিক ব্যয়ের প্রতিবেদন',
+            'receive' => 'গ্রহন',
+            'receive-report' => 'গ্রহনের রিপোর্ট',
+            'log' => 'লগ',
+            'settings' => 'সেটিংস',
         ];
 
-        foreach ($permissions as $permission) {
+        foreach ($permissions as $slug => $name) {
             DB::table('permissions')->insert([
-                'name' => $permission, 
-                'slug' => $permission, 
+                'name' => $name,
+                'slug' => Str::slug($slug, '-'),
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
         }
 
-        $this->command->info('Permissions seeded successfully!');
+        $this->command->info('✅ Permissions seeded successfully!');
     }
 }
