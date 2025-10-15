@@ -175,10 +175,11 @@ class StudentController extends Controller
         }
     } 
 
-    public function second_step_complete($id){
+    public function first_exam_complete($id){
         $admissionProgress = AdmissionProgressStatus::where('user_id',$id)->first();
         $admissionProgress->is_first_exam_completed = true;
         $admissionProgress->save();
+        return success_response(null,"First exam completed");
     }
 
     public function admission(Request $request)
