@@ -36,7 +36,7 @@ class StudentController extends Controller
         })
         ->when($status=="normal_failed_message_not_send",function($q){
             $q->whereHas('admissionProgress',function($q){
-                $q->where('is_passed_age',false)->where('is_send_fail_message','!=',true);
+                $q->where('is_passed_age',false)->where('is_send_fail_message',null);
             });
         }) 
 
