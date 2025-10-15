@@ -29,9 +29,14 @@ class StudentController extends Controller
         })
 
         //স্বাভবিক মাযেরাত
-        ->when($status=="normal_failed",function($q){
+        ->when($status=="normal_failed_message_send",function($q){
             $q->whereHas('admissionProgress',function($q){
-                $q->where('is_passed_age',false);
+                $q->where('is_passed_age',false)->where('is_send_fail_message',true);
+            });
+        })
+        ->when($status=="normal_failed_message_not_send",function($q){
+            $q->whereHas('admissionProgress',function($q){
+                $q->where('is_passed_age',false)->where('is_send_fail_message','!=',true);
             });
         }) 
 
