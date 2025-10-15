@@ -98,9 +98,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('trial-students', TrialStudentListController::class);
 
 
-
     Route::get('admission-student',[AdmissionStudentController::class,'index']);
     Route::post('admission', [AdmissionStudentController::class,'admission']);
+    Route::get('second-step-complete/{id}',[AdmissionStudentController::class,'second_step_complete']);
 
 
     Route::post('change-password',[AuthController::class,"changePassword"]); 
@@ -114,6 +114,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('pre-trial-schedule', [PreAdmissionTrialController::class,'schedule']);
     Route::post('pre-trial-attend',[PreAdmissionTrialController::class,'attend']);
     Route::post('pre-trial-result',[PreAdmissionTrialController::class,'result']);
+    
 
     
     

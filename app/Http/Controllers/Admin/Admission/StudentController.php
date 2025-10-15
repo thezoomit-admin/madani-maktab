@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Admission;
 
 use App\Enums\FeeType;
 use App\Http\Controllers\Controller;
+use App\Models\AdmissionProgressStatus;
 use App\Models\Enrole;
 use App\Models\FeeSetting;
 use App\Models\HijriMonth;
@@ -174,6 +175,11 @@ class StudentController extends Controller
         }
     } 
 
+    public function second_step_complete($id){
+        $admissionProgress = AdmissionProgressStatus::where('user_id',$id)->first();
+        $admissionProgress->is_first_exam_completed = true;
+        $admissionProgress->save();
+    }
 
     public function admission(Request $request)
     {
