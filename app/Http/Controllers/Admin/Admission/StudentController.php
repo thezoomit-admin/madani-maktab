@@ -182,6 +182,13 @@ class StudentController extends Controller
         return success_response(null,"First exam completed");
     }
 
+    public function present_madrasha($id){
+        $admissionProgress = AdmissionProgressStatus::where('user_id',$id)->first();
+        $admissionProgress->is_present_in_madrasa = true;
+        $admissionProgress->save();
+        return success_response(null,"Prense in madrasha");
+    }
+
     public function admission(Request $request)
     {
         $id = $request->id; 

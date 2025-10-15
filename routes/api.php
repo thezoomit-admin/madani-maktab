@@ -101,6 +101,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('admission-student',[AdmissionStudentController::class,'index']);
     Route::post('admission', [AdmissionStudentController::class,'admission']);
     Route::get('first-exam-complete/{id}',[AdmissionStudentController::class,'first_exam_complete']);
+    Route::get('present-madrasha/{id}',[AdmissionStudentController::class,'present_madrasha']);
 
 
     Route::post('change-password',[AuthController::class,"changePassword"]); 
