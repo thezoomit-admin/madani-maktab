@@ -44,8 +44,8 @@ class ProfileUpdateController extends Controller
         }
 
         $user->fill($request->only([
-            'name', 'dob', 'dob_hijri', 'blood_group', 'gender'
-        ]))->save();
+            'reg_id','name', 'dob', 'dob_hijri', 'blood_group', 'gender'
+        ]))->save();  
 
         $student = Student::where('user_id', $id)->first();
         if ($student) {
@@ -246,16 +246,17 @@ class ProfileUpdateController extends Controller
     public function storeAnswerFile(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'file' => 'required|mimetypes:application/pdf,image/*,video/*,audio/*|max:5120',
         ]);
  
         $path = $request->file('file')->store('answer_files', 'public');
  
+        $fileName = $request->name ?? $request->file('file')->getClientOriginalName();
         $fileUrl = asset('storage/' . $path); 
         AnswerFile::create([
             'user_id' => $id,
-            'name' => $request->name,
+            'name' => $fileName,
             'link' => $fileUrl,
             'type' => $request->file('file')->getClientMimeType(),
         ]);

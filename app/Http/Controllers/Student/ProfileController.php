@@ -49,9 +49,11 @@ class ProfileController extends Controller
 
             $registration = $user->studentRegister;
             
+            $last_enrole = Enrole::where('user_id',$user->id)->latest()->first();
             $basic = [
                 'name' => $user->name,
-                // 'phone' => $user->phone, 
+                // 'phone' => $user->phone,
+                'roll_number' => $last_enrole?$last_enrole->roll_number:'',
                 'profile_image' => $user->profile_image,
                 'reg_id' => $user->reg_id,
                 'dob_hijri' => $user->dob_hijri,
