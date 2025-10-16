@@ -177,7 +177,7 @@ class ProfileUpdateController extends Controller
         $guardian = Guardian::firstOrNew(['user_id'=>$id]);
         $request->validate([
             'guardian_name'              => 'required|string|max:255',
-            'email'                      => 'enamul@gmail.com',
+            'email'                      => 'nullable',
             'guardian_relation'          => 'required|string|max:100',
             'guardian_occupation_details'=> 'required|string',
             'guardian_education'         => 'required|string',
