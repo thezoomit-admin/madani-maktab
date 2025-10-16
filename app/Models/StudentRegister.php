@@ -26,6 +26,7 @@ class StudentRegister extends Model
         'is_bangla_handwriting_clear', 
         'note',
         'is_existing',
+        'is_health_issue'
     ];
 
     public function user()
