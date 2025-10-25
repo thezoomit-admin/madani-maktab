@@ -251,10 +251,15 @@ class ProfileUpdateController extends Controller
 
     public function storeAnswerFile(Request $request, $id)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
             'file' => 'required',
-        ]);
+        ]);  
+
+        if ($validator->fails()) {
+            return error_response($validator->errors()->first(), 422);
+        }
+
         $path = $request->file('file')->store('answer_files', 'public');
  
         $fileName = $request->name ?? $request->file('file')->getClientOriginalName();
@@ -272,13 +277,13 @@ class ProfileUpdateController extends Controller
     public function destroyAnswerFile($fileId)
     {
         $file = AnswerFile::find($fileId);
-        if (!$file) return error_response(null, 404, 'ফাইল পাওয়া যায়নি।');
- 
-        $relativePath = str_replace(asset('storage/') . '/', '', $file->link);
 
-        Storage::disk('public')->delete($relativePath);
+        if(!$file){
+            return error_response(null, 404, 'ফাইল পাওয়া যায়নি।');
+        }  
+        // $relativePath = str_replace(asset('storage/') . '/', '', $file->link);
+        // Storage::disk('public')->delete($relativePath);
         $file->delete();
-
         return success_response(null, 200, 'ফাইল ডিলিট হয়েছে।');
     }
 
