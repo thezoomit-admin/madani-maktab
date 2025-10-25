@@ -59,7 +59,7 @@ class ProfileUpdateController extends Controller
                 'reg_id', 'jamaat', 'status'
             ]))->save();
 
-            $enrole = Enrole::where('student_id', $student->id)->latest()->first();
+            $enrole = Enrole::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
             if ($enrole) {
                 $enrole->roll_number = $request->roll_number;
                 $enrole->save();
