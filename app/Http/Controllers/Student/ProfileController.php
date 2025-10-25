@@ -48,7 +48,7 @@ class ProfileController extends Controller
             }
 
             $registration = $user->studentRegister;
-            $last_enrole = Enrole::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+            $last_enrole = Enrole::where('user_id', $user->id)->orderBy('id', 'desc')->first();
             $basic = [
                 'name' => $user->name,
                 // 'phone' => $user->phone,
