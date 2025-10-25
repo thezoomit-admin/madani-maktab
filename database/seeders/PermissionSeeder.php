@@ -35,6 +35,7 @@ class PermissionSeeder extends Seeder
             'receive-report' => 'গ্রহনের রিপোর্ট',
             'log' => 'লগ',
             'settings' => 'সেটিংস',
+            'payment_history' => 'পেমেন্ট ইতিহাস',
         ];
 
         foreach ($permissions as $slug => $name) {

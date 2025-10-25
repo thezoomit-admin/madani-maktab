@@ -36,12 +36,18 @@ class ProfileUpdateController extends Controller
 
         if ($validator->fails()) {
             return error_response($validator->errors()->first(), 422);
+        } 
+
+         if ($request->hasFile('profile_image')) { 
+            $profileImage = $request->file('profile_image'); 
+            $profileImageName = time() . '_' . $profileImage->getClientOriginalName(); 
+            $profileImage->move(public_path('uploads/profile_images'), $profileImageName); 
+            $profileImageUrl = asset('uploads/profile_images/' . $profileImageName);
+
+            $user->profile_image = $profileImageUrl;
+            $user->save();
         }
 
-        if ($request->hasFile('profile_image')) {
-            $path = $request->file('profile_image')->store('profile_images', 'public');
-            $user->profile_image = $path;
-        }
 
         $user->fill($request->only([
             'reg_id','name', 'dob', 'dob_hijri', 'blood_group', 'gender'
@@ -241,15 +247,14 @@ class ProfileUpdateController extends Controller
         $family->fill($request->all())->save();
 
         return success_response(null, 'পারিবারিক তথ্য আপডেট হয়েছে।');
-    }
- 
+    }  
+
     public function storeAnswerFile(Request $request, $id)
     {
         $request->validate([
             'name' => 'nullable|string|max:255',
             'file' => 'required|mimetypes:application/pdf,image/*,video/*,audio/*|max:5120',
         ]);
- 
         $path = $request->file('file')->store('answer_files', 'public');
  
         $fileName = $request->name ?? $request->file('file')->getClientOriginalName();
@@ -260,7 +265,6 @@ class ProfileUpdateController extends Controller
             'link' => $fileUrl,
             'type' => $request->file('file')->getClientMimeType(),
         ]);
-
         return success_response(null, 201, 'ফাইল সেভ হয়েছে।');
     }
 

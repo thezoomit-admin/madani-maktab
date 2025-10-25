@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\EmployeeStoreResource; 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -103,8 +104,13 @@ class EmployeeController extends Controller
     {
         DB::beginTransaction();  
         try {
-            $user = User::findOrFail($id);   
-            $user->delete(); 
+            $user = User::find($id);  
+            if(!$user){
+                return error_response(null,404,"Student not found");  
+            }  
+            $user->deleted_by = Auth::user()->id; 
+            $user->deleted_at = now(); 
+            $user->save();
             return success_response(null, 'Employee has been deleted successfully!');
         } catch (\Exception $e) {
             DB::rollBack();   

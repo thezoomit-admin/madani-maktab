@@ -17,11 +17,10 @@ use Illuminate\Support\Facades\Validator;
 class ExpenseController extends Controller
 { 
     public function index(Request $request)
-    {  
+    {
         $month = $request->filled('month_id')
             ? \App\Models\HijriMonth::find($request->month_id)
             : null;
-
         if ($month) {
             $startDate = Carbon::parse($month->start_date)->startOfDay();
             $endDate = Carbon::parse($month->end_date)->endOfDay();
@@ -73,6 +72,7 @@ class ExpenseController extends Controller
                         'total_amount' => $item->total_amount,
                         'vendor' => optional($item->vendor)->name,
                         'image' => $item->image,
+                        'voucher_no' => $item->voucher_no,
                     ];
                 });
 
@@ -90,10 +90,7 @@ class ExpenseController extends Controller
             return error_response($e->getMessage(), 500, 'Failed to retrieve expenses.');
         }
     }
-
-
  
-
 
     public function store(Request $request)
     {
@@ -154,6 +151,7 @@ class ExpenseController extends Controller
                     'measurement' => $expense['measurement'] ?? null,
                     'measurment_unit_id' => $expense['measurement_unit_id'] ?? null,
                     'image' => $imagePath,
+                    'voucher_no' => $request->voucher_no,
                     'is_approved' => true,
                 ]);
             }

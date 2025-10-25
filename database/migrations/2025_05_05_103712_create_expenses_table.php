@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('measurement')->nullable();
             $table->foreignId('measurment_unit_id')->nullable()->constrained('measurment_units')->onDelete('set null');
             $table->string('image')->nullable();
+            $table->string('voucher_no')->nullable();
 
             // Approval
             $table->boolean('is_approved')->default(false); 

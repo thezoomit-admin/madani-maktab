@@ -7,8 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class HijriDate extends Model
 {
-    use HasFactory;
-
+    use HasFactory; 
     protected $fillable = [
         'hijri_year_id',
         'hijri_month_id',

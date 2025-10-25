@@ -21,6 +21,7 @@ class Expense extends Model
         'measurement',
         'measurment_unit_id',
         'image',
+        'voucher_no',
         'is_approved',
     ];
 

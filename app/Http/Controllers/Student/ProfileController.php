@@ -169,6 +169,7 @@ class ProfileController extends Controller
                 
                 if($payment->due == 0){
                     $status = "Paid";
+                    $paid_date = @$payment->transaction->created_at;
                 } else if($payment->transaction) {
                     if($payment->transaction->is_approved == false){
                         $status = "Pending";
@@ -186,6 +187,7 @@ class ProfileController extends Controller
                     'reason' => enum_name(FeeReason::class, $payment->reason),
                     'fee_type' => enum_name(FeeType::class, $payment->fee_type),
                     'amount' => $payment->amount,
+                    'paid_date' => $paid_date??'-',
                     'status' => $status,
                 ];
  

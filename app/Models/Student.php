@@ -23,6 +23,11 @@ class Student extends Model
     {
         return $this->hasMany(Enrole::class);
     }
+
+    public function latestEnrole()
+    {
+        return $this->hasOne(Enrole::class)->orderBy('id', 'desc');
+    }
  
     public function enroleByYear($year)
     {

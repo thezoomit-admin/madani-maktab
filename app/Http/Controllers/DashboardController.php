@@ -5,13 +5,15 @@ namespace App\Http\Controllers;
 use App\Enums\Department;
 use App\Models\Admission;
 use App\Models\Attendance;
+use App\Models\HijriMonth;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     public function __invoke()
-    { 
+    {
         $maktab = $this->getStudentsByDepartment(1); 
         $kitab = $this->getStudentsByDepartment(2); 
         return success_response([
@@ -22,40 +24,84 @@ class DashboardController extends Controller
     }
 
     private function getStudentsByDepartment($departmentId)
-    {
-        return User::where('user_type', 'student')
-            ->whereHas('studentRegister', function($q) use ($departmentId) {
+    { 
+        $active_month = HijriMonth::where('is_active', true)->first(); 
+        $query = User::where('user_type', 'student')
+            ->whereHas('studentRegister', function ($q) use ($departmentId) {
                 $q->where('department_id', $departmentId);
             })
-            ->with('admissionProgress')  
-            ->get();
+            ->with('admissionProgress');
+        if ($active_month) {
+            $range = HijriMonth::getYearRange($active_month->year);
+            if ($range) {
+                $query->whereBetween('created_at', [$range['start_date'], $range['end_date']]);
+            }
+        }
+        return $query->get();
     }
 
  
     private function getStudentCounts($students)
     {
         return [
-            'total_application' => $students->count(),
-            'general_fail' => $students->filter(function($student) {
-                return $student->admissionProgress && $student->admissionProgress->is_passed_age === 0;
-            })->count(),
-            'general_pass' => $students->filter(function($student) {
-                return $student->admissionProgress && $student->admissionProgress->is_passed_age === 1;
-            })->count(),
-            'interview_fail' => $students->filter(function($student) {
-                return $student->admissionProgress && $student->admissionProgress->is_passed_age === 1 && $student->admissionProgress->is_passed_interview === 0;
-            })->count(),
-            'interview_pass' => $students->filter(function($student) {
-                return $student->admissionProgress && $student->admissionProgress->is_passed_age === 1 && $student->admissionProgress->is_passed_interview === 1;
-            })->count(),
-            'final_fail' => $students->filter(function($student) {
-                return $student->admissionProgress && $student->admissionProgress->is_passed_age === 1 && $student->admissionProgress->is_passed_interview === 1 && $student->admissionProgress->is_passed_trial === 0;
-            })->count(),
-            'final_pass' => $students->filter(function($student) {
-                return $student->admissionProgress && $student->admissionProgress->is_passed_age === 1 && $student->admissionProgress->is_passed_interview === 1 && $student->admissionProgress->is_passed_trial === 1;
-            })->count(),
+            'normal_failed_message_send' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_passed_age == false && $s->admissionProgress->is_send_fail_message == true
+            )->count(),
+
+            'normal_failed_message_not_send' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_passed_age == false && is_null($s->admissionProgress->is_send_fail_message)
+            )->count(),
+
+            'message_not_sent' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_passed_age == true && is_null($s->admissionProgress->is_send_step_2_link)
+            )->count(),
+
+            'message_sent' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_send_step_2_link == true && is_null($s->admissionProgress->is_registration_complete)
+            )->count(),
+
+            'second_step_completed' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_registration_complete == true && is_null($s->admissionProgress->is_interview_scheduled)
+            )->count(),
+
+            'exam_message_sent' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_interview_scheduled == true && is_null($s->admissionProgress->is_first_exam_completed)
+            )->count(),
+
+            'first_exam_completed' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_first_exam_completed == true && is_null($s->admissionProgress->is_passed_interview)
+            )->count(),
+
+            'passed' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_passed_interview == true && is_null($s->admissionProgress->is_invited_for_trial)
+            )->count(),
+
+            'failed' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_passed_interview == false
+            )->count(),
+
+            'invited' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_invited_for_trial == true && is_null($s->admissionProgress->is_present_in_madrasa)
+            )->count(),
+
+            'present_in_madrasa' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_present_in_madrasa == true && is_null($s->admissionProgress->is_passed_trial)
+            )->count(),
+
+            'observation_passed' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_passed_trial == true && is_null($s->admissionProgress->is_admission_completed)
+            )->count(),
+
+            'observation_failed' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_passed_trial == false
+            )->count(),
+
+            'admission_completed' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_admission_completed == true
+            )->count(),
         ];
-    } 
+    }
+
 
     public function getAbsentsByDepartment()
     {
