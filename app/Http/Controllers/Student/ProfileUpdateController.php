@@ -253,7 +253,7 @@ class ProfileUpdateController extends Controller
     {
         $request->validate([
             'name' => 'nullable|string|max:255',
-            'file' => 'required|mimetypes:application/pdf,image/*,video/*,audio/*|max:5120',
+            'file' => 'required',
         ]);
         $path = $request->file('file')->store('answer_files', 'public');
  
