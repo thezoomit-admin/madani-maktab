@@ -100,18 +100,23 @@ trait HandlesStudentStatus
 
  
     private function matchesAll($progress, array $conditions)
-    {
-        foreach ($conditions as $field => $value) {
-            if ($value === null) {
-                if ($progress->$field !== null) return false;
-            } elseif (is_bool($value)) {
-                if ((bool) $progress->$field !== $value) return false; // cast DB value to bool
-            } else {
-                if ($progress->$field !== $value) return false;
-            }
+{
+    foreach ($conditions as $field => $value) {
+        $fieldValue = $progress->$field;
+
+        if ($value === null) {
+            if (!is_null($fieldValue)) return false;
+        } elseif ($value === false) {
+            if ($fieldValue !== false && $fieldValue !== 0) return false;
+        } elseif ($value === true) {
+            if ($fieldValue !== true && $fieldValue !== 1) return false;
+        } else {
+            if ($fieldValue !== $value) return false;
         }
-        return true;
     }
+    return true;
+}
+
 
  
     public function getStudentCounts($students)
