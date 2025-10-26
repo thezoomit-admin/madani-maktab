@@ -7,6 +7,7 @@ trait HandlesStudentStatus
     private function statusRules()
     {
         return [
+            'all' => [],
             'normal_failed_message_send' => [
                 'is_passed_age' => false,
                 'is_send_fail_message' => true,
@@ -113,12 +114,12 @@ trait HandlesStudentStatus
  
     public function getStudentCounts($students)
     {
-        $counts = [];
+        $counts = []; 
         foreach (array_keys($this->statusRules()) as $status) {
             $counts[$status] = $students->filter(fn($s) =>
                 $s->admissionProgress && $this->matchesAll($s->admissionProgress, $this->statusRules()[$status])
-            )->count();
-        }
+            )->count(); 
+        } 
         return $counts;
     }
 }
