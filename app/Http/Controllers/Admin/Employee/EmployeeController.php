@@ -17,7 +17,8 @@ class EmployeeController extends Controller
     {
         try {
             $data = User::where('user_type', 'teacher')
-                        ->with('role')  
+                        ->with('role')
+                        ->where('deleted_at', null) 
                         ->get();
             
             $result = $data->map(function ($user) {
