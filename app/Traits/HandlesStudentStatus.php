@@ -105,7 +105,7 @@ trait HandlesStudentStatus
             if ($value === null) {
                 if ($progress->$field !== null) return false;
             } else {
-                if ($progress->$field !== $value) return false;
+                if ($progress->$field != $value) return false;
             }
         }
         return true;
