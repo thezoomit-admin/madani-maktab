@@ -118,7 +118,7 @@ class EmployeeController extends Controller
         try {
             $user = User::find($id);  
             if(!$user){
-                return error_response(null,404,"Student not found");  
+                return error_response(null,404,"Not found");  
             }  
             $user->deleted_by = Auth::user()->id; 
             $user->deleted_at = now(); 
