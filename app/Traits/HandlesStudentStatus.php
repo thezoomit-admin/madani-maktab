@@ -104,12 +104,15 @@ trait HandlesStudentStatus
         foreach ($conditions as $field => $value) {
             if ($value === null) {
                 if ($progress->$field !== null) return false;
+            } elseif (is_bool($value)) {
+                if ((bool) $progress->$field !== $value) return false; // cast DB value to bool
             } else {
-                if ($progress->$field != $value) return false;
+                if ($progress->$field !== $value) return false;
             }
         }
         return true;
     }
+
  
     public function getStudentCounts($students)
     {
