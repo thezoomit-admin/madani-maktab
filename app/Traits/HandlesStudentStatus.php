@@ -52,12 +52,10 @@ trait HandlesStudentStatus
                 'is_passed_trial' => null,
             ],
             'observation_passed' => [
-                'is_passed_trial' => true,
-                'is_admission_completed' => null,
+                'is_passed_trial' => true, 
             ],
             'observation_failed' => [
-                'is_passed_trial' => false,
-                'is_admission_completed' => null,
+                'is_passed_trial' => false, 
             ],
             'admission_completed' => [
                 'is_admission_completed' => true,
@@ -105,9 +103,7 @@ trait HandlesStudentStatus
     {
         foreach ($conditions as $field => $value) {
             if ($value === null) {
-                if ($progress->$field !== null) return false;
-            } else {
-                if ($progress->$field != $value) return false;
+              if ($progress->$field !== $value) return false;
             }
         }
         return true;
