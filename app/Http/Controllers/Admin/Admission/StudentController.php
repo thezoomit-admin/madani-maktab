@@ -18,144 +18,46 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Traits\PaginateTrait;
+use App\Traits\HandlesStudentStatus;
 
 
 class StudentController extends Controller
 {
-    use PaginateTrait;
-    
-    
-    public function index(Request $request){
-            $status = $request->status; 
-            $department = $request->department;
-            $year = $request->year;
-            if(!$year){
-                $active_month = HijriMonth::where('is_active', true)->first();
-                if($active_month){
-                    $year = $active_month->year;
-                }
-            } 
+    use PaginateTrait, HandlesStudentStatus; 
+    public function index(Request $request)
+    {
+        $status = $request->status; 
+        $department = $request->department;
+        $year = $request->year;
 
-            $data = User::where('user_type','student')
+        if (!$year) {
+            $active_month = HijriMonth::where('is_active', true)->first();
+            if ($active_month) {
+                $year = $active_month->year;
+            }
+        } 
+
+        $data = User::where('user_type','student')
             ->when($year, function ($query) use ($year) {
                 $range = HijriMonth::getYearRange($year);
                 if ($range) {
                     $query->whereBetween('created_at', [$range['start_date'], $range['end_date']]);
                 }
             })
-            ->whereHas('studentRegister',function($q) use($department){
-                $q->where('department_id',$department);
-            })
-    
-            
+            ->whereHas('studentRegister', function($q) use($department) {
+                $q->where('department_id', $department);
+            });
 
-    
-            //স্বাভবিক মাযেরাত-বার্তাপ্রাপ্ত নয়
-            ->when($status=="normal_failed_message_send",function($q){
-                $q->whereHas('admissionProgress',function($q){
-                    $q->where('is_passed_age',false)->where('is_send_fail_message',true);
-                });
-            })
+        // ✅ এখন শুধুমাত্র এক লাইনেই status filter প্রয়োগ
+        $data = $this->applyStatusCondition($data, $status);
 
-            //স্বাভবিক মাযেরাত-বার্তাপ্রাপ্ত
-            ->when($status=="normal_failed_message_not_send",function($q){
-                $q->whereHas('admissionProgress',function($q){
-                    $q->where('is_passed_age',false)->where('is_send_fail_message',null);
-                });
-            }) 
+        $data = $data
+            ->with(['admissionProgress', 'studentRegister', 'address', 'guardian']);
 
-            //বার্তা পাঠানো হয়নি
-            ->when($status=="message_not_sent",function($q){
-                $q->whereHas('admissionProgress',function($q){
-                    $q->where('is_passed_age',true)->where('is_send_step_2_link',null);
-                });
-            }) 
+        $data = $this->paginateQuery($data, $request);
 
-            //বার্তা পাঠানো হয়েছে
-            ->when($status=="message_sent",function($q){
-                $q->whereHas('admissionProgress',function($q){
-                    $q->where('is_send_step_2_link',true)->where('is_registration_complete',null);
-                });
-            }) 
-
-            //২য় ধাপ সম্পন্ন
-            ->when($status=="second_step_completed",function($q){
-                $q->whereHas('admissionProgress',function($q){
-                    $q->where('is_registration_complete',true)->where('is_interview_scheduled',null);
-                });
-            }) 
-
-            //পরীক্ষার বার্তা পাঠানো হয়েছে
-            ->when($status=="exam_message_sent",function($q){
-                $q->whereHas('admissionProgress',function($q){
-                    $q->where('is_interview_scheduled',true)->where('is_first_exam_completed',null); 
-                });
-            }) 
-
-            //১ম পরীক্ষা সম্পন্ন
-            ->when($status=="first_exam_completed",function($q){
-                $q->whereHas('admissionProgress',function($q){
-                $q->where('is_first_exam_completed',true)->where('is_passed_interview',null); 
-                });
-            }) 
-
-            //ফুরসত
-            ->when($status=="passed",function($q){
-                $q->whereHas('admissionProgress',function($q){
-                    $q->where('is_passed_interview',true)->where('is_invited_for_trial',null);
-                });
-            })
-
-            //মাযেরাত
-            ->when($status=="failed",function($q){
-                $q->whereHas('admissionProgress',function($q){
-                    $q->where('is_passed_interview',false);
-                });
-            }) 
-
-            //আমন্ত্রিত
-            ->when($status=="invited",function($q){
-                $q->whereHas('admissionProgress',function($q){
-                    $q->where('is_invited_for_trial',true)->where('is_present_in_madrasa',null);
-                });
-            }) 
-
-            //মাদরাসায় উপস্থিত
-            ->when($status=="present_in_madrasa",function($q){
-                $q->whereHas('admissionProgress',function($q){
-                    $q->where('is_present_in_madrasa',true)->where('is_passed_trial',null);
-                });
-            })
-
-            //পর্যবেক্ষণে উত্তীর্ণ
-            ->when($status=="observation_passed",function($q){
-                $q->whereHas('admissionProgress',function($q){
-                    $q->where('is_passed_trial',true)->where('is_admission_completed',null);
-                });
-            }) 
-
-            //পর্যবেক্ষণে মাযেরাত
-            ->when($status=="observation_failed",function($q){
-                $q->whereHas('admissionProgress',function($q){
-                    $q->where('is_passed_trial',false);
-                });
-            }) 
-
-            //দাখেলা সম্পন্ন
-            ->when($status=="admission_completed",function($q){
-                $q->whereHas('admissionProgress',function($q){
-                    $q->where('is_admission_completed',true);
-                });
-            })
-            
-            ->with('admissionProgress') 
-            ->with('studentRegister')
-            ->with('address')
-            ->with('guardian');
-            
-            $data = $this->paginateQuery($data, $request);
-
-        if ($status == 'all') {
+        // যদি সব student চাও
+        if ($status === 'all') {
             $data['data'] = collect($data['data'])->map(function ($student) {
                 $student->status = $this->determineStatus($student->admissionProgress);
                 return $student;
@@ -163,72 +65,9 @@ class StudentController extends Controller
         }
 
         return success_response($data);
-    } 
-
-    private function determineStatus($progress)
-    {
-        if (!$progress) {
-            return 'no_data';
-        } 
-        // স্বাভাবিক মাযেরাত - বার্তাপ্রাপ্ত
-        elseif ($progress->is_passed_age == false && $progress->is_send_fail_message == true) {
-            return 'normal_failed_message_send';
-        } 
-        // স্বাভাবিক মাযেরাত - বার্তাপ্রাপ্ত নয়
-        elseif ($progress->is_passed_age == false && $progress->is_send_fail_message == null) {
-            return 'normal_failed_message_not_send';
-        } 
-        // বার্তা পাঠানো হয়নি
-        elseif ($progress->is_passed_age == true && $progress->is_send_step_2_link == null) {
-            return 'message_not_sent';
-        } 
-        // বার্তা পাঠানো হয়েছে
-        elseif ($progress->is_send_step_2_link == true && $progress->is_registration_complete == null) {
-            return 'message_sent';
-        } 
-        // দ্বিতীয় ধাপ সম্পন্ন
-        elseif ($progress->is_registration_complete == true && $progress->is_interview_scheduled == null) {
-            return 'second_step_completed';
-        } 
-        // পরীক্ষার বার্তা পাঠানো হয়েছে
-        elseif ($progress->is_interview_scheduled == true && $progress->is_first_exam_completed == null) {
-            return 'exam_message_sent';
-        } 
-        // প্রথম পরীক্ষা সম্পন্ন
-        elseif ($progress->is_first_exam_completed == true && $progress->is_passed_interview == null) {
-            return 'first_exam_completed';
-        } 
-        // ফুরসত
-        elseif ($progress->is_passed_interview == true && $progress->is_invited_for_trial == null) {
-            return 'passed';
-        } 
-        // মাযেরাত
-        elseif ($progress->is_passed_interview == false) {
-            return 'failed';
-        } 
-        // আমন্ত্রিত
-        elseif ($progress->is_invited_for_trial == true && $progress->is_present_in_madrasa == null) {
-            return 'invited';
-        } 
-        // মাদরাসায় উপস্থিত
-        elseif ($progress->is_present_in_madrasa == true && $progress->is_passed_trial == null) {
-            return 'present_in_madrasa';
-        } 
-        // পর্যবেক্ষণে উত্তীর্ণ
-        elseif ($progress->is_passed_trial == true && $progress->is_admission_completed == null) {
-            return 'observation_passed';
-        } 
-        // পর্যবেক্ষণে মাযেরাত
-        elseif ($progress->is_passed_trial == false) {
-            return 'observation_failed';
-        } 
-        // দাখিলা সম্পন্ন
-        elseif ($progress->is_admission_completed == true) {
-            return 'admission_completed';
-        }
-
-        return 'unknown';
     }
+
+    
 
 
     public function student($id)
