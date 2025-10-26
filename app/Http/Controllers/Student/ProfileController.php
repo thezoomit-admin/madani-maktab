@@ -14,6 +14,7 @@ use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\HijriDateService;
 
 class ProfileController extends Controller
 {
@@ -135,6 +136,7 @@ class ProfileController extends Controller
 
     public function PaymentHistory(Request $request, $id = null)
     {
+         $hijriService = new HijriDateService();
         try {
             if (!$id) {
                 $id = Auth::id();
@@ -179,14 +181,14 @@ class ProfileController extends Controller
                     $status = "Unpaid";
                 }
                 
-                $month_id = optional($payment->hijriMonth)->month;
+                $month_id = optional($payment->hijriMonth)->month; 
                 $datas[] = [
                     'id' => $payment->id,
                     'month' => enum_name(ArabicMonth::class, $month_id) . ' - ' . optional($payment->hijriMonth)->year,
                     'reason' => enum_name(FeeReason::class, $payment->reason),
                     'fee_type' => enum_name(FeeType::class, $payment->fee_type),
                     'amount' => $payment->amount,
-                    'paid_date' => $paid_date??'-',
+                    'paid_date' => $paid_date?$hijriService->getHijri($paid_date):'-',
                     'status' => $status,
                 ];
  
