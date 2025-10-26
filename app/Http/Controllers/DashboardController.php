@@ -46,6 +46,8 @@ class DashboardController extends Controller
     private function getStudentCounts($students)
     {
         return [
+            'all' => $students->filter(fn($s) =>
+                $s)->count(),
             'normal_failed_message_send' => $students->filter(fn($s) =>
                 $s->admissionProgress && $s->admissionProgress->is_passed_age == false && $s->admissionProgress->is_send_fail_message == true
             )->count(),
@@ -79,7 +81,7 @@ class DashboardController extends Controller
             )->count(),
 
             'failed' => $students->filter(fn($s) =>
-                $s->admissionProgress && $s->admissionProgress->is_passed_interview == false
+                $s->admissionProgress && $s->admissionProgress->is_passed_interview === false
             )->count(),
 
             'invited' => $students->filter(fn($s) =>
@@ -95,7 +97,7 @@ class DashboardController extends Controller
             )->count(),
 
             'observation_failed' => $students->filter(fn($s) =>
-                $s->admissionProgress && $s->admissionProgress->is_passed_trial == false
+                $s->admissionProgress && $s->admissionProgress->is_passed_trial === false
             )->count(),
 
             'admission_completed' => $students->filter(fn($s) =>
