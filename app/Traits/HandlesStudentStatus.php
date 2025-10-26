@@ -41,6 +41,7 @@ trait HandlesStudentStatus
             ],
             'failed' => [ 
                 'is_passed_interview' => false,
+                'is_invited_for_trial' => null,
             ],
             'invited' => [
                 'is_invited_for_trial' => true,
@@ -56,6 +57,7 @@ trait HandlesStudentStatus
             ],
             'observation_failed' => [
                 'is_passed_trial' => false,
+                'is_admission_completed' => null,
             ],
             'admission_completed' => [
                 'is_admission_completed' => true,
@@ -105,11 +107,7 @@ trait HandlesStudentStatus
             if ($value === null) {
                 if ($progress->$field !== null) return false;
             } else {
-                if ($value === false) {
-                    if ($progress->$field !== false) return false;
-                } else {
-                    if ($progress->$field != $value) return false;
-                }
+                if ($progress->$field != $value) return false;
             }
         }
         return true;
