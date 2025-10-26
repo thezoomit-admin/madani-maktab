@@ -13,7 +13,7 @@ use App\Traits\HandlesStudentStatus;
 
 class DashboardController extends Controller
 {
-    use HandlesStudentStatus;
+    // use HandlesStudentStatus;
     public function __invoke()
     {
         $maktab = $this->getStudentsByDepartment(1); 
@@ -42,6 +42,67 @@ class DashboardController extends Controller
         return $query->get();
     }
 
+ 
+    private function getStudentCounts($students)
+    {
+        return [
+            'normal_failed_message_send' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_passed_age == false && $s->admissionProgress->is_send_fail_message == true
+            )->count(),
+
+            'normal_failed_message_not_send' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_passed_age == false && is_null($s->admissionProgress->is_send_fail_message)
+            )->count(),
+
+            'message_not_sent' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_passed_age == true && is_null($s->admissionProgress->is_send_step_2_link)
+            )->count(),
+
+            'message_sent' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_send_step_2_link == true && is_null($s->admissionProgress->is_registration_complete)
+            )->count(),
+
+            'second_step_completed' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_registration_complete == true && is_null($s->admissionProgress->is_interview_scheduled)
+            )->count(),
+
+            'exam_message_sent' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_interview_scheduled == true && is_null($s->admissionProgress->is_first_exam_completed)
+            )->count(),
+
+            'first_exam_completed' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_first_exam_completed == true && is_null($s->admissionProgress->is_passed_interview)
+            )->count(),
+
+            'passed' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_passed_interview == true && is_null($s->admissionProgress->is_invited_for_trial)
+            )->count(),
+
+            'failed' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_passed_interview == false
+            )->count(),
+
+            'invited' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_invited_for_trial == true && is_null($s->admissionProgress->is_present_in_madrasa)
+            )->count(),
+
+            'present_in_madrasa' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_present_in_madrasa == true && is_null($s->admissionProgress->is_passed_trial)
+            )->count(),
+
+            'observation_passed' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_passed_trial == true && is_null($s->admissionProgress->is_admission_completed)
+            )->count(),
+
+            'observation_failed' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_passed_trial == false
+            )->count(),
+
+            'admission_completed' => $students->filter(fn($s) =>
+                $s->admissionProgress && $s->admissionProgress->is_admission_completed == true
+            )->count(),
+        ];
+    }
 
 
     public function getAbsentsByDepartment()
