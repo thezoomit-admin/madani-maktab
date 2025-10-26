@@ -39,7 +39,7 @@ trait HandlesStudentStatus
                 'is_passed_interview' => true,
                 'is_invited_for_trial' => null,
             ],
-            'failed' => [
+            'failed' => [ 
                 'is_passed_interview' => false,
             ],
             'invited' => [
@@ -102,19 +102,18 @@ trait HandlesStudentStatus
     private function matchesAll($progress, array $conditions)
     {
         foreach ($conditions as $field => $value) {
-            $dbValue = $progress->$field;
-
             if ($value === null) {
-                if ($dbValue !== null) return false;  
-            } elseif ($value === false) {
-                if ($dbValue != false) return false; 
+                if ($progress->$field !== null) return false;
             } else {
-                if ($dbValue != $value) return false;
+                if ($value === false) {
+                    if ($progress->$field !== false) return false;
+                } else {
+                    if ($progress->$field != $value) return false;
+                }
             }
         }
         return true;
     }
-
  
     public function getStudentCounts($students)
     {
