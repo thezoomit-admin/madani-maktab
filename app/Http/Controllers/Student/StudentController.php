@@ -34,14 +34,12 @@ class StudentController extends Controller
             $session = $request->input('session');
 
             // 🟢 মূল query
-            $query = Student::with([
-                    'user:id,name,reg_id,phone,profile_image,blood_group',
-                    'enroles' => function ($query) use ($year) {
-                        $query->where('status', 1)
-                            ->latest('id') // ✅ শুধু সর্বশেষ enrole নিবে
-                            ->limit(1)
-                            ->select('id', 'roll_number', 'student_id', 'department_id', 'session', 'fee_type', 'status', 'year');
-                    }
+            $query = Student::with('user:id,name,reg_id,phone,profile_image,blood_group')
+                ->addSelect([
+                    'latest_enrole_id' => Enrole::select('id')
+                        ->whereColumn('student_id', 'students.id')
+                        ->orderByDesc('id')
+                        ->limit(1),
                 ])
                 ->when($request->input('jamaat'), function ($query, $jamaat) {
                     $query->where('jamaat', $jamaat);
