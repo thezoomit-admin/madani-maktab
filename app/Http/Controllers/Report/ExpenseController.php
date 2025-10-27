@@ -188,7 +188,7 @@ class ExpenseController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'measurement'   => 'required|string|max:255',
+            'measurement'   => 'required|numeric|max:255',
             'amount'        => 'required|numeric|min:0',
             'total_amount'  => 'required|numeric|min:0',
         ]);
