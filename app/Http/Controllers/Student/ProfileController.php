@@ -150,7 +150,7 @@ class ProfileController extends Controller
             $perPage = $request->input('per_page', 10);
             $page = $request->input('page', 1);  
             $year = $request->input('year', null);  
-            $query = Payment::with('hijriMonth')->where('user_id', $id);
+            $query = Payment::with(['hijriMonth', 'transaction'])->where('user_id', $id);
  
             if ($year) {
                 $query->where('year', $year);
