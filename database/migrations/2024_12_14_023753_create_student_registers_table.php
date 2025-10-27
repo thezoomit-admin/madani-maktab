@@ -20,7 +20,8 @@ return new class extends Migration
             $table->string('arabi_study_status')->nullable();
             $table->string('arabi_others_study')->nullable();  
             $table->string('handwriting_image')->nullable();
-            $table->boolean('is_health_issue')->default(0)->comment('1= yes, 0 = no');
+            $table->text('major_illness_history')->nullable();
+            $table->text('current_medication_details')->nullable();
             
             // For Maktab-specific data
             $table->text('previous_education_details')->nullable();

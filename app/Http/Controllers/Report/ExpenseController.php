@@ -185,48 +185,112 @@ class ExpenseController extends Controller
         }
     }
 
-    public function update(Request $request, Expense $expense)
+    public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'expense_category_id' => 'required|exists:expense_categories,id',
-            'amount' => 'required|numeric',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
+            'measurement'   => 'required|string|max:255',
+            'amount'        => 'required|numeric|min:0',
+            'total_amount'  => 'required|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
             return error_response($validator->errors(), 422, 'Validation failed.');
         }
 
+        DB::beginTransaction();
         try {
-            if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $imageName = time() . '_' . $image->getClientOriginalName();
-                $image->move(public_path('uploads/expenses'), $imageName);
-                $expense->image = asset('uploads/expenses/' . $imageName);
+            $expense = Expense::find($id);
+            if (!$expense) {
+                return error_response(null, 404, 'Expense not found.');
             }
 
+            $payment_method = PaymentMethod::find($expense->payment_method_id);
+            $vendor = $expense->vendor_id ? Vendor::find($expense->vendor_id) : null;
+
+            // Old and new values
+            $oldTotal = $expense->total_amount;
+            $newAmount = $request->amount;
+            $newTotal = $request->total_amount;
+
+            // Calculate difference
+            $difference = $newTotal - $oldTotal;
+
+            if (!$vendor) {
+                // Payment method update
+                if ($difference > 0 && $difference > $payment_method->expense_in_hand) {
+                    return error_response(null, 400, $payment_method->name . ' অ্যাকাউন্টে পর্যাপ্ত টাকা নেই।');
+                }
+
+                // Update balances (difference can be + or -)
+                $payment_method->expense_in_hand -= $difference;
+                $payment_method->balance -= $difference;
+                $payment_method->save();
+            } else {
+                // Vendor due adjustment (difference can be + or -)
+                $vendor->due += $difference;
+                if ($vendor->due < 0) {
+                    $vendor->due = 0; // Prevent negative due
+                }
+                $vendor->save();
+            }
+
+            // Update expense fields
             $expense->update([
-                'expense_category_id' => $request->expense_category_id,
-                'amount' => $request->amount,
-                'description' => $request->description,
+                'measurement'  => $request->measurement,
+                'amount'       => $newAmount,
+                'total_amount' => $newTotal,
             ]);
 
+            DB::commit();
             return success_response($expense, 'Expense updated successfully.');
         } catch (\Exception $e) {
+            DB::rollBack();
             return error_response($e->getMessage(), 500, 'Failed to update expense.');
         }
     }
 
     public function destroy(Expense $expense)
     {
+        DB::beginTransaction();
         try {
+            if (!$expense) {
+                return error_response(null, 404, 'Expense not found.');
+            }
+
+            $payment_method = PaymentMethod::find($expense->payment_method_id);
+            $vendor = $expense->vendor_id ? Vendor::find($expense->vendor_id) : null;
+
+            $totalAmount = $expense->total_amount;
+
+            if (!$vendor) { 
+                $payment_method->expense_in_hand += $totalAmount;
+                $payment_method->balance += $totalAmount;
+                $payment_method->save();
+            } else { 
+                $vendor->due -= $totalAmount;
+                if ($vendor->due < 0) {
+                    $vendor->due = 0; 
+                }
+                $vendor->save();
+            }  
+
+            if ($expense->image) {
+                $imagePath = public_path('uploads/expenses/' . basename($expense->image));
+                if (file_exists($imagePath)) {
+                    @unlink($imagePath);
+                }
+            }
+ 
             $expense->delete();
+
+            DB::commit();
             return success_response(null, 'Expense deleted successfully.');
         } catch (\Exception $e) {
+            DB::rollBack();
             return error_response($e->getMessage(), 500, 'Failed to delete expense.');
         }
     }
+
 
     public function approve($id)
     {

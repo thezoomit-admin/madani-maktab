@@ -82,7 +82,8 @@ class StudentRegisterController extends Controller
                 'is_other_kitab_study' => $request->input('is_other_kitab_study'),
                 'kitab_jamat' => $request->input('kitab_jamat'),
                 'is_bangla_handwriting_clear' => $request->input('is_bangla_handwriting_clear'),
-                'is_health_issue' => $request->input('is_health_issue'),
+                'major_illness_history' => $request->input('major_illness_history'),
+                'current_medication_details' => $request->input('current_medication_details'),
             ]);
 
             
