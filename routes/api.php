@@ -57,6 +57,7 @@ use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Student\TeacherCommentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route; 
+use App\Http\Controllers\Auth\ForgotPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,9 +69,14 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::post('login', [AuthController::class, 'login'])->name('login'); 
-Route::post('forget-password',[AuthController::class,"forgetPassword"]);
-Route::post('register', [AuthController::class, 'register']);
+
+// Auth
+Route::post('login', [AuthController::class, 'login'])->name('login');  
+Route::post('password/send-otp', [ForgotPasswordController::class, 'sendOtp']);
+Route::post('password/verify-otp', [ForgotPasswordController::class, 'verifyOtp']);
+Route::post('password/reset-password', [ForgotPasswordController::class, 'resetPassword']);
+
+
 Route::get('roles',RoleApiController::class);
 Route::get('designations',DesignationApiController::class);
 Route::get('company-categories',CompanyCategoryApiController::class);

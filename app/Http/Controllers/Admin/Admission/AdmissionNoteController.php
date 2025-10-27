@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Admission;
 
+use App\Helpers\HijriDateService;
 use App\Http\Controllers\Controller;
 use App\Models\StudentNote;
 use Illuminate\Http\Request;
@@ -19,13 +20,14 @@ class AdmissionNoteController extends Controller
         if ($notes->isEmpty()) {
             return success_response([]); 
         }
- 
+        
         $datas = $notes->map(function ($note) {
+            $hijriService = new HijriDateService();
             return [
                 'id' => $note->id,
                 'employee_name' => $note->employee->name,  
                 'notes' => $note->notes,
-                'created_at' => $note->created_at->toDateTimeString(), 
+                'created_at' => $hijriService->getHijri($note->created_at), 
             ];
         }); 
         return success_response($datas);

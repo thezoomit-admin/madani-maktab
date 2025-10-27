@@ -39,6 +39,8 @@ class User extends Authenticatable
         'updated_by',
         'deleted_by',
         'deleted_at',
+        'otp',
+        'otp_expires_at',
     ]; 
 
     /**
