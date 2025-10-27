@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('marks')->nullable(); 
             $table->string('fee_type')->nullable()->default(1);
             $table->decimal('fee', 10, 2)->nullable()->comment("if half"); 
-            $table->tinyInteger('status')->default(0)->comment('1= Running, 2= Completed, 0 = Rejected'); 
+            $table->tinyInteger('status')->default(0)->comment('1= Running, 2= Completed, 0 = Rejected');
             $table->timestamps(); 
         }); 
     } 

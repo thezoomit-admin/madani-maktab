@@ -27,108 +27,106 @@ class StudentController extends Controller
     use PaginateTrait;
 
     public function index(Request $request)
-{
-    try {
-        // 🟢 Active year নির্ধারণ
-        $active_month = HijriMonth::where('is_active', true)->first();
-        $year = $request->input('year', $active_month->year ?? 1446);
-        $session = $request->input('session');
+    {
+        try { 
+            $active_month = HijriMonth::where('is_active', true)->first();
+            $year = $request->input('year', $active_month->year ?? 1446);
+            $session = $request->input('session');
 
-        // 🟢 মূল query
-        $query = Student::with([
-                'user:id,name,reg_id,phone,profile_image,blood_group',
-                'enroles' => function ($query) use ($year) {
-                    $query->where('year', $year)
-                        ->where('status', 1)
-                        ->latest('id') // ✅ শুধু সর্বশেষ enrole নিবে
-                        ->limit(1)
-                        ->select('id', 'roll_number', 'student_id', 'department_id', 'session', 'fee_type', 'status', 'year');
-                }
-            ])
-            ->when($request->input('jamaat'), function ($query, $jamaat) {
-                $query->where('jamaat', $jamaat);
-            })
-            ->when($request->filled('session'), function ($query) use ($session) {
-                $query->whereHas('enroles', function ($q) use ($session) {
-                    $q->whereIn('id', function ($subquery) {
-                        $subquery->selectRaw('MAX(id)')
-                                 ->from('enroles')
-                                 ->groupBy('student_id');
-                    });
-
-                    if ($session >= 1 && $session <= 5) {
-                        $q->where('department_id', 1)->where('session', $session);
-                    } else {
-                        if ($session != 0) {
-                            $session = $session - 5;
-                        }
-                        $q->where('department_id', 2)->where('session', $session);
+            // 🟢 মূল query
+            $query = Student::with([
+                    'user:id,name,reg_id,phone,profile_image,blood_group',
+                    'enroles' => function ($query) use ($year) {
+                        $query->where('status', 1)
+                            ->latest('id') // ✅ শুধু সর্বশেষ enrole নিবে
+                            ->limit(1)
+                            ->select('id', 'roll_number', 'student_id', 'department_id', 'session', 'fee_type', 'status', 'year');
                     }
-                });
-            })
-            ->whereHas('user', function ($query) use ($request) {
-                if ($request->filled('blood_group')) {
-                    $query->where('blood_group', $request->input('blood_group'));
+                ])
+                ->when($request->input('jamaat'), function ($query, $jamaat) {
+                    $query->where('jamaat', $jamaat);
+                })
+                ->when($request->filled('session'), function ($query) use ($session) {
+                    $query->whereHas('enroles', function ($q) use ($session) {
+                        $q->whereIn('id', function ($subquery) {
+                            $subquery->selectRaw('MAX(id)')
+                                    ->from('enroles')
+                                    ->groupBy('student_id');
+                        });
+
+                        if ($session >= 1 && $session <= 5) {
+                            $q->where('department_id', 1)->where('session', $session);
+                        } else {
+                            if ($session != 0) {
+                                $session = $session - 5;
+                            }
+                            $q->where('department_id', 2)->where('session', $session);
+                        }
+                    });
+                })
+                ->whereHas('user', function ($query) use ($request) {
+                    if ($request->filled('blood_group')) {
+                        $query->where('blood_group', $request->input('blood_group'));
+                    }
+                    if ($request->filled('name')) {
+                        $query->where('name', 'like', '%' . $request->input('name') . '%');
+                    }
+                    if ($request->filled('reg_id')) {
+                        $query->where('reg_id', $request->input('reg_id'));
+                    }
+                })
+                ->whereHas('enroles', function ($query) use ($request) {
+                    if ($request->filled('roll_number')) {
+                        $query->where('roll_number', $request->input('roll_number'));
+                    }
+                })
+                ->select('id', 'user_id', 'jamaat', 'average_marks', 'status')
+                ->orderBy('id', 'desc');
+
+            // 🟢 Pagination (PaginateTrait ব্যবহার)
+            $paginated = $this->paginateQuery($query, $request);
+
+            // 🟢 Transform data
+            $paginated['data'] = collect($paginated['data'])->map(function ($student) {
+                $user = $student->user;
+                $enrole = $student->enroles->first(); // সর্বশেষ enrole
+
+                $departmentId = $enrole->department_id ?? null;
+                $sessionId = $enrole->session ?? null;
+                $feeTypeId = $enrole->fee_type ?? null;
+
+                $sessionName = null;
+                if ($departmentId === Department::Maktab) {
+                    $sessionName = enum_name(MaktabSession::class, $sessionId);
+                } elseif ($departmentId === Department::Kitab) {
+                    $sessionName = enum_name(KitabSession::class, $sessionId);
                 }
-                if ($request->filled('name')) {
-                    $query->where('name', 'like', '%' . $request->input('name') . '%');
-                }
-                if ($request->filled('reg_id')) {
-                    $query->where('reg_id', $request->input('reg_id'));
-                }
-            })
-            ->whereHas('enroles', function ($query) use ($request) {
-                if ($request->filled('roll_number')) {
-                    $query->where('roll_number', $request->input('roll_number'));
-                }
-            })
-            ->select('id', 'user_id', 'jamaat', 'average_marks', 'status')
-            ->orderBy('id', 'desc');
 
-        // 🟢 Pagination (PaginateTrait ব্যবহার)
-        $paginated = $this->paginateQuery($query, $request);
+                return [
+                    'id' => $student->id,
+                    'user_id' => $user->id ?? null,
+                    'roll_number' => $enrole->roll_number ?? null,
+                    'reg_id' => $user->reg_id ?? null,
+                    'jamaat' => $student->jamaat,
+                    'average_marks' => $student->average_marks,
+                    'name' => $user->name ?? null,
+                    'phone' => $user->phone ?? null,
+                    'profile_image' => $user->profile_image ?? null,
+                    'blood_group' => $user->blood_group ?? null,
+                    'department' => enum_name(Department::class, $departmentId),
+                    'session' => $sessionName,
+                    'fee_type' => enum_name(FeeType::class, $feeTypeId),
+                    'status' => $enrole->status ?? null,
+                    'year' => $enrole->year ?? null,
+                ];
+            })->values();
 
-        // 🟢 Transform data
-        $paginated['data'] = collect($paginated['data'])->map(function ($student) {
-            $user = $student->user;
-            $enrole = $student->enroles->first(); // সর্বশেষ enrole
+            return success_response($paginated);
 
-            $departmentId = $enrole->department_id ?? null;
-            $sessionId = $enrole->session ?? null;
-            $feeTypeId = $enrole->fee_type ?? null;
-
-            $sessionName = null;
-            if ($departmentId === Department::Maktab) {
-                $sessionName = enum_name(MaktabSession::class, $sessionId);
-            } elseif ($departmentId === Department::Kitab) {
-                $sessionName = enum_name(KitabSession::class, $sessionId);
-            }
-
-            return [
-                'id' => $student->id,
-                'user_id' => $user->id ?? null,
-                'roll_number' => $enrole->roll_number ?? null,
-                'reg_id' => $user->reg_id ?? null,
-                'jamaat' => $student->jamaat,
-                'average_marks' => $student->average_marks,
-                'name' => $user->name ?? null,
-                'phone' => $user->phone ?? null,
-                'profile_image' => $user->profile_image ?? null,
-                'blood_group' => $user->blood_group ?? null,
-                'department' => enum_name(Department::class, $departmentId),
-                'session' => $sessionName,
-                'fee_type' => enum_name(FeeType::class, $feeTypeId),
-                'status' => $enrole->status ?? null,
-                'year' => $enrole->year ?? null,
-            ];
-        })->values();
-
-        return success_response($paginated);
-
-    } catch (\Exception $e) {
-        return error_response(null, 500, $e->getMessage());
+        } catch (\Exception $e) {
+            return error_response(null, 500, $e->getMessage());
+        }
     }
-}
 
 
 
