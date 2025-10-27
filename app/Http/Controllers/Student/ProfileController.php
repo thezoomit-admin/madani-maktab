@@ -167,7 +167,7 @@ class ProfileController extends Controller
             $totalDue = 0;  
 
             foreach ($payments as $payment) {
-                
+                $paid_date = null;
                 if($payment->due == 0){
                     $status = "Paid";
                     $paid_date = @$payment->transaction->created_at;
