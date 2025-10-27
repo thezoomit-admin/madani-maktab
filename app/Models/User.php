@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -123,10 +124,15 @@ class User extends Authenticatable
         return $this->belongsTo(User::class, 'deleted_by');
     }  
 
-    public function getPermissionsSlugs()
+    protected static function booted()
     {
-        return $this->role->permissions->pluck('slug')->toArray();
-    } 
+        static::deleting(function ($user) {
+            if (Auth::check()) {
+                $user->deleted_by = Auth::id();
+                $user->save();
+            }
+        });
+    }
  
  
 

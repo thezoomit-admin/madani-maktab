@@ -114,19 +114,18 @@ class EmployeeController extends Controller
 
     public function destroy($id)
     {
-        DB::beginTransaction();  
+        DB::beginTransaction();
         try {
-            $user = User::find($id);  
-            if(!$user){
-                return error_response(null,404,"Not found");  
-            }  
-            $user->deleted_by = Auth::user()->id; 
-            $user->deleted_at = now(); 
-            $user->save();
+            $user = User::find($id);
+            if (!$user) {
+                return error_response(null, 404, "Not found");
+            }
+            $user->delete();
+            DB::commit();
             return success_response(null, 'Employee has been deleted successfully!');
         } catch (\Exception $e) {
-            DB::rollBack();   
-            return error_response($e->getMessage());  
+            DB::rollBack();
+            return error_response($e->getMessage());
         }
     }
 
