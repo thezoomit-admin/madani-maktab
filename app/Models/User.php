@@ -40,6 +40,7 @@ class User extends Authenticatable
         'deleted_by',
         'deleted_at',
         'otp',
+        'is_present',
         'otp_expires_at',
     ]; 
 

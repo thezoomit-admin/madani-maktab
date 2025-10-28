@@ -183,6 +183,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Report 
     Route::get('ojifa-report',[OjifaDetailsReportController::class,'OjifaReport']);
     Route::get('ojifa-collect-report',[OjifaCollectReportController::class,'getStudentPaymentReport']);
+    Route::get('ojifa-collect-report-v2',[OjifaCollectReportController::class,'getStudentPaymentReportV2']);
     Route::get('due-report',[DueReportController::class,'index']);
     Route::get('due-payment-report',[DueReportController::class,'paymentList']);
     Route::post('due-pay',[VendorPaymentController::class,'payment']);

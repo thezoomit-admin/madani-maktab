@@ -41,7 +41,6 @@ Route::get('/',function(){
      dd("Success");
 });
 
-
 Route::get('/refresh', function () {  
    
      DB::statement('SET FOREIGN_KEY_CHECKS=0;');

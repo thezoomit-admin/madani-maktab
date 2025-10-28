@@ -28,6 +28,7 @@ return new class extends Migration
             $table->json('senior_user')->nullable(); 
             $table->json('junior_user')->nullable();
 
+            $table->boolean('is_present')->default(1)->comment('1=Present, 0=Absent');
             $table->foreignId('role_id')->nullable()->constrained();  
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();

@@ -188,5 +188,9 @@ class OjifaCollectReportController extends Controller
         return response()->json([
             'data' => $reportData,
         ]);
+    } 
+
+    public function getStudentPaymentReportV2(Request $request){
+
     }
 }
