@@ -34,7 +34,7 @@ class StudentController extends Controller
             $session = $request->input('session');
 
             // 🟢 মূল query
-            $query = Student::with('user:id,name,reg_id,phone,profile_image,blood_group')
+            $query = Student::with('user:id,name,reg_id,phone,profile_image,blood_group,is_present')
                 ->addSelect([
                     'latest_enrole_id' => Enrole::select('id')
                         ->whereColumn('student_id', 'students.id')
@@ -116,7 +116,7 @@ class StudentController extends Controller
                     'fee_type' => enum_name(FeeType::class, $feeTypeId),
                     'status' => $enrole->status ?? null,
                     'year' => $enrole->year ?? null,
-                    'is_present' => $user->is_present ?? 0,
+                    'is_present' => $user->is_present ?? false,
                 ];
             })->values();
 
