@@ -203,7 +203,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
     // Attendance  
-    Route::get('attendance/{reg_id?}',[AttendanceController::class,'attendance']);
+    Route::get('attendance/{user_id?}',[AttendanceController::class,'attendance']);
     Route::post('out-reason',[AttendanceController::class,'outReason']);
 
     Route::get('/action-log',[ActionLogReportController::class,'index']);

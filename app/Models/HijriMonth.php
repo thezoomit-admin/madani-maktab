@@ -20,8 +20,16 @@ class HijriMonth extends Model
         'updated_by',
     ];
 
-    public static function getYearRange($year)
+    public static function getYearRange($year=null)
     {
+        if ($year === null) {
+            $activeMonth = self::getActiveMonth();
+            if (!$activeMonth) {
+                return null;
+            }
+            $year = $activeMonth->year;
+        }
+        
         $range = self::where('year', $year)
             ->selectRaw('MIN(start_date) as start_date, MAX(end_date) as end_date')
             ->first();
@@ -34,5 +42,12 @@ class HijriMonth extends Model
             'start_date' => $range->start_date,
             'end_date' => $range->end_date,
         ];
-    }   
+    }
+
+    public static function getActiveMonth()
+    {
+        return self::whereDate('start_date', '<=', now())
+            ->whereDate('end_date', '>=', now())
+            ->first();
+    }
 }

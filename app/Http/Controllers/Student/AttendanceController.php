@@ -15,25 +15,25 @@ use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
 {
-    public function attendance(Request $request, $reg_id = null)
+    public function attendance(Request $request, $user_id = null)
     {
-        $user = Auth::user();
-        $reg_id = $reg_id ?? $user->reg_id;
+        $user_id = $user_id ?? Auth::id();
 
-        $month = $request->filled('month_id')
-            ? \App\Models\HijriMonth::find($request->month_id)
-            : null;
- 
-        if ($month) {
-            $startDate = Carbon::parse($month->start_date)->startOfDay();
-            $endDate = Carbon::parse($month->end_date)->endOfDay();
-        } else {
-            $endDate = Carbon::now()->endOfDay();
-            $startDate = $endDate->copy()->subDays(30)->startOfDay();
-        }
+        if($request->month_id){
+            $month = HijriMonth::find($request->month_id); 
+        }else{
+            $month = HijriMonth::getActiveMonth();
+        } 
 
-        $attendances = Attendance::where('reg_id', $reg_id)
-            ->whereBetween('in_time', [$startDate, $endDate])
+        $startDate = Carbon::parse($month->start_date)->startOfDay();
+        $endDate = Carbon::parse($month->end_date)->endOfDay();
+
+
+        $attendances = Attendance::where('user_id', $user_id)
+            ->where(function($query) use ($startDate, $endDate) {
+                $query->whereBetween('in_time', [$startDate, $endDate])
+                    ->orWhereBetween('out_time', [$startDate, $endDate]);
+            })
             ->orderBy('in_time', 'asc')
             ->get();
 
