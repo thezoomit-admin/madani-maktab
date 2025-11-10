@@ -28,13 +28,13 @@ class StudentController extends Controller
 
     public function index(Request $request)
     {
-        try { 
+        try {
             $active_month = HijriMonth::where('is_active', true)->first();
             $year = $request->input('year', $active_month->year ?? 1446);
             $session = $request->input('session');
 
             // 🟢 মূল query
-            $query = Student::with('user:id,name,reg_id,phone,profile_image,blood_group,is_present')
+            $query = Student::with(['user:id,name,reg_id,phone,profile_image,blood_group,is_present', 'enroles'])
                 ->addSelect([
                     'latest_enrole_id' => Enrole::select('id')
                         ->whereColumn('student_id', 'students.id')
@@ -46,12 +46,14 @@ class StudentController extends Controller
                 })
                 ->when($request->filled('session'), function ($query) use ($session) {
                     $query->whereHas('enroles', function ($q) use ($session) {
-                        $q->whereIn('id', function ($subquery) {
+                        $q->where('status', 1) // ✅ শুধুমাত্র active enrolment
+                        ->whereIn('id', function ($subquery) {
                             $subquery->selectRaw('MAX(id)')
                                     ->from('enroles')
                                     ->groupBy('student_id');
                         });
 
+                        // ✅ session অনুযায়ী filter
                         if ($session >= 1 && $session <= 5) {
                             $q->where('department_id', 1)->where('session', $session);
                         } else {
@@ -81,18 +83,24 @@ class StudentController extends Controller
                 ->select('id', 'user_id', 'jamaat', 'average_marks', 'status')
                 ->orderBy('id', 'desc');
 
-            // 🟢 Pagination (PaginateTrait ব্যবহার)
+            // 🟢 Pagination
             $paginated = $this->paginateQuery($query, $request);
 
             // 🟢 Transform data
             $paginated['data'] = collect($paginated['data'])->map(function ($student) {
                 $user = $student->user;
-                $enrole = $student->enroles->first(); // সর্বশেষ enrole
+
+                // ✅ শুধুমাত্র active enrolment (status = 1)
+                $enrole = $student->enroles
+                    ->where('status', 1)
+                    ->sortByDesc('id')
+                    ->first();
 
                 $departmentId = $enrole->department_id ?? null;
                 $sessionId = $enrole->session ?? null;
                 $feeTypeId = $enrole->fee_type ?? null;
 
+                // ✅ sessionName active enrolment থেকেই আসবে
                 $sessionName = null;
                 if ($departmentId === Department::Maktab) {
                     $sessionName = enum_name(MaktabSession::class, $sessionId);
@@ -126,6 +134,7 @@ class StudentController extends Controller
             return error_response(null, 500, $e->getMessage());
         }
     }
+
 
 
 

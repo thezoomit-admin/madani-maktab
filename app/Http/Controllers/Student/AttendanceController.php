@@ -52,7 +52,6 @@ class AttendanceController extends Controller
                 'comment'   => $record->comment,
             ];
         });
-
         return success_response($attendance->reverse()->values());
     } 
 
