@@ -136,7 +136,7 @@ class ProfileController extends Controller
 
     public function PaymentHistory(Request $request, $id = null)
     {
-         $hijriService = new HijriDateService();
+        $hijriService = new HijriDateService();
         try {
             if (!$id) {
                 $id = Auth::id();

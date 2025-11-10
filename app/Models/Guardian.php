@@ -24,6 +24,11 @@ class Guardian extends Model
         'same_address',
     ];
 
+    protected $casts = [
+        'child_education' => 'array',
+        'same_address' => 'boolean',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

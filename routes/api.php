@@ -105,9 +105,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
     Route::get('admission-student',[AdmissionStudentController::class,'index']);
-    Route::post('admission', [AdmissionStudentController::class,'admission']);
     Route::get('first-exam-complete/{id}',[AdmissionStudentController::class,'first_exam_complete']);
     Route::get('present-madrasha/{id}',[AdmissionStudentController::class,'present_madrasha']);
+
+    Route::post('admission', [AdmissionStudentController::class,'admission']);
+    Route::post('direct-admission', [AdmissionStudentController::class,'directAdmission']);
+    Route::post('existing-student-approve/{id}',[ExistingStudentController::class,"approve"]);
 
 
     Route::post('change-password',[AuthController::class,"changePassword"]); 
@@ -150,7 +153,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Student Management System 
     Route::get('existing-student-list',[ExistingStudentController::class,"index"]);
-    Route::post('existing-student-approve/{id}',[ExistingStudentController::class,"approve"]); 
 
     Route::resource('teacher-comment',TeacherCommentController::class); 
     Route::get('student',[StudentController::class,'index']);
