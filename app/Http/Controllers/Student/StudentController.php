@@ -46,7 +46,7 @@ class StudentController extends Controller
                 })
                 ->when($request->filled('session'), function ($query) use ($session) {
                     $query->whereHas('enroles', function ($q) use ($session) {
-                        $q->where('status', 1) // ✅ শুধুমাত্র active enrolment
+                        $q->where('status', 1)
                         ->whereIn('id', function ($subquery) {
                             $subquery->selectRaw('MAX(id)')
                                     ->from('enroles')
@@ -64,17 +64,19 @@ class StudentController extends Controller
                         }
                     });
                 })
-                ->whereHas('user', function ($query) use ($request) {
+                ->whereHas('user', function ($query) use ($request) { 
+                    if ($request->filled('name')) {
+                        $query->where('name', 'like', '%' . $request->input('name') . '%');
+                    } 
+                    if ($request->has('reg_id')) {
+                        $regId = trim((string) $request->input('reg_id')); // string cast + trim
+                        $query->where('reg_id', $regId);
+                    } 
                     if ($request->filled('blood_group')) {
                         $query->where('blood_group', $request->input('blood_group'));
                     }
-                    if ($request->filled('name')) {
-                        $query->where('name', 'like', '%' . $request->input('name') . '%');
-                    }
-                    if ($request->filled('reg_id')) {
-                        $query->where('reg_id', $request->input('reg_id'));
-                    }
                 })
+                
                 ->whereHas('enroles', function ($query) use ($request) {
                     if ($request->filled('roll_number')) {
                         $query->where('roll_number', $request->input('roll_number'));
