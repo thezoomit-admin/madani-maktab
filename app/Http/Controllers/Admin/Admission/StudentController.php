@@ -268,6 +268,7 @@ class StudentController extends Controller
 
     public function directAdmission(DirectAdmissionRequest $request)
     {
+ 
         DB::beginTransaction();
         try {  
             $dob = Carbon::parse($request->input('dob'));
@@ -286,74 +287,72 @@ class StudentController extends Controller
             $reg_id = $request->reg_id;
             $user = User::create([
                 'name' => $request->input('name'),
-                'phone' => $request->input('contact_number_1'),
+                'phone' => $request->input('phone'),
                 'email' => $request->input('email'),
                 'password' => bcrypt($request->input('password', '123456')),
                 'profile_image' => $profileImageUrl,
                 'dob' => $request->input('dob'),
                 'age' => $ageMonths,
-                'dob_hijri' => $request->input('dob_hijri'),
-                'blood_group' => $request->input('blood_group'),
+                'dob_hijri' => $request->input('dob_hijri'), 
                 'user_type' => 'student',
                 'reg_id' => $reg_id,
             ]);
+ 
+            // $guardian = Guardian::where('user_id', $user->id)->first();
+            // $guardianData = [
+            //     'guardian_name' => $request->input('guardian_name'),
+            //     'guardian_relation' => $request->input('guardian_relation'),
+            //     'guardian_occupation_details' => $request->input('guardian_occupation_details'),
+            //     'guardian_education' => $request->input('guardian_education'),
+            //     'children_count' => $request->input('children_count'),
+            //     'contact_number_1' => $request->input('contact_number_1'),
+            //     'contact_number_2' => $request->input('contact_number_2'),
+            //     'whatsapp_number' => $request->input('whatsapp_number'),
+            //     'same_address' => $request->input('same_address'),
+            //     'user_id' => $user->id,
+            // ];
 
-            // Create or update Guardian
-            $guardian = Guardian::where('user_id', $user->id)->first();
-            $guardianData = [
-                'guardian_name' => $request->input('guardian_name'),
-                'guardian_relation' => $request->input('guardian_relation'),
-                'guardian_occupation_details' => $request->input('guardian_occupation_details'),
-                'guardian_education' => $request->input('guardian_education'),
-                'children_count' => $request->input('children_count'),
-                'contact_number_1' => $request->input('contact_number_1'),
-                'contact_number_2' => $request->input('contact_number_2'),
-                'whatsapp_number' => $request->input('whatsapp_number'),
-                'same_address' => $request->input('same_address'),
-                'user_id' => $user->id,
-            ];
+         
+            // if ($request->has('child_education')) {
+            //     $childEducation = $request->input('child_education');
+            //     if (is_array($childEducation)) {
+            //         $guardianData['child_education'] = $childEducation;
+            //     } elseif (is_string($childEducation) && !empty($childEducation)) { 
+            //         $guardianData['child_education'] = [$childEducation];
+            //     } else {
+            //         $guardianData['child_education'] = null;
+            //     }
+            // } else {
+            //     $guardianData['child_education'] = null;
+            // }
 
-            // Handle child_education as JSON (array or JSON string)
-            if ($request->has('child_education')) {
-                $childEducation = $request->input('child_education');
-                if (is_array($childEducation)) {
-                    $guardianData['child_education'] = $childEducation;
-                } elseif (is_string($childEducation) && !empty($childEducation)) { 
-                    $guardianData['child_education'] = [$childEducation];
-                } else {
-                    $guardianData['child_education'] = null;
-                }
-            } else {
-                $guardianData['child_education'] = null;
-            }
-
-            Guardian::create($guardianData);
+            // Guardian::create($guardianData);
             
-            $permanentAddressData = [
-                'user_id' => $user->id,
-                'address_type' => 'permanent',
-                'house_or_state' => $request->input('house_or_state'),
-                'village_or_area' => $request->input('village_or_area'),
-                'post_office' => $request->input('post_office'),
-                'upazila_thana' => $request->input('upazila_thana'),
-                'district' => $request->input('district'),
-                'division' => $request->input('division'),
-            ];
-            UserAddress::create($permanentAddressData);
+            // $permanentAddressData = [
+            //     'user_id' => $user->id,
+            //     'address_type' => 'permanent',
+            //     'house_or_state' => $request->input('house_or_state'),
+            //     'village_or_area' => $request->input('village_or_area'),
+            //     'post_office' => $request->input('post_office'),
+            //     'upazila_thana' => $request->input('upazila_thana'),
+            //     'district' => $request->input('district'),
+            //     'division' => $request->input('division'),
+            // ];
+            // UserAddress::create($permanentAddressData);
             
-            if (!$request->same_address) {
-                $temporaryAddressData = [
-                    'user_id' => $user->id,
-                    'address_type' => 'temporary',
-                    'house_or_state' => $request->input('temporary_house_or_state'),
-                    'village_or_area' => $request->input('temporary_village_or_area'),
-                    'post_office' => $request->input('temporary_post_office'),
-                    'upazila_thana' => $request->input('temporary_upazila_thana'),
-                    'district' => $request->input('temporary_district'),
-                    'division' => $request->input('temporary_division'),
-                ];
-                UserAddress::create($temporaryAddressData);
-            }
+            // if (!$request->same_address) {
+            //     $temporaryAddressData = [
+            //         'user_id' => $user->id,
+            //         'address_type' => 'temporary',
+            //         'house_or_state' => $request->input('temporary_house_or_state'),
+            //         'village_or_area' => $request->input('temporary_village_or_area'),
+            //         'post_office' => $request->input('temporary_post_office'),
+            //         'upazila_thana' => $request->input('temporary_upazila_thana'),
+            //         'district' => $request->input('temporary_district'),
+            //         'division' => $request->input('temporary_division'),
+            //     ];
+            //     UserAddress::create($temporaryAddressData);
+            // }
 
             // Get fee settings based on department 
             $department_id = $request->department_id;
@@ -462,7 +461,7 @@ class StudentController extends Controller
             }
 
             DB::commit();
-            return success_response(null, "সরাসরি ভর্তি সফলভাবে সম্পন্ন হয়েছে।", 201);
+            return success_response($user, "সরাসরি ভর্তি সফলভাবে সম্পন্ন হয়েছে।", 201);
         } catch (\Exception $e) {
             DB::rollBack();
             return error_response(null, 500, "সরাসরি ভর্তি প্রক্রিয়ায় সমস্যা হয়েছে: " . $e->getMessage());
