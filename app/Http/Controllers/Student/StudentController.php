@@ -32,9 +32,8 @@ class StudentController extends Controller
 
     public function index(Request $request)
     {
-        try {
-            $active_month = HijriMonth::where('is_active', true)->first();
-            $year = $request->input('year', $active_month->year ?? 1446);
+        try { 
+            $year = $request->input('year');
             $session = $request->input('session');
 
             // 🟢 মূল query
@@ -48,14 +47,26 @@ class StudentController extends Controller
                 ->when($request->input('jamaat'), function ($query, $jamaat) {
                     $query->where('jamaat', $jamaat);
                 })
-                ->when($request->filled('session'), function ($query) use ($session) {
-                    $query->whereHas('enroles', function ($q) use ($session) {
-                        $q->where('status', 1)
-                        ->whereIn('id', function ($subquery) {
-                            $subquery->selectRaw('MAX(id)')
-                                    ->from('enroles')
-                                    ->groupBy('student_id');
-                        });
+                ->when($request->filled('session'), function ($query) use ($session, $year) {
+                    $query->whereHas('enroles', function ($q) use ($session, $year) {
+                        // If year is provided, filter by year (not status)
+                        if ($year) {
+                            $q->where('year', $year)
+                            ->whereIn('id', function ($subquery) use ($year) {
+                                $subquery->selectRaw('MAX(id)')
+                                        ->from('enroles')
+                                        ->where('year', $year)
+                                        ->groupBy('student_id');
+                            });
+                        } else {
+                            // If year is null, filter by active enrollment (status = 1)
+                            $q->where('status', 1)
+                            ->whereIn('id', function ($subquery) {
+                                $subquery->selectRaw('MAX(id)')
+                                        ->from('enroles')
+                                        ->groupBy('student_id');
+                            });
+                        }
 
                         // ✅ session অনুযায়ী filter
                         if ($session >= 1 && $session <= 5) {
@@ -67,6 +78,31 @@ class StudentController extends Controller
                             $q->where('department_id', 2)->where('session', $session);
                         }
                     });
+                })
+                ->when(!$request->filled('session'), function ($query) use ($year) {
+                    // If no session filter, apply year or status filter
+                    if ($year) {
+                        // Filter by year
+                        $query->whereHas('enroles', function ($q) use ($year) {
+                            $q->where('year', $year)
+                            ->whereIn('id', function ($subquery) use ($year) {
+                                $subquery->selectRaw('MAX(id)')
+                                        ->from('enroles')
+                                        ->where('year', $year)
+                                        ->groupBy('student_id');
+                            });
+                        });
+                    } else {
+                        // Filter by active enrollment (status = 1)
+                        $query->whereHas('enroles', function ($q) {
+                            $q->where('status', 1)
+                            ->whereIn('id', function ($subquery) {
+                                $subquery->selectRaw('MAX(id)')
+                                        ->from('enroles')
+                                        ->groupBy('student_id');
+                            });
+                        });
+                    }
                 })
                 ->whereHas('user', function ($query) use ($request) { 
                     if ($request->filled('name')) {
@@ -81,9 +117,13 @@ class StudentController extends Controller
                     }
                 })
                 
-                ->whereHas('enroles', function ($query) use ($request) {
+                ->whereHas('enroles', function ($query) use ($request, $year) {
                     if ($request->filled('roll_number')) {
                         $query->where('roll_number', $request->input('roll_number'));
+                    }
+                    // Apply year filter if provided
+                    if ($year) {
+                        $query->where('year', $year);
                     }
                 })
                 ->select('id', 'user_id', 'jamaat', 'average_marks', 'status')
@@ -93,14 +133,22 @@ class StudentController extends Controller
             $paginated = $this->paginateQuery($query, $request);
 
             // 🟢 Transform data
-            $paginated['data'] = collect($paginated['data'])->map(function ($student) {
+            $paginated['data'] = collect($paginated['data'])->map(function ($student) use ($year) {
                 $user = $student->user;
 
-                // ✅ শুধুমাত্র active enrolment (status = 1)
-                $enrole = $student->enroles
-                    ->where('status', 1)
-                    ->sortByDesc('id')
-                    ->first();
+                // ✅ If year is provided, get enrollment by year, otherwise get active enrollment
+                if ($year) {
+                    $enrole = $student->enroles
+                        ->where('year', $year)
+                        ->sortByDesc('id')
+                        ->first();
+                } else {
+                    // শুধুমাত্র active enrolment (status = 1)
+                    $enrole = $student->enroles
+                        ->where('status', 1)
+                        ->sortByDesc('id')
+                        ->first();
+                }
 
                 $departmentId = $enrole->department_id ?? null;
                 $sessionId = $enrole->session ?? null;
@@ -293,24 +341,15 @@ class StudentController extends Controller
             DB::commit();
 
             return success_response([
-                'student_id' => $student->id,
-                'current' => [
-                    'department' => enum_name(Department::class, $currentDepartmentId),
-                    'session' => $currentSessionName,
-                    'marks' => $currentEnrole->marks,
-                    'status' => 'completed'
-                ],
-                'new' => [
-                    'enrollment_id' => $newEnrole->id,
-                    'department' => enum_name(Department::class, $department_id),
-                    'session' => $nextSessionName,
-                    'year' => $active_month->year,
-                    'fee_type' => enum_name(FeeType::class, $newEnrole->fee_type),
-                    'fee' => $fee,
-                    'admission_fee' => $admission_fee,
-                    'roll_number' => $roll_number,
-                    'status' => 'running'
-                ]
+                'enrollment_id' => $newEnrole->id,
+                'department' => enum_name(Department::class, $department_id),
+                'session' => $nextSessionName,
+                'year' => $active_month->year,
+                'fee_type' => enum_name(FeeType::class, $newEnrole->fee_type),
+                'fee' => $fee,
+                'admission_fee' => $admission_fee,
+                'roll_number' => $roll_number,
+                'status' => 'running'
             ], 'স্টুডেন্টের পর্যায় সফলভাবে বৃদ্ধি করা হয়েছে।');
 
         } catch (\Exception $e) {
