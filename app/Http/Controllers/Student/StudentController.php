@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Enums\Department;
+use App\Enums\FeeReason;
 use App\Enums\FeeType;
 use App\Enums\KitabSession;
 use App\Enums\MaktabSession;
@@ -17,8 +18,11 @@ use App\Models\Student;
 use App\Models\TeacherComment;
 use App\Models\User;
 use App\Services\AttendanceService;
+use App\Services\EnrollmentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use App\Traits\PaginateTrait;
 
 
@@ -162,7 +166,7 @@ class StudentController extends Controller
             Enrole::where('student_id', $student->id)->delete();
     
             TeacherComment::where('student_id', $user->id)->delete();
-            Payment::where('user_id', $user->id)->delete();
+            Payment::where('user_id', $user->id)->where('paid', '>', 0)->delete();
             Admission::where('user_id', $user->id)->update(['status' => 0]);
     
             $user->reg_id = null;
@@ -192,6 +196,127 @@ class StudentController extends Controller
         $enrole->roll_number = $request->roll_number;
         $enrole->save(); 
         return success_response(null, "Roll number updated");
+    }
+
+    /**
+     * Enrole student - Promote to next session or department
+     * Accepts: department_id, session, marks, fee_type, fee, admission_fee from frontend
+     * 
+     * @param int $id Student ID
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function enroleStudent($id, Request $request)
+    {
+        // Validate required fields
+        $validator = Validator::make($request->all(), [
+            'department_id' => 'required|integer|in:1,2',
+            'session' => 'required|integer',
+            'marks' => 'nullable|string',
+            'fee_type' => 'required|integer',
+            'fee' => 'nullable|numeric',
+            'admission_fee' => 'nullable|numeric|min:0',
+            'roll_number' => 'nullable|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return error_response($validator->errors(), 422, 'ভ্যালিডেশন ব্যর্থ হয়েছে।');
+        }
+
+        DB::beginTransaction();
+        try {
+            // Find student
+            $student = Student::find($id);
+            if (!$student) {
+                return error_response(null, 404, 'স্টুডেন্ট খুঁজে পাওয়া যায়নি।');
+            }
+
+            // Get current active enrollment
+            $currentEnrole = Enrole::where('student_id', $id)
+                ->where('status', 1)
+                ->orderByDesc('id')
+                ->first();
+
+            if (!$currentEnrole) {
+                return error_response(null, 404, 'বর্তমান সক্রিয় নথিভুক্তি খুঁজে পাওয়া যায়নি।');
+            }
+
+            // Update current enrollment with marks and mark as completed
+            if ($request->filled('marks')) {
+                $currentEnrole->marks = $request->input('marks');
+            }
+            $currentEnrole->status = 2; // Completed
+            $currentEnrole->save();
+
+            // Get values from request
+            $department_id = $request->input('department_id');
+            $session = $request->input('session');
+            $fee_type = $request->input('fee_type');
+            $fee = $request->input('fee', null);
+            $admission_fee = $request->input('admission_fee', 0);
+            $roll_number = $request->input('roll_number', null);
+
+            // Create new enrollment using service
+            $newEnrole = EnrollmentService::createEnrollment([
+                'user_id' => $student->user_id,
+                'student_id' => $student->id,
+                'department_id' => $department_id,
+                'session' => $session,
+                'roll_number' => $roll_number,
+                'fee_type' => $fee_type,
+                'fee' => $fee,
+                'admission_fee' => $admission_fee,
+                'status' => 1, // Running
+            ]);
+
+            // Get active month for response
+            $active_month = HijriMonth::where('is_active', true)->first();
+
+            // Get session names for response
+            $currentDepartmentId = $currentEnrole->department_id;
+            $currentSession = (int) $currentEnrole->session;
+            $currentSessionName = null;
+            $nextSessionName = null;
+
+            if ($currentDepartmentId === Department::Maktab) {
+                $currentSessionName = enum_name(MaktabSession::class, $currentSession);
+            } elseif ($currentDepartmentId === Department::Kitab) {
+                $currentSessionName = enum_name(KitabSession::class, $currentSession);
+            }
+
+            if ($department_id === Department::Maktab) {
+                $nextSessionName = enum_name(MaktabSession::class, $session);
+            } elseif ($department_id === Department::Kitab) {
+                $nextSessionName = enum_name(KitabSession::class, $session);
+            }
+
+            DB::commit();
+
+            return success_response([
+                'student_id' => $student->id,
+                'current' => [
+                    'department' => enum_name(Department::class, $currentDepartmentId),
+                    'session' => $currentSessionName,
+                    'marks' => $currentEnrole->marks,
+                    'status' => 'completed'
+                ],
+                'new' => [
+                    'enrollment_id' => $newEnrole->id,
+                    'department' => enum_name(Department::class, $department_id),
+                    'session' => $nextSessionName,
+                    'year' => $active_month->year,
+                    'fee_type' => enum_name(FeeType::class, $newEnrole->fee_type),
+                    'fee' => $fee,
+                    'admission_fee' => $admission_fee,
+                    'roll_number' => $roll_number,
+                    'status' => 'running'
+                ]
+            ], 'স্টুডেন্টের পর্যায় সফলভাবে বৃদ্ধি করা হয়েছে।');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return error_response(null, 500, 'পর্যায় বৃদ্ধি করার সময় একটি ত্রুটি ঘটেছে: ' . $e->getMessage());
+        }
     }
 
 

@@ -76,7 +76,7 @@ class ProfileUpdateController extends Controller
 
     /* ---------- EDUCATION ---------- */
     public function updateEducation(Request $request, $id)
-    { 
+    {
         $reg  = StudentRegister::firstOrNew(['user_id'=>$id]); 
 
         $validator = Validator::make($request->all(), [

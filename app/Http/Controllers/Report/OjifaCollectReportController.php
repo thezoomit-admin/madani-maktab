@@ -4,17 +4,22 @@ namespace App\Http\Controllers\Report;
 
 use App\Enums\ArabicMonth;
 use App\Enums\Department;
+use App\Enums\FeeReason;
+use App\Enums\FeeType;
 use App\Enums\MaktabSession;
+use App\Enums\KitabSession;
 use App\Http\Controllers\Controller;
 use App\Models\Enrole;
 use App\Models\HijriMonth;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
+use App\Traits\PaginateTrait;
  
 
 class OjifaCollectReportController extends Controller
 {
+    use PaginateTrait;
     private function getBaseQuery(Request $request): Builder
     {
         $year = $request->input('year',1446);
@@ -191,6 +196,167 @@ class OjifaCollectReportController extends Controller
     } 
 
     public function getStudentPaymentReportV2(Request $request){
+        $year = $request->input('year');
+        if (!$year) {
+            $activeMonth = HijriMonth::where('is_active', true)->first();
+            $year = optional($activeMonth)->year;
+        }
 
+        $query = Payment::query()
+            ->select([
+                'payments.id',
+                'payments.user_id',
+                'payments.enrole_id',
+                'payments.hijri_month_id',
+                'payments.reason',
+                'payments.year',
+                'payments.amount',
+                'payments.paid',
+                'payments.due',
+                'payments.fee_type',
+                'users.reg_id',
+                'users.name as student_name',
+                'enroles.department_id',
+                'enroles.session',
+                'hijri_months.month as hijri_month_value'
+            ])
+            ->join('users', 'users.id', '=', 'payments.user_id')
+            ->join('enroles', 'enroles.id', '=', 'payments.enrole_id')
+            ->join('hijri_months', 'hijri_months.id', '=', 'payments.hijri_month_id');
+
+        if ($year) {
+            $query->where('payments.year', $year);
+        }
+
+        if ($request->filled('department_id')) {
+            $query->where('enroles.department_id', $request->input('department_id'));
+        }
+
+        if ($request->filled('session')) {
+            $query->where('enroles.session', $request->input('session'));
+        }
+
+        if ($request->filled('reason')) {
+            $query->where('payments.reason', $request->input('reason'));
+        }
+
+        if ($request->filled('fee_type')) {
+            $query->where('payments.fee_type', $request->input('fee_type'));
+        }
+
+        if ($request->filled('month')) {
+            $month = $request->input('month');
+            if (is_numeric($month)) {
+                $query->where('hijri_months.month', (int) $month);
+            } else {
+                $monthValues = array_map('mb_strtolower', ArabicMonth::values());
+                $matchedKey = collect($monthValues)->search(mb_strtolower($month));
+                if ($matchedKey !== false) {
+                    $query->where('hijri_months.month', $matchedKey);
+                }
+            }
+        }
+
+        if ($request->filled('status')) {
+            $status = $request->input('status');
+            $query->where(function ($q) use ($status) {
+                if ($status === 'paid') {
+                    $q->where('payments.due', 0);
+                } elseif ($status === 'partial') {
+                    $q->where('payments.due', '>', 0)
+                        ->where('payments.paid', '>', 0);
+                } elseif ($status === 'unpaid') {
+                    $q->where(function ($sub) {
+                        $sub->where('payments.paid', 0)
+                            ->orWhereColumn('payments.due', 'payments.amount');
+                    });
+                }
+            });
+        }
+
+        if ($request->filled('reg_id')) {
+            $query->where('users.reg_id', 'like', '%' . $request->input('reg_id') . '%');
+        }
+
+        if ($request->filled('student_name')) {
+            $query->where('users.name', 'like', '%' . $request->input('student_name') . '%');
+        }
+
+        $summaryQuery = clone $query;
+        $paginated = $this->paginateQuery(clone $query, $request);
+        $payments = collect($paginated['data']);
+
+        $departmentLabels = Department::values();
+        $maktabSessions = MaktabSession::values();
+        $kitabSessions = KitabSession::values();
+        $feeTypeLabels = FeeType::values();
+        $reasonLabels = FeeReason::values();
+        $arabicMonths = ArabicMonth::values();
+
+        $transform = function ($payment) use ($departmentLabels, $maktabSessions, $kitabSessions, $feeTypeLabels, $reasonLabels, $arabicMonths) {
+            $departmentId = (int) $payment->department_id;
+            $sessionId = (int) $payment->session;
+            $status = $payment->due == 0 ? 'paid' : ($payment->paid > 0 ? 'partial' : 'unpaid');
+
+            $sessionLabel = $departmentId === Department::Maktab
+                ? ($maktabSessions[$sessionId] ?? 'অজানা শ্রেণি')
+                : ($kitabSessions[$sessionId] ?? 'অজানা শ্রেণি');
+
+            return [
+                'student_name' => $payment->student_name,
+                'reg_id' => $payment->reg_id,
+                'month' => $arabicMonths[$payment->hijri_month_value] ?? '-',
+                'reason_label' => $reasonLabels[$payment->reason] ?? '-',
+                'fee_type_label' => $payment->fee_type ? ($feeTypeLabels[$payment->fee_type] ?? '-') : null,
+                'amount' => (float) $payment->amount,
+                'paid' => (float) $payment->paid,
+                'due' => (float) $payment->due,
+                'status' => $status,
+                'payment_id' => $payment->id,
+                'department_id' => $departmentId,
+                'department' => $departmentLabels[$departmentId] ?? '-',
+                'session' => $sessionLabel,
+                'month_id' => (int) $payment->hijri_month_value,
+                'reason' => $payment->reason,
+                'fee_type' => $payment->fee_type,
+                'year' => $payment->year,
+            ];
+        };
+
+        $rows = $payments->map($transform)->values();
+        $paginated['data'] = $rows;
+
+        $allPayments = $summaryQuery->get();
+        $allRows = $allPayments->map($transform);
+
+        $summary = [
+            'total_students' => $allPayments->pluck('user_id')->unique()->count(),
+            'total_records' => $allPayments->count(),
+            'total_amount' => (float) $allPayments->sum('amount'),
+            'total_paid' => (float) $allPayments->sum('paid'),
+            'total_due' => (float) $allPayments->sum('due'),
+            'by_status' => [
+                'paid' => $allRows->where('status', 'paid')->count(),
+                'partial' => $allRows->where('status', 'partial')->count(),
+                'unpaid' => $allRows->where('status', 'unpaid')->count(),
+            ],
+        ];
+
+        return success_response([
+            'filters' => [
+                'year' => $year,
+                'department_id' => $request->input('department_id'),
+                'session' => $request->input('session'),
+                'reason' => $request->input('reason'),
+                'month' => $request->input('month'),
+                'status' => $request->input('status'),
+                'reg_id' => $request->input('reg_id'),
+                'student_name' => $request->input('student_name'),
+                'fee_type' => $request->input('fee_type'),
+            ],
+            'summary' => $summary,
+            'data' => $paginated['data'],
+            'meta' => $paginated['meta'],
+        ]);
     }
 }

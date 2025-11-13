@@ -36,8 +36,10 @@ class PermissionSeeder extends Seeder
             'log' => 'লগ',
             'settings' => 'সেটিংস',
             'payment_history' => 'পেমেন্ট ইতিহাস',
+            'profile_change' => 'প্রোফাইল পরিবর্তন',
+            'teacher' => 'খাদেম',
         ];
-
+ 
         foreach ($permissions as $slug => $name) {
             DB::table('permissions')->insert([
                 'name' => $name,

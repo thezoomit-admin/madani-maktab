@@ -63,16 +63,21 @@ class ExpenseController extends Controller
                     return [
                         'id' => $item->id,
                         'month' => app(HijriDateService::class)->getHijri($item->created_at),  
+                        'expense_category_id' => $item->expense_category_id,
                         'expense_category_name' => optional($item->category)->name,
+                        'expense_sub_category_id' => $item->expense_sub_category_id,
                         'expense_sub_category_name' => optional($item->subCategory)->name,
-                        'description' => $item->description,
-                        'measurement' => $item->measurement,
-                        'measurment_unit' => optional($item->measurmentUnit)->short_name,
+                        'vendor_id' => $item->vendor_id,
+                        'payment_method_id' => $item->payment_method_id,
                         'amount' => $item->amount,
                         'total_amount' => $item->total_amount,
-                        'vendor' => optional($item->vendor)->name,
-                        'image' => $item->image,
+                        'description' => $item->description,
+                        'measurement' => $item->measurement,
+                        'measurment_unit_id' => $item->measurment_unit_id,
+                        'measurment_unit' => optional($item->measurmentUnit)->short_name,
                         'voucher_no' => $item->voucher_no,
+                        'image' => $item->image,
+                        'vendor' => optional($item->vendor)->name,
                     ];
                 });
 
@@ -188,9 +193,17 @@ class ExpenseController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'measurement'   => 'required|numeric|max:255',
-            'amount'        => 'required|numeric|min:0',
-            'total_amount'  => 'required|numeric|min:0',
+            'expense_category_id' => 'nullable|exists:expense_categories,id',
+            'expense_sub_category_id' => 'nullable|exists:expense_sub_categories,id',
+            'vendor_id' => 'nullable|exists:vendors,id',
+            'payment_method_id' => 'nullable|exists:payment_methods,id',
+            'amount' => 'nullable|numeric|min:0',
+            'total_amount' => 'nullable|numeric|min:0',
+            'description' => 'nullable|string|max:1000',
+            'measurement' => 'nullable|string|max:255',
+            'measurment_unit_id' => 'nullable|integer|exists:measurment_units,id',
+            'image' => 'nullable|image|max:2048',
+            'voucher_no' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -204,42 +217,156 @@ class ExpenseController extends Controller
                 return error_response(null, 404, 'Expense not found.');
             }
 
-            $payment_method = PaymentMethod::find($expense->payment_method_id);
-            $vendor = $expense->vendor_id ? Vendor::find($expense->vendor_id) : null;
+            // Store old values for balance calculations
+            $oldPaymentMethodId = $expense->payment_method_id;
+            $oldVendorId = $expense->vendor_id;
+            $oldTotalAmount = $expense->total_amount;
 
-            // Old and new values
-            $oldTotal = $expense->total_amount;
-            $newAmount = $request->amount;
-            $newTotal = $request->total_amount;
+            // Get new values from request (use old values if not provided)
+            $newPaymentMethodId = $request->has('payment_method_id') 
+                ? $request->payment_method_id 
+                : $oldPaymentMethodId;
+            $newVendorId = $request->has('vendor_id') 
+                ? $request->vendor_id 
+                : $oldVendorId;
+            $newTotalAmount = $request->filled('total_amount') 
+                ? $request->total_amount 
+                : $oldTotalAmount;
 
-            // Calculate difference
-            $difference = $newTotal - $oldTotal;
+            // Calculate difference in total amount
+            $amountDifference = $newTotalAmount - $oldTotalAmount;
 
-            if (!$vendor) {
-                // Payment method update
-                if ($difference > 0 && $difference > $payment_method->expense_in_hand) {
-                    return error_response(null, 400, $payment_method->name . ' অ্যাকাউন্টে পর্যাপ্ত টাকা নেই।');
+            // Handle balance adjustments based on changes
+            $paymentMethodChanged = $oldPaymentMethodId != $newPaymentMethodId;
+            $vendorChanged = $oldVendorId != $newVendorId;
+            $amountChanged = $oldTotalAmount != $newTotalAmount;
+
+            // If payment method or vendor changed, or amount changed, adjust balances
+            if ($paymentMethodChanged || $vendorChanged || $amountChanged) {
+                // Revert old balances first
+                if ($oldVendorId) {
+                    // Revert vendor due (subtract old amount)
+                    $oldVendor = Vendor::find($oldVendorId);
+                    if ($oldVendor) {
+                        $oldVendor->due -= $oldTotalAmount;
+                        $oldVendor->save();
+                    }
+                } else if ($oldPaymentMethodId) {
+                    // Revert payment method balance (add back old amount)
+                    $oldPaymentMethod = PaymentMethod::find($oldPaymentMethodId);
+                    if ($oldPaymentMethod) {
+                        $oldPaymentMethod->expense_in_hand += $oldTotalAmount;
+                        $oldPaymentMethod->balance += $oldTotalAmount;
+                        $oldPaymentMethod->save();
+                    }
                 }
 
-                // Update balances (difference can be + or -)
-                $payment_method->expense_in_hand -= $difference;
-                $payment_method->balance -= $difference;
-                $payment_method->save();
-            } else {
-                // Vendor due adjustment (difference can be + or -)
-                $vendor->due += $difference;
-                if ($vendor->due < 0) {
-                    $vendor->due = 0; // Prevent negative due
+                // Apply new balances
+                if ($newVendorId) {
+                    // Add to new vendor due
+                    $newVendor = Vendor::find($newVendorId);
+                    if (!$newVendor) {
+                        DB::rollBack();
+                        return error_response(null, 404, 'Vendor not found.');
+                    }
+                    $newVendor->due += $newTotalAmount;
+                    $newVendor->save();
+                } else if ($newPaymentMethodId) {
+                    // Get payment method
+                    // If same as old, reuse the instance we already updated
+                    if ($oldPaymentMethodId == $newPaymentMethodId && isset($oldPaymentMethod)) {
+                        $newPaymentMethod = $oldPaymentMethod;
+                    } else {
+                        $newPaymentMethod = PaymentMethod::find($newPaymentMethodId);
+                        if (!$newPaymentMethod) {
+                            DB::rollBack();
+                            return error_response(null, 404, 'Payment method not found.');
+                        }
+                    }
+
+                    // Check if sufficient balance available for the new amount
+                    if ($newTotalAmount > 0 && $newTotalAmount > $newPaymentMethod->expense_in_hand) {
+                        DB::rollBack();
+                        return error_response(null, 400, $newPaymentMethod->name . ' অ্যাকাউন্টে পর্যাপ্ত টাকা নেই।');
+                    }
+
+                    // Deduct from payment method balance
+                    $newPaymentMethod->expense_in_hand -= $newTotalAmount;
+                    $newPaymentMethod->balance -= $newTotalAmount;
+                    $newPaymentMethod->save();
                 }
-                $vendor->save();
             }
 
-            // Update expense fields
-            $expense->update([
-                'measurement'  => $request->measurement,
-                'amount'       => $newAmount,
-                'total_amount' => $newTotal,
-            ]);
+            // Handle image upload
+            $imagePath = $expense->image; // Keep existing image by default
+            if ($request->hasFile('image')) {
+                // Delete old image if exists
+                if ($expense->image) {
+                    $oldImagePath = public_path('uploads/expenses/' . basename($expense->image));
+                    if (file_exists($oldImagePath)) {
+                        @unlink($oldImagePath);
+                    }
+                }
+
+                // Upload new image
+                $image = $request->file('image');
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('uploads/expenses'), $imageName);
+                $imagePath = asset('uploads/expenses/' . $imageName);
+            }
+
+            // Prepare update data
+            $updateData = [];
+            
+            if ($request->filled('expense_category_id')) {
+                $updateData['expense_category_id'] = $request->expense_category_id;
+            }
+            
+            if ($request->filled('expense_sub_category_id')) {
+                $updateData['expense_sub_category_id'] = $request->expense_sub_category_id;
+            }
+            
+            if ($request->has('vendor_id')) {
+                $updateData['vendor_id'] = $request->vendor_id;
+            }
+            
+            if ($request->has('payment_method_id')) {
+                $updateData['payment_method_id'] = $request->payment_method_id;
+            }
+            
+            if ($request->has('amount')) {
+                $updateData['amount'] = $request->amount;
+            }
+            
+            if ($request->filled('total_amount')) {
+                $updateData['total_amount'] = $request->total_amount;
+            }
+            
+            if ($request->has('description')) {
+                $updateData['description'] = $request->description;
+            }
+            
+            if ($request->has('measurement')) {
+                $updateData['measurement'] = $request->measurement;
+            }
+            
+            if ($request->has('measurment_unit_id')) {
+                $updateData['measurment_unit_id'] = $request->measurment_unit_id;
+            }
+            
+            if ($request->has('voucher_no')) {
+                $updateData['voucher_no'] = $request->voucher_no;
+            }
+            
+            if ($request->hasFile('image')) {
+                $updateData['image'] = $imagePath;
+            }
+
+            // Update expense
+            $expense->update($updateData);
+
+            // Reload relationships
+            $expense->load(['user', 'approvedBy', 'category', 'subCategory', 'paymentMethod', 'measurmentUnit', 'vendor']);
 
             DB::commit();
             return success_response($expense, 'Expense updated successfully.');

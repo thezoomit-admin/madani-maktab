@@ -157,6 +157,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('teacher-comment',TeacherCommentController::class); 
     Route::get('student',[StudentController::class,'index']);
     Route::post('update-roll/{id}',[StudentController::class,'updateRoll']);
+    Route::post('student/enrole/{id}',[StudentController::class,'enroleStudent']);
     Route::delete('student/delete/{id}',[StudentController::class,'delete']);
     Route::get('profile/{id?}', [ProfileController::class, 'profile']);
     Route::get('payment-history/{id?}', [ProfileController::class, 'PaymentHistory']);

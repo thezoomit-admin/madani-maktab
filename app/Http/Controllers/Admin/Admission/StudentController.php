@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\DB;
 use App\Traits\PaginateTrait;
 use App\Traits\HandlesStudentStatus;
 use App\Services\RegIdGeneratorService;
+use App\Services\EnrollmentService;
 
 
 class StudentController extends Controller
@@ -134,7 +135,7 @@ class StudentController extends Controller
 
     public function admission(Request $request)
     {
-        $id = $request->id; 
+        $id = $request->id;  
         DB::beginTransaction();
         try {  
             $user = User::find($id);  
@@ -153,7 +154,6 @@ class StudentController extends Controller
             }
 
             $is_already_admit = Student::where('user_id', $id)->first();
-
             if ($is_already_admit) {
                 return error_response(null, 409, "এই শিক্ষার্থী ইতোমধ্যে ভর্তি হয়েছে।");
             }
@@ -163,6 +163,7 @@ class StudentController extends Controller
             $session = $request->session; // Session number from request
             $reg_id = $regIdGenerator->generate($department_id, $session);
 
+          
             $user->reg_id = $reg_id;
             $user->save();
 
@@ -178,83 +179,18 @@ class StudentController extends Controller
                 $admission_fee = $request->admission_fee;
             }
 
-            $fee_type = $request->fee_type;
-            $regular_monthly_fee = $monthly_fee;
-            if ($fee_type == FeeType::Half) {
-                $monthly_fee = $request->fee;
-                 $regular_monthly_fee = $request->fee;
-            }elseif($fee_type == FeeType::Guest){
-                $monthly_fee = 0;
-                $regular_monthly_fee = 0;
-            }elseif($fee_type == FeeType::HalfButThisMonthGeneral){
-                $fee_type = FeeType::Half;
-                $regular_monthly_fee = $request->fee;
-            }elseif($fee_type == FeeType::GuestButThisMonthGeneral){
-                $fee_type = FeeType::Guest;
-                $regular_monthly_fee = 0;
-            } 
-
-            $active_month = HijriMonth::where('is_active', true)->first();
-            if (!$active_month) {
-                DB::rollBack();
-                return error_response(null, 400, "কোন অ্যাকটিভ হিজরি মাস নেই।");
-            } 
-
-            $enrole = Enrole::create([
+            // Create enrollment using service
+            $enrole = EnrollmentService::createEnrollment([
                 'user_id' => $id,
-                'roll_number' => $request->roll_number,
                 'student_id' => $student->id,
                 'department_id' => $department_id,
                 'session' => $request->session,
-                'year' => $active_month->year,
-                'fee_type' =>  $fee_type,
-                'fee' => $request->fee ?? null,
-                'status' => 1,
-            ]); 
-
-            Payment::create([
-                'user_id' => $id,
-                'student_id' => $student->id,
-                'enrole_id' => $enrole->id,
-                'hijri_month_id' => $active_month->id,
-                'reason' => 1,
-                'year' => $active_month->year,
-                'amount' => $admission_fee,
-                'due' => $admission_fee,
-                'created_by' => Auth::user()->id,
-                'updated_by' => Auth::user()->id,
-            ]); 
-
-            Payment::create([
-                'user_id' => $id,
-                'student_id' => $student->id,
-                'enrole_id' => $enrole->id,
-                'hijri_month_id' => $active_month->id,
-                'reason' => 2,
-                'year' => $active_month->year,
+                'roll_number' => $request->roll_number,
                 'fee_type' => $request->fee_type,
-                'amount' => $monthly_fee,
-                'due' => $monthly_fee,
-                'created_by' => Auth::user()->id,
-                'updated_by' => Auth::user()->id,
+                'fee' => $request->fee ?? null,
+                'admission_fee' => $admission_fee,
+                'status' => 1,
             ]);
-
-            $months = HijriMonth::where('id',">",$active_month->id)->get();
-            foreach($months as $month){
-                Payment::create([
-                    'user_id' => $id,
-                    'student_id' => $student->id,
-                    'enrole_id' => $enrole->id,
-                    'hijri_month_id' => $month->id,
-                    'reason' => 2,
-                    'year' => $enrole->year,
-                    'fee_type' => $enrole->fee_type,
-                    'amount' => $regular_monthly_fee,
-                    'due' => $regular_monthly_fee,
-                    'created_by' => Auth::user()->id,
-                    'updated_by' => Auth::user()->id,
-                ]);
-            }
 
             $user->admissionProgress->is_admission_completed=1;
             $user->admissionProgress->save();
@@ -377,88 +313,18 @@ class StudentController extends Controller
                 'status' => $request->input('status') ?? 1
             ]);
  
-            $fee_type = $request->fee_type;
-            $regular_monthly_fee = $monthly_fee;
-            if ($fee_type == FeeType::Half) {
-                $monthly_fee = $request->fee;
-                $regular_monthly_fee = $request->fee;
-            } elseif ($fee_type == FeeType::Guest) {
-                $monthly_fee = 0;
-                $regular_monthly_fee = 0;
-            } elseif ($fee_type == FeeType::HalfButThisMonthGeneral) {
-                $fee_type = FeeType::Half;
-                $regular_monthly_fee = $request->fee;
-            } elseif ($fee_type == FeeType::GuestButThisMonthGeneral) {
-                $fee_type = FeeType::Guest;
-                $regular_monthly_fee = 0;
-            }
-
-            // Get active month
-            $active_month = HijriMonth::where('is_active', true)->first();
-            if (!$active_month) {
-                DB::rollBack();
-                return error_response(null, 400, "কোন অ্যাকটিভ হিজরি মাস নেই।");
-            }
-
-            // Create Enrole
-            $enrole = Enrole::create([
+            // Create enrollment using service
+            $enrole = EnrollmentService::createEnrollment([
                 'user_id' => $user->id,
-                'roll_number' => $request->roll_number,
                 'student_id' => $student->id,
                 'department_id' => $department_id,
                 'session' => $request->session,
-                'year' => $active_month->year,
-                'fee_type' => $fee_type,
+                'roll_number' => $request->roll_number,
+                'fee_type' => $request->fee_type,
                 'fee' => $request->fee ?? null,
+                'admission_fee' => $admission_fee,
                 'status' => 1,
             ]);
-
-            // Create Admission Fee Payment
-            Payment::create([
-                'user_id' => $user->id,
-                'student_id' => $student->id,
-                'enrole_id' => $enrole->id,
-                'hijri_month_id' => $active_month->id,
-                'reason' => FeeReason::ADMISSION,
-                'year' => $active_month->year,
-                'amount' => $admission_fee,
-                'due' => $admission_fee,
-                'created_by' => Auth::user()->id,
-                'updated_by' => Auth::user()->id,
-            ]);
-
-            // Create Monthly Fee Payment for current month
-            Payment::create([
-                'user_id' => $user->id,
-                'student_id' => $student->id,
-                'enrole_id' => $enrole->id,
-                'hijri_month_id' => $active_month->id,
-                'reason' => FeeReason::MONTHLY,
-                'year' => $active_month->year,
-                'fee_type' => $request->fee_type,
-                'amount' => $monthly_fee,
-                'due' => $monthly_fee,
-                'created_by' => Auth::user()->id,
-                'updated_by' => Auth::user()->id,
-            ]);
-
-            // Create Monthly Fee Payments for future months
-            $months = HijriMonth::where('id', ">", $active_month->id)->get();
-            foreach ($months as $month) {
-                Payment::create([
-                    'user_id' => $user->id,
-                    'student_id' => $student->id,
-                    'enrole_id' => $enrole->id,
-                    'hijri_month_id' => $month->id,
-                    'reason' => 2,
-                    'year' => $enrole->year,
-                    'fee_type' => $enrole->fee_type,
-                    'amount' => $regular_monthly_fee,
-                    'due' => $regular_monthly_fee,
-                    'created_by' => Auth::user()->id,
-                    'updated_by' => Auth::user()->id,
-                ]);
-            }
 
             DB::commit();
             return success_response($user, "সরাসরি ভর্তি সফলভাবে সম্পন্ন হয়েছে।", 201);
