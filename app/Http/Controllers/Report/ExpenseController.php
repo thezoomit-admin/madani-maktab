@@ -63,21 +63,16 @@ class ExpenseController extends Controller
                     return [
                         'id' => $item->id,
                         'month' => app(HijriDateService::class)->getHijri($item->created_at),  
-                        'expense_category_id' => $item->expense_category_id,
                         'expense_category_name' => optional($item->category)->name,
-                        'expense_sub_category_id' => $item->expense_sub_category_id,
                         'expense_sub_category_name' => optional($item->subCategory)->name,
-                        'vendor_id' => $item->vendor_id,
-                        'payment_method_id' => $item->payment_method_id,
-                        'amount' => $item->amount,
-                        'total_amount' => $item->total_amount,
                         'description' => $item->description,
                         'measurement' => $item->measurement,
-                        'measurment_unit_id' => $item->measurment_unit_id,
                         'measurment_unit' => optional($item->measurmentUnit)->short_name,
-                        'voucher_no' => $item->voucher_no,
-                        'image' => $item->image,
+                        'amount' => $item->amount,
+                        'total_amount' => $item->total_amount,
                         'vendor' => optional($item->vendor)->name,
+                        'image' => $item->image,
+                        'voucher_no' => $item->voucher_no,
                     ];
                 });
 
