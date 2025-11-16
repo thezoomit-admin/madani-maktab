@@ -6,16 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('employee_designations', function (Blueprint $table) {
+        Schema::create('employee_roles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('employee_id')->constrained()->onDelete('cascade');
-            $table->foreignId('designation_id')->constrained()->onDelete('cascade');
+            $table->foreignId('role_id')->constrained()->onDelete('cascade');
             $table->timestamp('start_date')->nullable();
             $table->timestamp('end_date')->nullable();
             $table->softDeletes();
@@ -23,11 +19,10 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('employee_designations');
+        Schema::dropIfExists('employee_roles');
     }
 };
+
+

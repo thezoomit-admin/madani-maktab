@@ -5,6 +5,7 @@ use App\Helpers\ReportingService;
 use App\Http\Controllers\Admin\Admission\InterviewController;
 use App\Http\Controllers\Student\AttendanceSyncController;
 use App\Models\Admission;
+use App\Models\EmployeeRole;
 use App\Models\Enrole;
 use App\Models\Expense;
 use App\Models\HijriMonth;
@@ -39,6 +40,19 @@ Route::get('/sync-attendance', [AttendanceSyncController::class, 'sync']);
 
 Route::get('/',function(){
      dd("Success");
+});
+
+Route::get('/set-role',function(){
+     $users = User::where('user_type','teacher')->whereNotNull('role_id')->get();
+     foreach($users as $user){
+          EmployeeRole::create([
+               'user_id' => $user->id,
+               'role_id' => $user->role_id,
+               'start_date' => now(),
+               'end_date' => null,
+          ]);
+     }
+     return "Role ID set successfully!";
 });
 
 Route::get('/refresh', function () {  

@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\AffiliatePayoutInfo;
 use App\Models\Permission;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -13,14 +14,19 @@ use Illuminate\Validation\ValidationException;
 class LoginService {
 
     public static function createResponse($user)
-    {  
+    {
         $token = $user->createToken('authToken')->plainTextToken; 
         if($user->user_type=="student"){
-            $permission = ['student'];
+            $permission = get_permissions($user->id, 'student');
             $role = 'student';
         }else{
-            $permission = $user->getPermissionsSlugs();
-            $role = $user->role->slug;
+            $permission = get_permissions($user->id);
+            $currentRole = get_current_role($user->id);
+            $role = null;
+            if ($currentRole && isset($currentRole['role_id'])) {
+                $roleModel = Role::find($currentRole['role_id']);
+                $role = $roleModel ? $roleModel->slug : null;
+            }
         } 
         
         $data = [

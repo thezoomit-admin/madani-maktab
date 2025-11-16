@@ -61,11 +61,12 @@ class LoginRequest extends FormRequest
                 throw ValidationException::withMessages(['reg_id' => "Invalid Reg Number"]);
             }
         } 
-        if (!$user || !Hash::check($password, $user->password)) {
+        // Wrong password handling (user already ensured)
+        if (!Hash::check($password, $user->password)) {
             RateLimiter::hit($this->throttleKey());
-    
-            throw ValidationException::withMessages(['email' => __('auth.failed')]);
-        }  
+            throw ValidationException::withMessages(['password' => "Invalid Password"]);
+        }
+ 
         Auth::login($user, $remember); 
         RateLimiter::clear($this->throttleKey());
     } 

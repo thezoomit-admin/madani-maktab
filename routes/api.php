@@ -118,6 +118,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('role', RoleController::class); 
     Route::resource('role-permission',RolePermissionController::class);
     Route::resource('employee', EmployeeController::class);  
+    Route::post('employee/{id}/change-role', [EmployeeController::class, 'changeRole']);
     Route::post('interview-schedule', [InterviewController::class,'schedule']);
     Route::post('interview-result',[InterviewController::class,'result']);
 

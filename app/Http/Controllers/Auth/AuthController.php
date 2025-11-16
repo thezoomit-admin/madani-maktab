@@ -8,7 +8,6 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\Company;
 use App\Models\Employee;
-use App\Models\EmployeeDesignation;
 use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\UserContact;
@@ -24,9 +23,18 @@ class AuthController extends Controller
 {
     public function login(LoginRequest $request)
     {   
-        $request->authenticate(); 
-        $user = Auth::user();  
-        return LoginService::createResponse($user);
+        try {
+            $request->authenticate(); 
+            $user = Auth::user();  
+            return LoginService::createResponse($user);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $errors = $e->errors();
+            $message = isset($errors['email']) ? $errors['email'][0] : (isset($errors['reg_id']) ? $errors['reg_id'][0] : 'Invalid credentials');
+            return error_response($errors, 422, $message);
+        } catch (\Throwable $e) {
+            dd($e);
+            return error_response(null, 401, 'Invalid credentials');
+        }
     } 
  
 

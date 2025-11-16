@@ -70,6 +70,16 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class, 'role_id');
     }
 
+    public function employeeRoles()
+    {
+        return $this->hasMany(EmployeeRole::class);
+    }
+
+    public function currentEmployeeRole()
+    {
+        return $this->hasOne(EmployeeRole::class)->whereNull('end_date')->latestOfMany('start_date');
+    }
+
     public function enroles()
     {
         return $this->hasMany(Enrole::class);
@@ -128,7 +138,7 @@ class User extends Authenticatable
 
     public function getPermissionsSlugs()
     {
-        return $this->role->permissions->pluck('slug')->toArray();
+        return get_permissions($this->id, $this->user_type);
     } 
  
  

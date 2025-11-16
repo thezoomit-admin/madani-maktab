@@ -17,18 +17,20 @@ class EmployeeController extends Controller
     {
         try {
             $data = User::where('user_type', 'teacher')
-                        ->with('role')
                         ->where('deleted_at', null) 
                         ->get();
             
             $result = $data->map(function ($user) {
+                $currentRole = get_current_role($user->id);
                 return [
                     'id' => $user->id,
+                    'reg_id' => $user->reg_id,
                     'name' => $user->name,
                     'phone' => $user->phone,
                     'email' => $user->email,
                     'profile_image' => $user->profile_image,
-                    'role' => $user->role ? $user->role->name : null, 
+                    'role' => $currentRole ? $currentRole['role_name'] : null,
+                    'role_details' => $currentRole,
                 ];
             });
 
@@ -52,15 +54,21 @@ class EmployeeController extends Controller
                 $profilePicPath = $request->file('profile_image')->store('profile_images', 'public');
             }
      
-            User::create([
+            $user = User::create([
+                'reg_id' => $request->reg_id,
                 'name' => $request->user_name,
                 'email' => $request->user_email,
                 'phone' => $request->user_phone,
                 'password' => Hash::make("12345678"),  
                 'user_type' => 'teacher',  
                 'profile_image' => $profilePicPath, 
-                'role_id' => $request->role_id,  
             ]);   
+            // Create initial employee role
+            \App\Models\EmployeeRole::create([
+                'user_id' => $user->id,
+                'role_id' => $request->role_id,
+                'start_date' => now(),
+            ]);
     
             DB::commit();   
     
@@ -78,7 +86,7 @@ class EmployeeController extends Controller
             'user_name' => 'required|string|max:255',
             'user_email' => 'required|email|unique:users,email,' . $id,
             'user_phone' => 'nullable|string|max:20',
-            'role_id' => 'required|integer|exists:roles,id',
+            'reg_id' => 'nullable|string|max:255|unique:users,reg_id,' . $id,
             'profile_image' => 'nullable',
         ]);
 
@@ -99,16 +107,56 @@ class EmployeeController extends Controller
                 $user->save();
             }  
             $user->update([
+                'reg_id' => $request->reg_id,
                 'name' => $request->user_name,
                 'email' => $request->user_email,
-                'phone' => $request->user_phone, 
-                'role_id' => $request->role_id,  
+                'phone' => $request->user_phone,  
             ]); 
             DB::commit();   
             return success_response(null, 'Employee details have been updated successfully!');
         } catch (\Exception $e) {
             DB::rollBack(); 
             return error_response($e->getMessage());  
+        }
+    }
+
+    public function changeRole($id, Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'role_id' => 'required|integer|exists:roles,id',
+            'start_date' => 'required|date',
+        ]);
+
+        if ($validator->fails()) {
+            return error_response($validator->errors()->first());
+        }
+
+        DB::beginTransaction();
+        try {
+            $user = User::findOrFail($id);
+
+            // Close previous active role (if any)
+            $current = \App\Models\EmployeeRole::where('user_id', $user->id)
+                ->whereNull('end_date')
+                ->orderByDesc('start_date')
+                ->first();
+            if ($current) {
+                $current->end_date = $request->start_date;
+                $current->save();
+            }
+
+            // Assign new role
+            \App\Models\EmployeeRole::create([
+                'user_id' => $user->id,
+                'role_id' => $request->role_id,
+                'start_date' => $request->start_date,
+            ]);
+
+            DB::commit();
+            return success_response(null, 'Employee role changed successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return error_response($e->getMessage());
         }
     }
 

@@ -58,3 +58,72 @@ if (!function_exists('enum_name')) {
 }
 
 
+if (!function_exists('get_current_role')) {
+    /**
+     * Get current role of a user safely
+     *
+     * @param int $userId
+     * @return array|null
+     */
+    function get_current_role($userId)
+    {
+        // Step 1: Ensure $userId is valid integer
+        if (!is_numeric($userId) || $userId <= 0) {
+            return null;
+        }
+
+        $userId = (int)$userId;
+        $today = now()->toDateString();
+
+        try {
+            $role = \App\Models\EmployeeRole::with('role')
+                ->where('user_id', $userId)
+                ->whereDate('start_date', '<=', $today)
+                ->where(function ($q) use ($today) {
+                    $q->whereNull('end_date')
+                      ->orWhereDate('end_date', '>=', $today);
+                })
+                ->orderByDesc('start_date')
+                ->first();
+        } catch (\Exception $e) {
+            // Catch any DB or query errors and return null
+            return null;
+        }
+
+        // If no role found, return null
+        if (!$role) {
+            return null;
+        }
+
+        // Return safe array, handle missing relation
+        return [
+            'role_id'   => $role->role_id ?? null,
+            'role_name' => $role->role?->name ?? null,
+            'start_date'=> $role->start_date ?? null,
+            'end_date'  => $role->end_date ?? null,
+        ];
+    }
+}
+
+
+if (!function_exists('get_permissions')) {
+   
+    function get_permissions(int $userId, ?string $userType = null): array
+    {
+        // Students have fixed permission set
+        if ($userType === 'student') {
+            return ['student'];
+        }
+
+        // Try current role from employee_roles
+        $currentRole = get_current_role($userId);
+        if ($currentRole && isset($currentRole['role_id'])) {
+            $roleModel = \App\Models\Role::with('permissions')->find($currentRole['role_id']);
+            if ($roleModel) {
+                return $roleModel->permissions->pluck('slug')->toArray();
+            }
+        }
+        return [];
+    }
+}
+

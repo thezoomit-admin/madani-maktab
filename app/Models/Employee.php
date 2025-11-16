@@ -39,7 +39,7 @@ class Employee extends Model
 
     public function employeeDesignations()
     {
-        return $this->hasMany(EmployeeDesignation::class);
+        return $this->hasMany(\App\Models\EmployeeRole::class);
     }
     
 }
