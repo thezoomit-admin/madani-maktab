@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->string('employee_id')->uniqid();
+            $table->foreignId('user_id')->constrained(); 
             $table->string('signature')->nullable(); 
 
             $table->foreignId('ref_id')->nullable()->constrained('users');  
 
-            $table->tinyInteger('status')->default(1)->comment('1= Active, 0= Inactive'); 
+            $table->tinyInteger('status')->default(1)->comment('1= Active, 0= Deactive'); 
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->unsignedBigInteger('deleted_by')->nullable();

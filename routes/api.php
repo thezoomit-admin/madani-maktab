@@ -119,6 +119,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('role-permission',RolePermissionController::class);
     Route::resource('employee', EmployeeController::class);  
     Route::post('employee/{id}/change-role', [EmployeeController::class, 'changeRole']);
+    Route::prefix('employee/{id}')->group(function () {
+        Route::post('update-basic', [EmployeeController::class, 'updateBasic']);
+        Route::post('update-family', [EmployeeController::class, 'updateFamily']);
+        Route::post('update-address', [EmployeeController::class, 'updateAddress']);
+        Route::get('role-history', [EmployeeController::class, 'roleHistory']);
+    });
     Route::post('interview-schedule', [InterviewController::class,'schedule']);
     Route::post('interview-result',[InterviewController::class,'result']);
 
