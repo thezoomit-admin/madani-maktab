@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Models\ActionLog;
+use Illuminate\Support\Facades\Log;
 
 class ActionLogger
 {
@@ -21,7 +22,7 @@ class ActionLogger
             try {
                 $clientDetails = json_decode($request->header('x-client-details'), true);
             } catch (\Exception $e) {
-                \Log::warning('Invalid x-client-details JSON');
+                Log::warning('Invalid x-client-details JSON');
             }
         }
 
@@ -58,17 +59,37 @@ class ActionLogger
         try {
             ActionLog::create($payload);
         } catch (\Exception $e) {
-            \Log::error("❌ Failed to save action log: " . $e->getMessage());
+            Log::error("❌ Failed to save action log: " . $e->getMessage());
         }
 
         return $response;
     }
 
-    private function formatUptime(): string
+    private function formatUptime(): ?string
     {
-        $uptimeSeconds = (int) shell_exec('awk \'{print $1}\' /proc/uptime');
-        $hours = floor($uptimeSeconds / 3600);
-        $minutes = floor(($uptimeSeconds % 3600) / 60);
+        if (is_readable('/proc/uptime')) {
+            $contents = @file_get_contents('/proc/uptime');
+            if ($contents !== false) {
+                $uptimeSeconds = (int) floatval(explode(' ', trim($contents))[0]);
+                return $this->formatDuration($uptimeSeconds);
+            }
+        }
+
+        if (function_exists('shell_exec')) {
+            $seconds = @shell_exec("awk '{print $1}' /proc/uptime");
+            if ($seconds !== null) {
+                $uptimeSeconds = (int) floatval($seconds);
+                return $this->formatDuration($uptimeSeconds);
+            }
+        }
+
+        return null;
+    }
+
+    private function formatDuration(int $seconds): string
+    {
+        $hours = intdiv($seconds, 3600);
+        $minutes = intdiv($seconds % 3600, 60);
         return "{$hours} hours {$minutes} minutes";
     }
 }

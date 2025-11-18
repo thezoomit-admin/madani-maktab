@@ -142,9 +142,13 @@ class ExpenseController extends Controller
                 $image->move(public_path('uploads/expenses'), $imageName);
                 $imagePath = asset('uploads/expenses/' . $imageName);
             }
+ 
+            $lastNumber = Expense::whereNotNull('expenses_no')->max('expenses_no');
+            $expenses_no = $lastNumber ? $lastNumber + 1 : 1;
 
             foreach ($request->expenses as $expense) {
                 Expense::create([
+                    'expenses_no' => $expenses_no,
                     'user_id' => Auth::id(),
                     'expense_category_id' => $request->expense_category_id,
                     'expense_sub_category_id' => $request->expense_sub_category_id,
