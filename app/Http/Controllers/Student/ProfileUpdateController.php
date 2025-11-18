@@ -23,13 +23,13 @@ class ProfileUpdateController extends Controller
         $user = User::findOrFail($id);
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'roll_number' => 'nullable|integer',
+            'roll_number' => 'nullable|string',
             'profile_image' => 'nullable|image|max:2048',
-            'reg_id' => 'nullable|integer',
+            'reg_id' => 'nullable|string',
             'dob' => 'nullable|date',
             'dob_hijri' => 'nullable|string|max:30',
             'blood_group' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
-            'jamaat' => 'nullable|integer',
+            'jamaat' => 'nullable|string',
             'gender' => 'nullable|in:male,female,others',
             'status' => 'nullable|integer',
         ]);
