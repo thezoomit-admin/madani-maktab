@@ -79,10 +79,10 @@ class CollectionController extends Controller
                 return [
                     'id' => $item->id,
                     'date' => app(HijriDateService::class)->getHijri($item->created_at),
-                    'payment_method_icon' => image_url($item->paymentMethod->icon),
+                    'payment_method_icon' => $item->paymentMethod->icon,
                     'description' => $item->description,
                     'amount' => $item->amount,
-                    'image' => image_url($item->image),
+                    'image' => $item->image,
                 ];
             });
 

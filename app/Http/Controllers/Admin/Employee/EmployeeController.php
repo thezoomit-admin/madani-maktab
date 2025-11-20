@@ -30,7 +30,7 @@ class EmployeeController extends Controller
                     'name' => $user->name,
                     'phone' => $user->phone,
                     'email' => $user->email,
-                    'profile_image' => image_url($user->profile_image),
+                    'profile_image' => $user->profile_image,
                     'role' => $currentRole ? $currentRole['role_name'] : null,
                     'role_details' => $currentRole,
                 ];
@@ -229,7 +229,7 @@ class EmployeeController extends Controller
             $result = [
                 'basic' => [
                     'name' => $user->name,
-                    'profile_image' => image_url($user->profile_image),
+                    'profile_image' => $user->profile_image,
                     'office_phone' => $contact->office_phone ?? null,
                     'personal_phone' => $contact->personal_phone ?? null,
                     'email' => $user->email,

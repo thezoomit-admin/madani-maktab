@@ -15,10 +15,7 @@ class PaymentMethodController extends Controller
     use HandlesImageUpload;
     public function index()
     {
-        $paymentMethods = PaymentMethod::all()->map(function ($method) {
-            $method->icon = image_url($method->icon);
-            return $method;
-        });
+        $paymentMethods = PaymentMethod::all();
 
         $totalIncome = $paymentMethods->sum('income_in_hand');
         $totalExpense = $paymentMethods->sum('expense_in_hand');

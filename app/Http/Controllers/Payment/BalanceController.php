@@ -13,10 +13,7 @@ class BalanceController extends Controller
 {
     public function incomeBalance()
     {
-        $payment_methods = PaymentMethod::select('id','icon','name','income_in_hand as balance')->get()->map(function ($method) {
-            $method->icon = image_url($method->icon);
-            return $method;
-        });
+        $payment_methods = PaymentMethod::select('id','icon','name','income_in_hand as balance')->get();
         $total = $payment_methods->sum('balance'); 
         return success_response([
             'payment_methods' => $payment_methods,
@@ -25,10 +22,7 @@ class BalanceController extends Controller
     }  
 
     public function expenseBalance(){
-        $payment_methods = PaymentMethod::select('id','icon','name','expense_in_hand as balance')->get()->map(function ($method) {
-            $method->icon = image_url($method->icon);
-            return $method;
-        });
+        $payment_methods = PaymentMethod::select('id','icon','name','expense_in_hand as balance')->get();
         $total = $payment_methods->sum('balance'); 
         return success_response([
             'payment_methods' => $payment_methods,

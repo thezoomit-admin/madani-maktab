@@ -110,7 +110,7 @@ class PaymentController extends Controller
                             'payment_method'    => @$item->paymentMethod->name??"-",
                             'payer_account'     => @$item->payer_account,
                             'amount'            => $item->amount,
-                            'image'             => image_url($item->image),
+                            'image'             => $item->image,
                             'date'              => app(HijriDateService::class)->getHijri($item->created_at), 
                             'is_approved'       => $item->is_approved,
                         ];

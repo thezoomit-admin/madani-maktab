@@ -78,7 +78,7 @@ class ExpenseController extends Controller
                         'measurment_unit_id' => $item->measurment_unit_id,
                         'measurment_unit' => optional($item->measurmentUnit)->short_name,
                         'voucher_no' => $item->voucher_no,
-                        'image' => image_url($item->image),
+                        'image' => $item->image,
                         'vendor' => optional($item->vendor)->name,
                     ];
                 });

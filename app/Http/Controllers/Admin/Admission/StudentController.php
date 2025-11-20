@@ -89,7 +89,7 @@ class StudentController extends Controller
                 ->first();   
             if ($user && $user->answerFiles) { 
                 $user->answerFiles = $user->answerFiles->map(function ($file) {
-                    return image_url($file->link);
+                    return $file->link;
                 })->toArray();
             } else { 
                 $user->answerFiles = [];

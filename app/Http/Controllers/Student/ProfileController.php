@@ -54,7 +54,7 @@ class ProfileController extends Controller
                 'name' => $user->name,
                 // 'phone' => $user->phone,
                 'roll_number' => $last_enrole?$last_enrole->roll_number:'',
-                'profile_image' => image_url($user->profile_image),
+                'profile_image' => $user->profile_image,
                 'reg_id' => $user->reg_id,
                 'dob_hijri' => $user->dob_hijri,
                 'dob_english' => $user->dob,
@@ -118,10 +118,7 @@ class ProfileController extends Controller
             //     'is_bath_before_sleep' => optional($family_data)->is_bath_before_sleep,
             // ];
 
-            $answerFiles = $user->answerFiles ? $user->answerFiles->map(function ($file) {
-                $file->link = image_url($file->link);
-                return $file;
-            }) : [];
+            $answerFiles = $user->answerFiles ?? [];
 
             $datas = [
                 "basic" => $basic,
