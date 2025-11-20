@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Employee;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EmployeeStoreResource; 
 use App\Models\User;
+use App\Traits\HandlesImageUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -12,7 +13,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class EmployeeController extends Controller
-{ 
+{
+    use HandlesImageUpload; 
     public function index()
     {
         try {
@@ -28,7 +30,7 @@ class EmployeeController extends Controller
                     'name' => $user->name,
                     'phone' => $user->phone,
                     'email' => $user->email,
-                    'profile_image' => $user->profile_image,
+                    'profile_image' => image_url($user->profile_image),
                     'role' => $currentRole ? $currentRole['role_name'] : null,
                     'role_details' => $currentRole,
                 ];
@@ -48,10 +50,7 @@ class EmployeeController extends Controller
                 return error_response(null,400,"Email already exists!");
             }
      
-            $profilePicPath = null;
-            if ($request->hasFile('profile_image')) {
-                $profilePicPath = $request->file('profile_image')->store('profile_images', 'public');
-            }
+            $profilePicPath = $this->uploadImage($request, 'profile_image', 'uploads/profile_images');
      
             $user = User::create([
                 'reg_id' => $request->reg_id,
@@ -96,13 +95,11 @@ class EmployeeController extends Controller
         try {
             $user = User::findOrFail($id);   
              if ($request->hasFile('profile_image')) { 
-                $profileImage = $request->file('profile_image'); 
-                $profileImageName = time() . '_' . $profileImage->getClientOriginalName(); 
-                $profileImage->move(public_path('uploads/profile_images'), $profileImageName); 
-                $profileImageUrl = asset('uploads/profile_images/' . $profileImageName);
-
-                $user->profile_image = $profileImageUrl;
-                $user->save();
+                $profileImageUrl = $this->uploadImage($request, 'profile_image', 'uploads/profile_images');
+                if ($profileImageUrl) {
+                    $user->profile_image = $profileImageUrl;
+                    $user->save();
+                }
             }  
             $user->update([
                 'reg_id' => $request->reg_id,
@@ -232,7 +229,7 @@ class EmployeeController extends Controller
             $result = [
                 'basic' => [
                     'name' => $user->name,
-                    'profile_image' => $user->profile_image,
+                    'profile_image' => image_url($user->profile_image),
                     'office_phone' => $contact->office_phone ?? null,
                     'personal_phone' => $contact->personal_phone ?? null,
                     'email' => $user->email,
@@ -302,12 +299,11 @@ class EmployeeController extends Controller
             ]);
 
             if ($request->hasFile('profile_image')) {
-                $profileImage = $request->file('profile_image');
-                $profileImageName = time() . '_' . $profileImage->getClientOriginalName();
-                $profileImage->move(public_path('uploads/profile_images'), $profileImageName);
-                $profileImageUrl = asset('uploads/profile_images/' . $profileImageName);
-                $user->profile_image = $profileImageUrl;
-                $user->save();
+                $profileImageUrl = $this->uploadImage($request, 'profile_image', 'uploads/profile_images');
+                if ($profileImageUrl) {
+                    $user->profile_image = $profileImageUrl;
+                    $user->save();
+                }
             }
 
             $employee = \App\Models\Employee::firstOrCreate(['user_id' => $user->id]);

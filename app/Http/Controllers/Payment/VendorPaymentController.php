@@ -6,13 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\PaymentMethod;
 use App\Models\Vendor;
 use App\Models\VendorPayment;
+use App\Traits\HandlesImageUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class VendorPaymentController extends Controller
-{  
+{
+    use HandlesImageUpload;  
     public function payment(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -33,13 +35,7 @@ class VendorPaymentController extends Controller
             return error_response(null, 404, $payment_method->name . ' অ্যাকাউন্টে ' . $amount . ' টাকা নেই।');
         }
 
-         $imagePath = null;
-            if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $imageName = time() . '_' . $image->getClientOriginalName();
-                $image->move(public_path('uploads/due_pay'), $imageName);
-                $imagePath = asset('uploads/due_pay/' . $imageName);
-            }
+         $imagePath = $this->uploadImage($request, 'image', 'uploads/due_pay');
 
 
         DB::beginTransaction();

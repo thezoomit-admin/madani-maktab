@@ -8,6 +8,7 @@ use App\Models\Expense;
 use App\Models\ExpensePayment;
 use App\Models\PaymentMethod;
 use App\Models\Vendor;
+use App\Traits\HandlesImageUpload;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class ExpenseController extends Controller
-{ 
+{
+    use HandlesImageUpload; 
     public function index(Request $request)
     {
         $month = $request->filled('month_id')
@@ -76,7 +78,7 @@ class ExpenseController extends Controller
                         'measurment_unit_id' => $item->measurment_unit_id,
                         'measurment_unit' => optional($item->measurmentUnit)->short_name,
                         'voucher_no' => $item->voucher_no,
-                        'image' => $item->image,
+                        'image' => image_url($item->image),
                         'vendor' => optional($item->vendor)->name,
                     ];
                 });
@@ -135,13 +137,7 @@ class ExpenseController extends Controller
                 }
             }
 
-            $imagePath = null;
-            if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $imageName = time() . '_' . $image->getClientOriginalName();
-                $image->move(public_path('uploads/expenses'), $imageName);
-                $imagePath = asset('uploads/expenses/' . $imageName);
-            }
+            $imagePath = $this->uploadImage($request, 'image', 'uploads/expenses');
  
             $lastNumber = Expense::whereNotNull('expenses_no')->max('expenses_no');
             $expenses_no = $lastNumber ? $lastNumber + 1 : 1;
@@ -313,10 +309,7 @@ class ExpenseController extends Controller
                 }
 
                 // Upload new image
-                $image = $request->file('image');
-                $imageName = time() . '_' . $image->getClientOriginalName();
-                $image->move(public_path('uploads/expenses'), $imageName);
-                $imagePath = asset('uploads/expenses/' . $imageName);
+                $imagePath = $this->uploadImage($request, 'image', 'uploads/expenses');
             }
 
             // Prepare update data

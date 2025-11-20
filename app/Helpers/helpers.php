@@ -127,3 +127,23 @@ if (!function_exists('get_permissions')) {
     }
 }
 
+if (!function_exists('image_url')) {
+   
+    function image_url(?string $path): ?string
+    {
+        if (empty($path)) {
+            return null;
+        }
+
+        $baseUrl = env('APP_IMAGE_URL');
+        
+        if ($baseUrl) { 
+            $baseUrl = rtrim($baseUrl, '/');
+            $path = ltrim($path, '/');
+            return $baseUrl . '/' . $path;
+        }
+ 
+        return asset($path);
+    }
+}
+

@@ -17,6 +17,7 @@ use App\Models\UserFamily;
 use App\Models\StudentRegister;
 use App\Models\Guardian;
 use App\Models\UserAddress;
+use App\Traits\HandlesImageUpload;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -30,7 +31,7 @@ use App\Services\EnrollmentService;
 
 class StudentController extends Controller
 {
-    use PaginateTrait, HandlesStudentStatus; 
+    use PaginateTrait, HandlesStudentStatus, HandlesImageUpload; 
     public function index(Request $request)
     {
         $status = $request->status; 
@@ -87,7 +88,9 @@ class StudentController extends Controller
                 })
                 ->first();   
             if ($user && $user->answerFiles) { 
-                $user->answerFiles = $user->answerFiles->pluck('link')->toArray();
+                $user->answerFiles = $user->answerFiles->map(function ($file) {
+                    return image_url($file->link);
+                })->toArray();
             } else { 
                 $user->answerFiles = [];
             }
@@ -211,13 +214,7 @@ class StudentController extends Controller
             $currentDate = Carbon::now();
             $ageMonths = $dob->diffInMonths($currentDate);
  
-            $profileImageUrl = null;
-            if ($request->hasFile('profile_image')) {
-                $profileImage = $request->file('profile_image');
-                $profileImageName = time() . '_' . $profileImage->getClientOriginalName();
-                $profileImage->move(public_path('uploads/profile_images'), $profileImageName);
-                $profileImageUrl = asset('uploads/profile_images/' . $profileImageName);
-            }
+            $profileImageUrl = $this->uploadImage($request, 'profile_image', 'uploads/profile_images');
 
             // Create User 
             $reg_id = $request->reg_id;

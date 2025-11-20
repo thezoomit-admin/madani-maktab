@@ -18,6 +18,9 @@ use App\Models\StudentRegister;
 use App\Models\TeacherComment;
 use App\Models\User;
 use App\Models\Vendor;
+use App\Models\VendorPayment;
+use App\Models\ProductImage;
+use App\Models\AnswerFile;
 use App\Services\PhoneMessageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -42,17 +45,101 @@ Route::get('/',function(){
      dd("Success");
 });
 
-Route::get('/set-role',function(){
-     $users = User::where('user_type','teacher')->whereNotNull('role_id')->get();
+Route::get('/remove-url',function(){
+     $baseUrl = 'https://madani.zoomdigital.net/';
+     $count = 0;
+     
+     // 1. Users - profile_image
+     $users = User::whereNotNull('profile_image')->get();
      foreach($users as $user){
-          EmployeeRole::create([
-               'user_id' => $user->id,
-               'role_id' => $user->role_id,
-               'start_date' => now(),
-               'end_date' => null,
-          ]);
+          if(strpos($user->profile_image, $baseUrl) !== false){
+               $user->profile_image = str_replace($baseUrl, '', $user->profile_image);
+               $user->save();
+               $count++;
+          }
      }
-     return "Role ID set successfully!";
+     
+     // 2. Student Registers - handwriting_image
+     $registers = StudentRegister::whereNotNull('handwriting_image')->get();
+     foreach($registers as $register){
+          if(strpos($register->handwriting_image, $baseUrl) !== false){
+               $register->handwriting_image = str_replace($baseUrl, '', $register->handwriting_image);
+               $register->save();
+               $count++;
+          }
+     }
+     
+     // 3. Expenses - image
+     $expenses = Expense::whereNotNull('image')->get();
+     foreach($expenses as $expense){
+          if(strpos($expense->image, $baseUrl) !== false){
+               $expense->image = str_replace($baseUrl, '', $expense->image);
+               $expense->save();
+               $count++;
+          }
+     }
+     
+     // 4. Vendor Payments - image
+     $vendorPayments = VendorPayment::whereNotNull('image')->get();
+     foreach($vendorPayments as $payment){
+          if(strpos($payment->image, $baseUrl) !== false){
+               $payment->image = str_replace($baseUrl, '', $payment->image);
+               $payment->save();
+               $count++;
+          }
+     }
+     
+     // 5. Payment Transactions - image
+     $paymentTransactions = PaymentTransaction::whereNotNull('image')->get();
+     foreach($paymentTransactions as $transaction){
+          if(strpos($transaction->image, $baseUrl) !== false){
+               $transaction->image = str_replace($baseUrl, '', $transaction->image);
+               $transaction->save();
+               $count++;
+          }
+     }
+     
+     // 6. Office Transactions - image
+     $officeTransactions = OfficeTransaction::whereNotNull('image')->get();
+     foreach($officeTransactions as $transaction){
+          if(strpos($transaction->image, $baseUrl) !== false){
+               $transaction->image = str_replace($baseUrl, '', $transaction->image);
+               $transaction->save();
+               $count++;
+          }
+     }
+     
+     // 7. Payment Methods - icon
+     $paymentMethods = PaymentMethod::whereNotNull('icon')->get();
+     foreach($paymentMethods as $method){
+          if(strpos($method->icon, $baseUrl) !== false){
+               $method->icon = str_replace($baseUrl, '', $method->icon);
+               $method->save();
+               $count++;
+          }
+     }
+     
+     // 8. Product Images - image_path
+     $productImages = ProductImage::whereNotNull('image_path')->get();
+     foreach($productImages as $productImage){
+          if(strpos($productImage->image_path, $baseUrl) !== false){
+               $productImage->image_path = str_replace($baseUrl, '', $productImage->image_path);
+               $productImage->save();
+               $count++;
+          }
+     }
+     
+     // 9. Answer Files - link
+     $answerFiles = AnswerFile::whereNotNull('link')->get();
+     foreach($answerFiles as $file){
+          if(strpos($file->link, $baseUrl) !== false){
+               $file->link = str_replace($baseUrl, '', $file->link);
+               $file->save();
+               $count++;
+          }
+     }
+     
+     return "URL removed successfully! Total records updated: {$count}";
 });
 
 Route::get('/refresh', function () {  

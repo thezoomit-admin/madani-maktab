@@ -171,7 +171,7 @@ class StudentController extends Controller
                     'average_marks' => $student->average_marks,
                     'name' => $user->name ?? null,
                     'phone' => $user->phone ?? null,
-                    'profile_image' => $user->profile_image ?? null,
+                    'profile_image' => image_url($user->profile_image),
                     'blood_group' => $user->blood_group ?? null,
                     'department' => enum_name(Department::class, $departmentId),
                     'session' => $sessionName,

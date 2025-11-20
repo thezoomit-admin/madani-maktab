@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\AnswerFile;
 use App\Models\UserFamily;
+use App\Traits\HandlesImageUpload;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Validator;
 
 class StudentRegisterController extends Controller
 {
+    use HandlesImageUpload;
     public function firstStep(FirstStepRegistrationRequst $request)
     {    
         DB::beginTransaction();
@@ -33,19 +35,8 @@ class StudentRegisterController extends Controller
                 return error_response("দুঃখিত! তালিবে ইলমের বয়স নির্ধারিত সীমা অতিক্রম করার কারণে আবেদনটি গ্রহণ করা যাচ্ছে না");
             }
 
-            if ($request->hasFile('profile_image')) { 
-                $profileImage = $request->file('profile_image'); 
-                $profileImageName = time() . '_' . $profileImage->getClientOriginalName(); 
-                $profileImage->move(public_path('uploads/profile_images'), $profileImageName); 
-                $profileImageUrl = asset('uploads/profile_images/' . $profileImageName);
-            }
-            
-            if ($request->hasFile('handwriting_image')) { 
-                $handwritingImage = $request->file('handwriting_image'); 
-                $handwritingImageName = time() . '_' . $handwritingImage->getClientOriginalName(); 
-                $handwritingImage->move(public_path('uploads/handwriting_images'), $handwritingImageName); 
-                $handwritingImageUrl = asset('uploads/handwriting_images/' . $handwritingImageName);
-            } 
+            $profileImageUrl = $this->uploadImage($request, 'profile_image', 'uploads/profile_images');
+            $handwritingImageUrl = $this->uploadImage($request, 'handwriting_image', 'uploads/handwriting_images'); 
            
 
             $user = User::create([
@@ -212,10 +203,15 @@ class StudentRegisterController extends Controller
             ]); 
 
             if(isset($request->answe_files) && count($request->answe_files)>0){
+                $year = $this->getCurrentYear();
+                $uploadPath = public_path('uploads/' . $year . '/answer_files');
+                if (!file_exists($uploadPath)) {
+                    mkdir($uploadPath, 0775, true);
+                }
                 foreach ($request->file('answe_files') as $file) {
                     $fileName = time() . '_' . $file->getClientOriginalName();
-                    $file->move(public_path('uploads/answer_files'), $fileName); 
-                    $fileUrl = asset('uploads/answer_files/' . $fileName);
+                    $file->move($uploadPath, $fileName); 
+                    $fileUrl = 'uploads/' . $year . '/answer_files/' . $fileName;
          
                     AnswerFile::create([
                         'user_id'   => $request->input('user_id'),

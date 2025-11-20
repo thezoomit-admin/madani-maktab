@@ -11,13 +11,15 @@ use App\Models\Enrole;
 use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\UserFamily;
+use App\Traits\HandlesImageUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileUpdateController extends Controller
-{  
+{
+    use HandlesImageUpload;  
     public function updateBasic(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -39,13 +41,11 @@ class ProfileUpdateController extends Controller
         } 
 
          if ($request->hasFile('profile_image')) { 
-            $profileImage = $request->file('profile_image'); 
-            $profileImageName = time() . '_' . $profileImage->getClientOriginalName(); 
-            $profileImage->move(public_path('uploads/profile_images'), $profileImageName); 
-            $profileImageUrl = asset('uploads/profile_images/' . $profileImageName);
-
-            $user->profile_image = $profileImageUrl;
-            $user->save();
+            $profileImageUrl = $this->uploadImage($request, 'profile_image', 'uploads/profile_images');
+            if ($profileImageUrl) {
+                $user->profile_image = $profileImageUrl;
+                $user->save();
+            }
         }
 
 
@@ -100,12 +100,10 @@ class ProfileUpdateController extends Controller
 
 
          if ($request->hasFile('handwriting_image')) { 
-            $handwritingImage = $request->file('handwriting_image'); 
-            $handwritingImageName = time() . '_' . $handwritingImage->getClientOriginalName(); 
-            $handwritingImage->move(public_path('uploads/handwriting_images'), $handwritingImageName); 
-            $handwritingImageUrl = asset('uploads/handwriting_images/' . $handwritingImageName);
-
-            $reg->handwriting_image = $handwritingImageUrl;
+            $handwritingImageUrl = $this->uploadImage($request, 'handwriting_image', 'uploads/handwriting_images');
+            if ($handwritingImageUrl) {
+                $reg->handwriting_image = $handwritingImageUrl;
+            }
         }  
  
         $reg->fill($request->except('handwriting_image'))->save();
@@ -260,16 +258,16 @@ class ProfileUpdateController extends Controller
             return error_response($validator->errors()->first(), 422);
         }
 
-        $path = $request->file('file')->store('answer_files', 'public');
- 
-        $fileName = $request->name ?? $request->file('file')->getClientOriginalName();
-        $fileUrl = asset('storage/' . $path); 
-        AnswerFile::create([
-            'user_id' => $id,
-            'name' => $fileName,
-            'link' => $fileUrl,
-            'type' => $request->file('file')->getClientMimeType(),
-        ]);
+        $fileUrl = $this->uploadImage($request, 'file', 'uploads/answer_files');
+        
+        if ($fileUrl) {
+            AnswerFile::create([
+                'user_id' => $id,
+                'name' => $request->name ?? $request->file('file')->getClientOriginalName(),
+                'link' => $fileUrl,
+                'type' => $request->file('file')->getClientMimeType(),
+            ]);
+        }
         return success_response(null, 201, 'ফাইল সেভ হয়েছে।');
     }
 

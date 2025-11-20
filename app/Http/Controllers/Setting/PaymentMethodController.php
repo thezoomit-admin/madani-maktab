@@ -6,14 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Models\OfficeTransaction;
 use App\Models\PaymentMethod;
 use App\Models\PaymentTransaction;
+use App\Traits\HandlesImageUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class PaymentMethodController extends Controller
 {
+    use HandlesImageUpload;
     public function index()
     {
-        $paymentMethods = PaymentMethod::all();
+        $paymentMethods = PaymentMethod::all()->map(function ($method) {
+            $method->icon = image_url($method->icon);
+            return $method;
+        });
 
         $totalIncome = $paymentMethods->sum('income_in_hand');
         $totalExpense = $paymentMethods->sum('expense_in_hand');
@@ -44,13 +49,7 @@ class PaymentMethodController extends Controller
             return error_response($validator->errors(), 422, 'ভ্যালিডেশন ব্যর্থ হয়েছে');
         }
     
-        $iconPath = null;
-        if ($request->hasFile('icon')) {
-            $icon = $request->file('icon');
-            $iconName = time() . '_' . $icon->getClientOriginalName();
-            $iconPath = $icon->move(public_path('uploads/payment_icons'), $iconName);
-            $iconPath = asset('uploads/payment_icons/' . $iconName); 
-        }
+        $iconPath = $this->uploadImage($request, 'icon', 'uploads/payment_icons');
     
         PaymentMethod::create([
             'name' => $request->name,
@@ -83,16 +82,13 @@ class PaymentMethodController extends Controller
     
         if ($request->hasFile('icon')) { 
             if ($paymentMethod->icon) {
-                $oldIconPath = public_path(str_replace(asset(''), '', $paymentMethod->icon));
+                $oldIconPath = public_path($paymentMethod->icon);
                 if (file_exists($oldIconPath)) {
                     unlink($oldIconPath);
                 }
             }
     
-            $icon = $request->file('icon');
-            $iconName = time() . '_' . $icon->getClientOriginalName();
-            $icon->move(public_path('uploads/payment_icons'), $iconName);
-            $paymentMethod->icon = asset('uploads/payment_icons/' . $iconName);
+            $paymentMethod->icon = $this->uploadImage($request, 'icon', 'uploads/payment_icons');
         }
     
         $paymentMethod->update([
@@ -117,7 +113,7 @@ class PaymentMethodController extends Controller
         }
     
         if ($paymentMethod->icon) {
-            $oldIconPath = public_path(str_replace(asset(''), '', $paymentMethod->icon));
+            $oldIconPath = public_path($paymentMethod->icon);
             if (file_exists($oldIconPath)) {
                 unlink($oldIconPath);
             }

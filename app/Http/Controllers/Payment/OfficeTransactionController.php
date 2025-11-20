@@ -7,6 +7,7 @@ use App\Helpers\HijriDateService;
 use App\Http\Controllers\Controller;
 use App\Models\OfficeTransaction;
 use App\Models\PaymentMethod;
+use App\Traits\HandlesImageUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Validator;
 
 class OfficeTransactionController extends Controller
 {
+    use HandlesImageUpload;
     public function deposit(Request $request)
     {
         $validator = Validator::make($request->all(), [ 
@@ -63,23 +65,6 @@ class OfficeTransactionController extends Controller
         }
     }
 
-    private function uploadImage(Request $request, string $inputName, string $folder)
-    {
-        if ($request->hasFile($inputName)) {
-            $image = $request->file($inputName);
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $uploadPath = public_path($folder);
-
-            if (!file_exists($uploadPath)) {
-                mkdir($uploadPath, 0775, true);
-            }
-
-            $image->move($uploadPath, $imageName);
-            return asset($folder . '/' . $imageName);
-        }
-
-        return null;
-    } 
 
     public function depositList(Request $request)
     {
@@ -98,10 +83,10 @@ class OfficeTransactionController extends Controller
                             return [
                                 'id' => $item->id,
                                 'date' => app(HijriDateService::class)->getHijri($item->created_at),
-                                'payment_method_icon' => $item->paymentMethod->icon ?? null,
+                                'payment_method_icon' => image_url($item->paymentMethod->icon),
                                 'description' => $item->description,
                                 'amount' => $item->amount,
-                                'image' => $item->image,
+                                'image' => image_url($item->image),
                             ];
                         });
 
