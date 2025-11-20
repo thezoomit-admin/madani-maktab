@@ -6,7 +6,7 @@ return [
 
     'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 
-    'allowed_origins' => ['http://localhost:3003', 'http://localhost:3000', 'https://admission.mimalmadinah.com', 'https://madani-maktab.vercel.app'],
+    'allowed_origins' => ['http://localhost:3003', 'http://localhost:3000', 'http://erp.mimalmadinah.com', 'http://.mimalmadinah.com'],
 
     'allowed_origins_patterns' => [],
 
