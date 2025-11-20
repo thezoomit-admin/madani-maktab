@@ -46,10 +46,66 @@ class EmployeeController extends Controller
     {
         DB::beginTransaction();  
         try { 
-            if (User::where('email', $request->user_email)->exists()) {
-                return error_response(null,400,"Email already exists!");
+            // Check if user exists (including soft deleted) with user_type 'teacher'
+            $existingUser = User::withTrashed()
+                ->where('email', $request->user_email)
+                ->where('user_type', 'teacher')
+                ->first();
+            
+            if ($existingUser) {
+                // If user is soft deleted, restore and update
+                if ($existingUser->trashed()) {
+                    $existingUser->restore();
+                    
+                    $profilePicPath = $existingUser->profile_image;
+                    if ($request->hasFile('profile_image')) {
+                        $profilePicPath = $this->uploadImage($request, 'profile_image', 'uploads/profile_images');
+                    }
+                    
+                    $existingUser->update([
+                        'reg_id' => $request->reg_id,
+                        'name' => $request->user_name,
+                        'email' => $request->user_email,
+                        'phone' => $request->user_phone,
+                        'user_type' => 'teacher',
+                        'profile_image' => $profilePicPath,
+                    ]);
+                    
+                    // Check if employee role exists, if not create new one
+                    $existingRole = \App\Models\EmployeeRole::where('user_id', $existingUser->id)
+                        ->whereNull('end_date')
+                        ->first();
+                    
+                    if (!$existingRole || $existingRole->role_id != $request->role_id) {
+                        // Close previous active role if exists
+                        if ($existingRole) {
+                            $existingRole->end_date = now();
+                            $existingRole->save();
+                        }
+                        
+                        // Create new role
+                        \App\Models\EmployeeRole::create([
+                            'user_id' => $existingUser->id,
+                            'role_id' => $request->role_id,
+                            'start_date' => now(),
+                        ]);
+                    }
+                    
+                    DB::commit();
+                    return success_response(null, 'Employee has been restored and updated successfully!');
+                } else {
+                    // User exists and is active
+                    return error_response(null, 400, "Email already exists!");
+                }
             }
-     
+            
+            // Check phone uniqueness (including soft deleted)
+            $existingPhone = User::withTrashed()->where('phone', $request->user_phone)->first();
+            if ($existingPhone && !$existingPhone->trashed()) {
+                return error_response(null, 400, "Phone number already exists!");
+            }
+            
+            // Create new user
             $profilePicPath = $this->uploadImage($request, 'profile_image', 'uploads/profile_images');
      
             $user = User::create([
@@ -61,6 +117,7 @@ class EmployeeController extends Controller
                 'user_type' => 'teacher',  
                 'profile_image' => $profilePicPath, 
             ]);   
+            
             // Create initial employee role
             \App\Models\EmployeeRole::create([
                 'user_id' => $user->id,

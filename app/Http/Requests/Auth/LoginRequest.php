@@ -50,15 +50,22 @@ class LoginRequest extends FormRequest
         $password = $this->input('password');
         $remember = $this->boolean('remember'); 
         $user = null; 
+        
         if ($email) {
-            $user = User::where('email', $email)->first();
+            // Email login - must be user_type 'teacher'
+            $user = User::where('email', $email)
+                ->where('user_type', 'teacher')
+                ->first();
             if (!$user) {
-                throw ValidationException::withMessages(['email' => "Invalid Email"]);
+                throw ValidationException::withMessages(['email' => "Invalid Email or User is not a teacher"]);
             }
         } else {
-            $user = User::where('reg_id', $reg_id)->first();
+            // Reg ID login - must be user_type 'student'
+            $user = User::where('reg_id', $reg_id)
+                ->where('user_type', 'student')
+                ->first();
             if (!$user) {
-                throw ValidationException::withMessages(['reg_id' => "Invalid Reg Number"]);
+                throw ValidationException::withMessages(['reg_id' => "Invalid Reg Number or User is not a student"]);
             }
         } 
         // Wrong password handling (user already ensured)
