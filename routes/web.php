@@ -25,6 +25,7 @@ use App\Services\PhoneMessageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use PhpParser\Node\Expr\FuncCall;
 
 /*
@@ -45,101 +46,61 @@ Route::get('/',function(){
      dd("Success");
 });
 
-Route::get('/remove-url',function(){
-     $baseUrl = 'https://madani.zoomdigital.net/';
-     $count = 0;
-     
-     // 1. Users - profile_image
-     $users = User::whereNotNull('profile_image')->get();
-     foreach($users as $user){
-          if(strpos($user->profile_image, $baseUrl) !== false){
-               $user->profile_image = str_replace($baseUrl, '', $user->profile_image);
-               $user->save();
-               $count++;
+Route::get('/remove-url', function () {
+     $yearPrefix = '1446';
+     $updated = 0;
+
+     $normalizePath = function (?string $path) use ($yearPrefix) {
+          if (blank($path)) {
+               return $path;
           }
-     }
-     
-     // 2. Student Registers - handwriting_image
-     $registers = StudentRegister::whereNotNull('handwriting_image')->get();
-     foreach($registers as $register){
-          if(strpos($register->handwriting_image, $baseUrl) !== false){
-               $register->handwriting_image = str_replace($baseUrl, '', $register->handwriting_image);
-               $register->save();
-               $count++;
+
+          $clean = ltrim($path, '/');
+
+          if ($clean === '') {
+               return null;
           }
-     }
-     
-     // 3. Expenses - image
-     $expenses = Expense::whereNotNull('image')->get();
-     foreach($expenses as $expense){
-          if(strpos($expense->image, $baseUrl) !== false){
-               $expense->image = str_replace($baseUrl, '', $expense->image);
-               $expense->save();
-               $count++;
+
+          if (!Str::startsWith($clean, 'uploads/')) {
+               $clean = 'uploads/' . ltrim($clean, '/');
           }
-     }
-     
-     // 4. Vendor Payments - image
-     $vendorPayments = VendorPayment::whereNotNull('image')->get();
-     foreach($vendorPayments as $payment){
-          if(strpos($payment->image, $baseUrl) !== false){
-               $payment->image = str_replace($baseUrl, '', $payment->image);
-               $payment->save();
-               $count++;
+
+          $relative = ltrim(Str::after($clean, 'uploads/'), '/');
+
+          if (!Str::startsWith($relative, $yearPrefix . '/')) {
+               $relative = ltrim($relative, '/');
+               $relative = $relative ? ($yearPrefix . '/' . $relative) : $yearPrefix;
           }
-     }
-     
-     // 5. Payment Transactions - image
-     $paymentTransactions = PaymentTransaction::whereNotNull('image')->get();
-     foreach($paymentTransactions as $transaction){
-          if(strpos($transaction->image, $baseUrl) !== false){
-               $transaction->image = str_replace($baseUrl, '', $transaction->image);
-               $transaction->save();
-               $count++;
-          }
-     }
-     
-     // 6. Office Transactions - image
-     $officeTransactions = OfficeTransaction::whereNotNull('image')->get();
-     foreach($officeTransactions as $transaction){
-          if(strpos($transaction->image, $baseUrl) !== false){
-               $transaction->image = str_replace($baseUrl, '', $transaction->image);
-               $transaction->save();
-               $count++;
-          }
-     }
-     
-     // 7. Payment Methods - icon
-     $paymentMethods = PaymentMethod::whereNotNull('icon')->get();
-     foreach($paymentMethods as $method){
-          if(strpos($method->icon, $baseUrl) !== false){
-               $method->icon = str_replace($baseUrl, '', $method->icon);
-               $method->save();
-               $count++;
-          }
-     }
-     
-     // 8. Product Images - image_path
-     $productImages = ProductImage::whereNotNull('image_path')->get();
-     foreach($productImages as $productImage){
-          if(strpos($productImage->image_path, $baseUrl) !== false){
-               $productImage->image_path = str_replace($baseUrl, '', $productImage->image_path);
-               $productImage->save();
-               $count++;
-          }
-     }
-     
-     // 9. Answer Files - link
-     $answerFiles = AnswerFile::whereNotNull('link')->get();
-     foreach($answerFiles as $file){
-          if(strpos($file->link, $baseUrl) !== false){
-               $file->link = str_replace($baseUrl, '', $file->link);
-               $file->save();
-               $count++;
-          }
-     }
-     
-     return "URL removed successfully! Total records updated: {$count}";
+
+          $relative = preg_replace('#/+#', '/', $relative);
+
+          return 'uploads/' . $relative;
+     };
+
+     $processColumn = function ($builder, string $column) use (&$updated, $normalizePath) {
+          $builder->whereNotNull($column)->chunkById(500, function ($models) use ($column, &$updated, $normalizePath) {
+               foreach ($models as $model) {
+                    $newPath = $normalizePath($model->$column);
+                    if ($newPath !== $model->$column) {
+                         $model->$column = $newPath;
+                         $model->save();
+                         $updated++;
+                    }
+               }
+          });
+     };
+
+     $processColumn(User::query(), 'profile_image');
+     $processColumn(StudentRegister::query(), 'handwriting_image');
+     $processColumn(Expense::query(), 'image');
+     $processColumn(VendorPayment::query(), 'image');
+     $processColumn(PaymentTransaction::query(), 'image');
+     $processColumn(OfficeTransaction::query(), 'image');
+     $processColumn(PaymentMethod::query(), 'icon');
+     $processColumn(ProductImage::query(), 'image_path');
+     $processColumn(AnswerFile::query(), 'link');
+
+     return "Normalized {$updated} records.";
 });
 
 Route::get('/refresh', function () {  
