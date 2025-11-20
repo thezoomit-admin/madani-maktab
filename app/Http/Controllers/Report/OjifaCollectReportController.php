@@ -197,8 +197,8 @@ class OjifaCollectReportController extends Controller
 
     public function getStudentPaymentReportV2(Request $request){
         $year = $request->input('year');
+        $activeMonth = HijriMonth::getActiveMonth();
         if (!$year) {
-            $activeMonth = HijriMonth::where('is_active', true)->first();
             $year = optional($activeMonth)->year;
         }
 
@@ -244,6 +244,7 @@ class OjifaCollectReportController extends Controller
             $query->where('payments.fee_type', $request->input('fee_type'));
         }
 
+        $monthFilterApplied = false;
         if ($request->filled('month')) {
             $month = $request->input('month');
             if (is_numeric($month)) {
@@ -255,7 +256,23 @@ class OjifaCollectReportController extends Controller
                     $query->where('hijri_months.month', $matchedKey);
                 }
             }
+            $monthFilterApplied = true;
         }
+
+        if ($activeMonth && (!$year || $year == $activeMonth->year)) {
+            if ($monthFilterApplied) {
+                $query->where('hijri_months.month', '<=', $activeMonth->month);
+            } else {
+                $previousMonth = max(0, $activeMonth->month - 1);
+                if ($previousMonth > 0) {
+                    $query->where('hijri_months.month', '<=', $previousMonth);
+                } else {
+                    $query->whereRaw('1 = 0');
+                }
+            }
+        }
+
+        $query->orderBy('hijri_months.month', 'asc');
 
         if ($request->filled('status')) {
             $status = $request->input('status');
@@ -275,7 +292,7 @@ class OjifaCollectReportController extends Controller
         }
 
         if ($request->filled('reg_id')) {
-            $query->where('users.reg_id', 'like', '%' . $request->input('reg_id') . '%');
+            $query->where('users.reg_id', $request->input('reg_id'));
         }
 
         if ($request->filled('student_name')) {
@@ -305,7 +322,7 @@ class OjifaCollectReportController extends Controller
             return [
                 'student_name' => $payment->student_name,
                 'reg_id' => $payment->reg_id,
-                'month' => $arabicMonths[$payment->hijri_month_value] ?? '-',
+                'month' => hijri_month_name($payment->hijri_month_id) ?? ($arabicMonths[$payment->hijri_month_value] ?? '-'),
                 'reason_label' => $reasonLabels[$payment->reason] ?? '-',
                 'fee_type_label' => $payment->fee_type ? ($feeTypeLabels[$payment->fee_type] ?? '-') : null,
                 'amount' => (float) $payment->amount,

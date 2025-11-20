@@ -50,28 +50,19 @@ class HijriMonthController extends Controller
     public function index(Request $request)
     {
         $query = HijriMonth::query()->latest();
-        // if ($request->filled('keyword')) {
-        //     $keyword = $request->keyword;
 
-        //     if (is_numeric($keyword)) {
-        //         $query->where('year', 'like', '%' . $keyword . '%');
-        //     } else {
-        //         $monthNames = ArabicMonth::values();
-        //         $month = array_search($keyword, $monthNames);
-
-        //         if ($month) {
-        //             $query->where('month', 'like', '%' . $month . '%');
-        //         }
-        //     }
-        // }
-
+        if ($request->filled('year')) {
+            $query->where('year', $request->input('year'));
+        }
         if ($request->input('select2') == true) {
             $results = $query->limit(12)
                 ->get()
-                ->map(function ($item) {
+                ->map(function ($item) use ($request) {
                     return [
                         'id' => $item->id,
-                        'text' => $item->year . '-' . enum_name(ArabicMonth::class, $item->month),
+                        'text' => $request->filled('year')
+                            ? enum_name(ArabicMonth::class, $item->month)
+                            : $item->year . '-' . enum_name(ArabicMonth::class, $item->month),
                     ];
                 });
 

@@ -127,6 +127,35 @@ if (!function_exists('get_permissions')) {
     }
 }
 
+if (!function_exists('hijri_month_name')) {
+    /**
+     * Resolve Hijri month name from hijri_months table id.
+     */
+    function hijri_month_name(?int $hijriMonthId): ?string
+    {
+        if (empty($hijriMonthId)) {
+            return null;
+        }
+
+        static $cache = [];
+
+        if (array_key_exists($hijriMonthId, $cache)) {
+            return $cache[$hijriMonthId];
+        }
+
+        $record = \App\Models\HijriMonth::select('month')->find($hijriMonthId);
+        if (!$record) {
+            $cache[$hijriMonthId] = null;
+            return null;
+        }
+
+        $months = \App\Enums\ArabicMonth::values();
+        $cache[$hijriMonthId] = $months[$record->month] ?? null;
+
+        return $cache[$hijriMonthId];
+    }
+}
+
 if (!function_exists('image_url')) {
    
     function image_url(?string $path): ?string
