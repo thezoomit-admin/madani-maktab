@@ -272,22 +272,15 @@ class OjifaCollectReportController extends Controller
             }
         }
 
-        $query->orderBy('hijri_months.month', 'asc')
-              ->orderBy('payments.id', 'asc');
+        $query->orderBy('payments.id', 'asc');
 
         if ($request->filled('status')) {
             $status = $request->input('status');
             $query->where(function ($q) use ($status) {
                 if ($status === 'paid') {
                     $q->where('payments.due', 0);
-                } elseif ($status === 'partial') {
-                    $q->where('payments.due', '>', 0)
-                        ->where('payments.paid', '>', 0);
                 } elseif ($status === 'unpaid') {
-                    $q->where(function ($sub) {
-                        $sub->where('payments.paid', 0)
-                            ->orWhereColumn('payments.due', 'payments.amount');
-                    });
+                    $q->where('payments.due', '>', 0);
                 }
             });
         }
