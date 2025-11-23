@@ -197,10 +197,6 @@ class OjifaCollectReportController extends Controller
 
     public function getStudentPaymentReportV2(Request $request){
         $year = $request->input('year');
-        $activeMonth = HijriMonth::getActiveMonth();
-        if (!$year) {
-            $year = optional($activeMonth)->year;
-        }
 
         $query = Payment::query()
             ->select([
@@ -224,7 +220,7 @@ class OjifaCollectReportController extends Controller
             ->join('enroles', 'enroles.id', '=', 'payments.enrole_id')
             ->join('hijri_months', 'hijri_months.id', '=', 'payments.hijri_month_id');
 
-        if ($year) {
+        if ($request->filled('year')) {
             $query->where('payments.year', $year);
         }
 
@@ -244,7 +240,6 @@ class OjifaCollectReportController extends Controller
             $query->where('payments.fee_type', $request->input('fee_type'));
         }
 
-        $monthFilterApplied = false;
         if ($request->filled('month')) {
             $month = $request->input('month');
             if (is_numeric($month)) {
@@ -254,20 +249,6 @@ class OjifaCollectReportController extends Controller
                 $matchedKey = collect($monthValues)->search(mb_strtolower($month));
                 if ($matchedKey !== false) {
                     $query->where('hijri_months.month', $matchedKey);
-                }
-            }
-            $monthFilterApplied = true;
-        }
-
-        if ($activeMonth && (!$year || $year == $activeMonth->year)) {
-            if ($monthFilterApplied) {
-                $query->where('hijri_months.month', '<=', $activeMonth->month);
-            } else {
-                $previousMonth = max(0, $activeMonth->month - 1);
-                if ($previousMonth > 0) {
-                    $query->where('hijri_months.month', '<=', $previousMonth);
-                } else {
-                    $query->whereRaw('1 = 0');
                 }
             }
         }
