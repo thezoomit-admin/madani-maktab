@@ -237,20 +237,12 @@ class OjifaCollectReportController extends Controller
         }
 
         if ($request->filled('fee_type')) {
-            $query->where('payments.fee_type', $request->input('fee_type'));
+            
         }
 
         if ($request->filled('month')) {
             $month = $request->input('month');
-            if (is_numeric($month)) {
-                $query->where('hijri_months.month', (int) $month);
-            } else {
-                $monthValues = array_map('mb_strtolower', ArabicMonth::values());
-                $matchedKey = collect($monthValues)->search(mb_strtolower($month));
-                if ($matchedKey !== false) {
-                    $query->where('hijri_months.month', $matchedKey);
-                }
-            }
+            $query->where('payments.hijri_month_id', $request->input('month'));
         }
 
         $query->orderBy('payments.id', 'asc');
@@ -297,7 +289,8 @@ class OjifaCollectReportController extends Controller
             return [
                 'student_name' => $payment->student_name,
                 'reg_id' => $payment->reg_id,
-                'month' => hijri_month_name($payment->hijri_month_id) ?? ($arabicMonths[$payment->hijri_month_value] ?? '-'),
+                // 'month' => hijri_month_name($payment->hijri_month_id) ?? ($arabicMonths[$payment->hijri_month_value] ?? '-'),
+                'month' => $payment->hijri_month_id,
                 'reason_label' => $reasonLabels[$payment->reason] ?? '-',
                 'fee_type_label' => $payment->fee_type ? ($feeTypeLabels[$payment->fee_type] ?? '-') : null,
                 'amount' => (float) $payment->amount,
