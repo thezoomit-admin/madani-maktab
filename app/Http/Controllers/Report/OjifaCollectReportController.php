@@ -289,8 +289,7 @@ class OjifaCollectReportController extends Controller
             return [
                 'student_name' => $payment->student_name,
                 'reg_id' => $payment->reg_id,
-                // 'month' => hijri_month_name($payment->hijri_month_id) ?? ($arabicMonths[$payment->hijri_month_value] ?? '-'),
-                'month' => $payment->hijri_month_id,
+                'month' => hijri_month_name($payment->hijri_month_id),
                 'reason_label' => $reasonLabels[$payment->reason] ?? '-',
                 'fee_type_label' => $payment->fee_type ? ($feeTypeLabels[$payment->fee_type] ?? '-') : null,
                 'amount' => (float) $payment->amount,
