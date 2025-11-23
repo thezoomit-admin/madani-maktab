@@ -46,62 +46,7 @@ Route::get('/',function(){
      dd("Success");
 });
 
-Route::get('/remove-url', function () {
-     $yearPrefix = '1446';
-     $updated = 0;
-
-     $normalizePath = function (?string $path) use ($yearPrefix) {
-          if (blank($path)) {
-               return $path;
-          }
-
-          $clean = ltrim($path, '/');
-
-          if ($clean === '') {
-               return null;
-          }
-
-          if (!Str::startsWith($clean, 'uploads/')) {
-               $clean = 'uploads/' . ltrim($clean, '/');
-          }
-
-          $relative = ltrim(Str::after($clean, 'uploads/'), '/');
-
-          if (!Str::startsWith($relative, $yearPrefix . '/')) {
-               $relative = ltrim($relative, '/');
-               $relative = $relative ? ($yearPrefix . '/' . $relative) : $yearPrefix;
-          }
-
-          $relative = preg_replace('#/+#', '/', $relative);
-
-          return 'uploads/' . $relative;
-     };
-
-     $processColumn = function ($builder, string $column) use (&$updated, $normalizePath) {
-          $builder->whereNotNull($column)->chunkById(500, function ($models) use ($column, &$updated, $normalizePath) {
-               foreach ($models as $model) {
-                    $newPath = $normalizePath($model->$column);
-                    if ($newPath !== $model->$column) {
-                         $model->$column = $newPath;
-                         $model->save();
-                         $updated++;
-                    }
-               }
-          });
-     };
-
-     $processColumn(User::query(), 'profile_image');
-     $processColumn(StudentRegister::query(), 'handwriting_image');
-     $processColumn(Expense::query(), 'image');
-     $processColumn(VendorPayment::query(), 'image');
-     $processColumn(PaymentTransaction::query(), 'image');
-     $processColumn(OfficeTransaction::query(), 'image');
-     $processColumn(PaymentMethod::query(), 'icon');
-     $processColumn(ProductImage::query(), 'image_path');
-     $processColumn(AnswerFile::query(), 'link');
-
-     return "Normalized {$updated} records.";
-});
+ 
 
 Route::get('/refresh', function () {  
    
