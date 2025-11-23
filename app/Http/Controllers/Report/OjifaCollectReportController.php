@@ -272,7 +272,8 @@ class OjifaCollectReportController extends Controller
             }
         }
 
-        $query->orderBy('hijri_months.month', 'asc');
+        $query->orderBy('hijri_months.month', 'asc')
+              ->orderBy('payments.id', 'asc');
 
         if ($request->filled('status')) {
             $status = $request->input('status');
