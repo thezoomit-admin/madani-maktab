@@ -22,7 +22,7 @@ class HijriMonth extends Model
 
     public static function getYearRange($year=null)
     {
-        if ($year == null) {
+        if ($year === null) {
             $activeMonth = self::getActiveMonth();
             if (!$activeMonth) {
                 return null;

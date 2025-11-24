@@ -237,7 +237,7 @@ class OjifaCollectReportController extends Controller
         }
 
         if ($request->filled('fee_type')) {
-            
+            $query->where('enroles.fee_type', $request->input('fee_type'));
         }
 
         if ($request->filled('month')) {
