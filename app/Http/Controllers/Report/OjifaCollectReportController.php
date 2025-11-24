@@ -242,11 +242,11 @@ class OjifaCollectReportController extends Controller
 
         if ($request->filled('month')) {
             $months = $request->input('month');
+            $months = is_array($months) ? $months : [$months];
+            $months = array_filter($months, fn ($month) => $month !== null && $month !== '');
 
-            if (is_array($months)) {
-                $query->whereIn('payments.hijri_month_id', $months);
-            } else {
-                $query->where('payments.hijri_month_id', $months);
+            if (!empty($months)) {
+                $query->whereIn('hijri_months.month', $months);
             }
         }
 
