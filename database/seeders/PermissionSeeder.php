@@ -38,6 +38,7 @@ class PermissionSeeder extends Seeder
             'payment_history' => 'পেমেন্ট ইতিহাস',
             'profile_change' => 'প্রোফাইল পরিবর্তন',
             'teacher' => 'খাদেম',
+            'meeting_link' => 'মিটিং লিঙ্ক',
         ];
  
         foreach ($permissions as $slug => $name) {
