@@ -15,6 +15,7 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use App\Traits\PaginateTrait;
+use Illuminate\Support\Arr;
  
 
 class OjifaCollectReportController extends Controller
@@ -241,12 +242,14 @@ class OjifaCollectReportController extends Controller
         }
 
         if ($request->filled('month')) {
-            $months = $request->input('month');
-            $months = is_array($months) ? $months : [$months];
-            $months = array_filter($months, fn ($month) => $month !== null && $month !== '');
+            $monthsInput = $request->input('month');
+            $months = $this->normalizeMonthFilter($monthsInput);
 
             if (!empty($months)) {
-                $query->whereIn('hijri_months.month', $months);
+                $query->where(function ($q) use ($months) {
+                    $q->whereIn('payments.hijri_month_id', $months)
+                      ->orWhereIn('hijri_months.month', $months);
+                });
             }
         }
 
@@ -347,5 +350,27 @@ class OjifaCollectReportController extends Controller
             'data' => $paginated['data'],
             'meta' => $paginated['meta'],
         ]);
+    }
+
+    private function normalizeMonthFilter($monthsInput): array
+    {
+        if (is_string($monthsInput)) {
+            $decoded = json_decode($monthsInput, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $monthsInput = $decoded;
+            } else {
+                $monthsInput = array_map('trim', explode(',', $monthsInput));
+            }
+        }
+
+        $months = Arr::wrap($monthsInput);
+
+        return array_values(array_filter(array_map(function ($month) {
+            if ($month === null || $month === '') {
+                return null;
+            }
+
+            return (int) $month;
+        }, $months)));
     }
 }
