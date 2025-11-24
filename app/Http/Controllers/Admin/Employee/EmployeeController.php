@@ -30,6 +30,7 @@ class EmployeeController extends Controller
                     'name' => $user->name,
                     'phone' => $user->phone,
                     'email' => $user->email,
+                    'is_present' => $user->is_present ?? false,
                     'profile_image' => $user->profile_image,
                     'role' => $currentRole ? $currentRole['role_name'] : null,
                     'role_details' => $currentRole,
