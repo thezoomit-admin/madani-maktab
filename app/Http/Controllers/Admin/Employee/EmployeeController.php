@@ -475,6 +475,12 @@ class EmployeeController extends Controller
         try {
             $user = User::findOrFail($id);
 
+            $guardian = \App\Models\Guardian::where('user_id', $user->id)->first();
+            if ($guardian) {
+                 $guardian->same_address = $request->same_address;
+                 $guardian->save();
+            }
+
             // Permanent address
             \App\Models\UserAddress::updateOrCreate(
                 ['user_id' => $user->id, 'address_type' => 'permanent'],
