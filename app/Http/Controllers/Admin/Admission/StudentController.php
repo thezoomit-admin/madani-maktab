@@ -65,7 +65,7 @@ class StudentController extends Controller
         $data = $this->paginateQuery($data, $request);
 
         // যদি সব student চাও
-        if ($status === 'all') {
+        if ($status == 'all') {
             $data['data'] = collect($data['data'])->map(function ($student) {
                 $student->status = $this->determineStatus($student->admissionProgress);
                 return $student;
