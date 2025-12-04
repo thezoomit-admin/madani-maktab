@@ -46,12 +46,12 @@ class StudentController extends Controller
         }  
 
         $data = User::where('user_type','student')
-            // ->when($year, function ($query) use ($year) {
-            //     $range = HijriMonth::getYearRange($year);
-            //     if ($range) {
-            //         $query->whereBetween('created_at', [$range['start_date'], $range['end_date']]);
-            //     }
-            // })
+            ->when($year, function ($query) use ($year) {
+                $range = HijriMonth::getYearRange($year);
+                if ($range) {
+                    $query->whereBetween('created_at', [$range['start_date'], $range['end_date']]);
+                }
+            })
             ->whereHas('studentRegister', function($q) use($department) {
                 $q->where('department_id', $department);
             });
