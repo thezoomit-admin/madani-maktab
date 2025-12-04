@@ -45,7 +45,7 @@ class StudentController extends Controller
             }
         } 
         $range = HijriMonth::getYearRange($year);
-        return success_response($range); 
+        return success_response([$year,$range]); 
 
         $data = User::where('user_type','student')
             ->when($year, function ($query) use ($year) {
