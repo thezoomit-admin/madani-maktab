@@ -56,15 +56,18 @@ class StudentController extends Controller
                 $q->where('department_id', $department);
             });
 
-        // ✅ এখন শুধুমাত্র এক লাইনেই status filter প্রয়োগ
-        $data = $this->applyStatusCondition($data, $status);
+        // ✅ Status filter প্রয়োগ করবে শুধুমাত্র যখন status 'all' না হবে
+        // 'all' এর জন্য সব students load করবে এবং memory তে filter করবে
+        if ($status != 'all') {
+            $data = $this->applyStatusCondition($data, $status);
+        }
 
         $data = $data
             ->with(['admissionProgress', 'studentRegister', 'address', 'guardian']);
 
         $data = $this->paginateQuery($data, $request);
 
-        // যদি সব student চাও
+        // যদি সব student চাও, memory তে status determine করবে
         if ($status == 'all') {
             $data['data'] = collect($data['data'])->map(function ($student) {
                 $student->status = $this->determineStatus($student->admissionProgress);
