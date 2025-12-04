@@ -43,9 +43,7 @@ class StudentController extends Controller
             if ($active_month) {
                 $year = $active_month->year;
             }
-        } 
-        $range = HijriMonth::getYearRange($year);
-        return success_response([$year,$range]); 
+        }  
 
         $data = User::where('user_type','student')
             ->when($year, function ($query) use ($year) {
@@ -57,9 +55,7 @@ class StudentController extends Controller
             ->whereHas('studentRegister', function($q) use($department) {
                 $q->where('department_id', $department);
             });
-
-        // ✅ Status filter প্রয়োগ করবে শুধুমাত্র যখন status 'all' না হবে
-        // 'all' এর জন্য সব students load করবে এবং memory তে filter করবে
+ 
         if ($status != 'all') {
             $data = $this->applyStatusCondition($data, $status);
         }
