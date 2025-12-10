@@ -58,6 +58,7 @@ use App\Http\Controllers\Student\TeacherCommentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route; 
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\DynamicContentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -98,6 +99,7 @@ Route::get('student/{id}', [AdmissionStudentController::class,'student']);
 //Student Registration
 Route::get('student-register-last-stage', [AdmissionStudentController::class,'isCompleted']);
 Route::get('dashboard',DashboardController::class);
+Route::resource('dynamic-content',DynamicContentController::class);
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('registerd-students', RegisterStudentListController::class);
     Route::get('interview-students', InterviewStudentListController::class);
