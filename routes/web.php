@@ -48,28 +48,22 @@ Route::get('/',function(){
 
  
 
-Route::get('/refresh', function () {  
+// Route::get('/refresh', function () {  
    
-     DB::statement('SET FOREIGN_KEY_CHECKS=0;');
- 
-     // Admission::where('status', 1)->update(['status' => 0]);
-     // User::whereNotNull('reg_id')->update(['reg_id' => null]);
-  
-     // Student::truncate();
-     // Enrole::truncate();
-     // TeacherComment::truncate();
+//  DB::statement('SET FOREIGN_KEY_CHECKS=0;'); 
+    
      // Payment::truncate();
      // PaymentTransaction::truncate(); 
-     $payments_methods = PaymentMethod::all();
-     foreach($payments_methods as $method){
+     // $payments_methods = PaymentMethod::all();
+     // foreach($payments_methods as $method){
           // $method->income_in_hand = 0;
-          $method->expense_in_hand = 0;
-          $method->balance = $method->income_in_hand; 
-          $method->save();
-     }
+     //      $method->expense_in_hand = 0;
+     //      $method->balance = $method->income_in_hand; 
+     //      $method->save();
+     // }
      // OfficeTransaction::truncate();
-     Expense::truncate();
-     DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-     return 'Refresh completed successfully!';
-});
+//      Expense::truncate();
+//      DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+//      return 'Refresh completed successfully!';
+// });
  

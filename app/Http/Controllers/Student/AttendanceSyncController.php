@@ -21,7 +21,7 @@ class AttendanceSyncController extends Controller
                 'operation'   => 'fetch_log',
                 'auth_user'   => 'madani',
                 'auth_code'   => 't1zpl8zxe1m1m6iexbb2ijz47tseg54',
-                'start_date'  => now()->format('Y-m-d'),
+                'start_date'  => "2025-10-28",
                 'end_date'    => now()->format('Y-m-d'),
                 'start_time'  => $start_time,
                 'end_time'    => $end_time,
@@ -64,6 +64,8 @@ class AttendanceSyncController extends Controller
                         'out_time'      => $accessDateTime,
                         'out_access_id' => $log['access_id'],
                     ]);
+
+                    $user->update(['is_present' => 0]);
                 } else {
                     Attendance::create([
                         'user_id'       => $user->id,
@@ -75,6 +77,8 @@ class AttendanceSyncController extends Controller
                         'comment'       => null,
                         'comment_by'    => null,
                     ]);
+
+                    $user->update(['is_present' => 1]);
                 }
             }
     

@@ -199,10 +199,10 @@ class StudentController extends Controller
             return error_response(null, 404, 'স্টুডেন্ট খুঁজে পাওয়া যায়নি।');
         }
 
-        $payment_transaction = PaymentTransaction::where('student_id', $id)->first();
-        if ($payment_transaction) {
-            return error_response(null, 403, 'এই স্টুডেন্টের পেমেন্ট ট্রান্সাকশন রয়েছে, তাই ডিলিট করা যাবে না।');
-        }
+        // $payment_transaction = PaymentTransaction::where('student_id', $id)->first();
+        // if ($payment_transaction) {
+        //     return error_response(null, 403, 'এই স্টুডেন্টের পেমেন্ট ট্রান্সাকশন রয়েছে, তাই ডিলিট করা যাবে না।');
+        // }
 
         $user = User::find($student->user_id);
         if (!$user) {
