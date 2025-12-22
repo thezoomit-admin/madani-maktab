@@ -9,12 +9,14 @@ use App\Enums\KitabSession;
 use App\Enums\MaktabSession;
 use App\Http\Controllers\Controller;
 use App\Models\Admission;
+use App\Models\AdmissionProgressStatus;
 use App\Models\Attendance;
 use App\Models\Enrole;
 use App\Models\HijriMonth;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
 use App\Models\Student;
+use App\Models\StudentRegister;
 use App\Models\TeacherComment;
 use App\Models\User;
 use App\Services\AttendanceService;
@@ -210,11 +212,13 @@ class StudentController extends Controller
         }
 
         DB::beginTransaction();
-        try { 
+        try {
             Enrole::where('student_id', $student->id)->delete();
     
             TeacherComment::where('student_id', $user->id)->delete();
-            Payment::where('user_id', $user->id)->where('paid', '>', 0)->delete();
+            Payment::where('user_id', $user->id)->where('paid', '>', 0)->delete(); 
+            StudentRegister::where('user_id', $user->id)->delete();
+            AdmissionProgressStatus::where('user_id', $user->id)->delete();
             Admission::where('user_id', $user->id)->update(['status' => 0]);
     
             $user->reg_id = null;

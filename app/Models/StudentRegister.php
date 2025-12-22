@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class StudentRegister extends Model
 {
@@ -35,32 +36,49 @@ class StudentRegister extends Model
         return $this->belongsTo(User::class);
     } 
 
-    public static function nextMaktabId(){
-        $largest_student_id = StudentRegister::where('reg_id', 'like', 'ম-%')
-        ->pluck('reg_id')
-        ->map(function ($id) {
-            return preg_replace("/[^0-9]/", "", $id);
-        })
-        ->max();
     
-        $largest_student_id = $largest_student_id ? $largest_student_id : 1000;  
-        $largest_student_id++;
-        $new_student_id = 'ম-' . $largest_student_id; 
-        return $new_student_id; 
+
+    public static function nextMaktabId()
+    {
+        $startDate = Carbon::now()->subMonths(5); // last 5 months
+        $endDate   = Carbon::now();
+
+        $largest_student_id = StudentRegister::where('reg_id', 'like', 'ম-%')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->pluck('reg_id')
+            ->map(function ($id) {
+                return (int) preg_replace("/[^0-9]/", "", $id);
+            })
+            ->max();
+
+        $largest_student_id = $largest_student_id ?? 0;
+        $next_id = $largest_student_id + 1;
+
+        $formatted_id = str_pad($next_id, 3, '0', STR_PAD_LEFT); 
+        return 'ম-' . $formatted_id;
     } 
-     
-    public static function nextKitabId(){
+      
+    public static function nextKitabId()
+    {
+        $startDate = Carbon::now()->subMonths(5); // last 5 months
+        $endDate   = Carbon::now();
+
         $largest_student_id = StudentRegister::where('reg_id', 'like', 'ক-%')
-        ->pluck('reg_id')
-        ->map(function ($id) {
-            return preg_replace("/[^0-9]/", "", $id);
-        })
-        ->max(); 
-        $largest_student_id = $largest_student_id ? $largest_student_id : 5000;  
-        $largest_student_id++;
-        $new_student_id = 'ক-' . $largest_student_id; 
-        return $new_student_id; 
-    }  
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->pluck('reg_id')
+            ->map(function ($id) {
+                return (int) preg_replace("/[^0-9]/", "", $id);
+            })
+            ->max();
+
+        $largest_student_id = $largest_student_id ?? 0;
+        $next_id = $largest_student_id + 1;
+
+        $formatted_id = str_pad($next_id, 3, '0', STR_PAD_LEFT);
+        return 'ক-' . $formatted_id;
+    }
+
+
 
      
 }

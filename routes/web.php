@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use PhpParser\Node\Expr\FuncCall;
+use Carbon\Carbon;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,6 +47,21 @@ Route::get('/',function(){
      dd("Success");
 });
 
+Route::get('update-reg-id', function(){
+     $startDate = Carbon::now()->subMonths(5); 
+     $endDate   = Carbon::now(); 
+     $students = StudentRegister::whereBetween('created_at', [$startDate, $endDate])->get();
+    foreach($students as $student){
+          if($student->department_id==1){
+               $student->reg_id = StudentRegister::nextMaktabId();
+               $student->save();
+          }else{
+               $student->reg_id = StudentRegister::nextKitabId();
+               $student->save();
+          } 
+    }
+    return 'Reg IDs updated successfully!';
+});
  
 
 // Route::get('/refresh', function () {  
