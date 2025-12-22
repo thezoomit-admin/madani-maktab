@@ -213,6 +213,7 @@ class StudentController extends Controller
 
         DB::beginTransaction();
         try {
+            PaymentTransaction::where('student_id', $student->id)->delete();
             Enrole::where('student_id', $student->id)->delete();
     
             TeacherComment::where('student_id', $user->id)->delete();
