@@ -19,6 +19,13 @@ class PaymentTransaction extends Model
         'image',
         'is_approved',
         'approved_by',
+        'transaction_id',
+        'val_id',
+        'bank_tran_id',
+        'status',
+        'card_type',
+        'card_no',
+        'currency'
     ]; 
 
     public function user()

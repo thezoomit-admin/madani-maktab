@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use App\Helpers\HijriDateService;
 
 class PaymentController extends Controller
@@ -76,6 +77,144 @@ class PaymentController extends Controller
             return error_response(null, 500, $e->getMessage());
         }
     }  
+
+    public function payOnline(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $payment_id = $request->payment_id;
+            $payment = Payment::find($payment_id);
+
+            if (!$payment) {
+                return error_response(null, 404, 'পেমেন্ট আইডি সঠিক নয়।');
+            }  
+
+            $existingTransaction = PaymentTransaction::where('payment_id', $payment->id)
+                ->where('status', 'Complete')
+                ->first();
+
+            if ($existingTransaction) {
+                 return error_response(null, 400, 'পেমেন্ট ইতিমধ্যে সম্পন্ন হয়েছে।');
+            }
+
+            $user = User::find(Auth::user()->id);
+            $amount = $payment->amount;
+            
+            // Create Transaction
+            $trx_id = uniqid('TRX');
+            
+             PaymentTransaction::create([
+                'user_id' => $payment->user_id,
+                'student_id' => $payment->student_id,
+                'payment_id' => $payment->id,
+                'payer_account' => $user->phone, 
+                'transaction_id' => $trx_id,
+                'payment_method_id' => $request->payment_method_id ?? 1,
+                'amount' => $amount,
+                'status' => 'Pending',
+                'is_approved' => false,
+                'approved_by' => null,
+            ]);
+
+            DB::commit(); 
+            
+            // Initiate via Service
+            $paymentData = [
+                'amount'  => $amount,
+                'trx_id'  => $trx_id,
+                'cus_name' => $user->name,
+                'cus_email' => $user->email,
+                'cus_phone' => $user->phone
+            ];
+
+            $service = new \App\Services\SSLPaymentService();
+            $result = $service->initiatePayment($paymentData);
+
+            if ($result['status'] == 'success') {
+                 return success_response(['url' => $result['url']], 'SSLCommerz পেমেন্ট পেইজে রিডাইরেক্ট করা হচ্ছে...');
+            } else {
+                 return error_response(null, 400, 'Payment Error: ' . $result['message']);
+            }
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return error_response(null, 500, $e->getMessage());
+        }
+    }  
+
+    public function paymentSuccess(Request $request) {
+        $tran_id = $request->input('tran_id');
+        $val_id = $request->input('val_id');
+        $amount = $request->input('amount');
+        
+        // Metadata from Gateway
+        $card_type = $request->input('card_type');
+        $bank_tran_id = $request->input('bank_tran_id');
+        $card_no = $request->input('card_no');
+
+        $service = new \App\Services\SSLPaymentService();
+
+        if ($service->validatePayment($val_id)) {
+             DB::beginTransaction();
+             try {
+                $transaction = PaymentTransaction::where('transaction_id', $tran_id)->first();
+                if ($transaction) {
+                    // Update Transaction
+                    $transaction->status = 'Complete';
+                    $transaction->val_id = $val_id;
+                    $transaction->bank_tran_id = $bank_tran_id;
+                    $transaction->card_type = $card_type;
+                    $transaction->card_no = $card_no;
+                    $transaction->is_approved = true;
+                    $transaction->save();
+
+                    // Update Main Payment
+                    $payment = Payment::find($transaction->payment_id);
+                    if ($payment) {
+                        $payment->paid = $amount;
+                        $payment->due = 0;
+                        $payment->save();
+                    }
+                    
+                    // Bank Balance Update
+                    $bank = PaymentMethod::find($transaction->payment_method_id); 
+                    if ($bank) {
+                        $bank->income_in_hand += $amount;
+                        $bank->balance += $amount;
+                        $bank->save();
+                    }
+
+                    DB::commit();
+                    return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/payment/success');
+                }
+             } catch (\Exception $e) {
+                 DB::rollBack();
+                 return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/payment/fail');
+             }
+        }
+        return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/payment/fail');
+    }
+
+    public function paymentFail(Request $request) {
+        $tran_id = $request->input('tran_id');
+        $transaction = PaymentTransaction::where('transaction_id', $tran_id)->first();
+        if ($transaction) {
+            $transaction->status = 'Failed';
+            $transaction->save();
+        }
+        return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/payment/fail');
+    }
+
+    public function paymentCancel(Request $request) {
+        $tran_id = $request->input('tran_id');
+        $transaction = PaymentTransaction::where('transaction_id', $tran_id)->first();
+        if ($transaction) {
+            $transaction->status = 'Canceled';
+            $transaction->save();
+        }
+        return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/payment/cancel');
+    }
+
 
     public function paymentList(Request $request)
     {
