@@ -207,7 +207,7 @@ class PaymentController extends Controller
         $service = new \App\Services\SSLPaymentService();
 
         if (!$service->validatePayment($val_id)) {
-            return redirect(env('FRONTEND_URL') . '/payment/fail');
+            return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/fail');
         }
 
         DB::beginTransaction();
@@ -217,7 +217,7 @@ class PaymentController extends Controller
 
             if (!$transaction || $transaction->status === 'Complete') {
                 DB::commit();
-                return redirect(env('FRONTEND_URL') . '/payment/success');
+                return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/success');
             }
 
             // Amount verification
@@ -247,11 +247,12 @@ class PaymentController extends Controller
             }
 
             DB::commit();
-            return redirect(env('FRONTEND_URL') . '/payment/success');
+            return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/success');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect(env('FRONTEND_URL') . '/payment/fail');
+            $transaction->delete();
+            return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/fail');
         }
     }
 
@@ -259,23 +260,15 @@ class PaymentController extends Controller
     public function paymentFail(Request $request)
     {
         $transaction = PaymentTransaction::where('transaction_id', $request->tran_id)->first();
-
-        if ($transaction && $transaction->status === 'Pending') {
-            $transaction->update(['status' => 'Failed']);
-        }
-
-        return redirect(env('FRONTEND_URL') . '/payment/fail');
+        $transaction->delete();
+        return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/fail');
     }
 
     public function paymentCancel(Request $request)
     {
         $transaction = PaymentTransaction::where('transaction_id', $request->tran_id)->first();
-
-        if ($transaction && $transaction->status === 'Pending') {
-            $transaction->update(['status' => 'Canceled']);
-        }
-
-        return redirect(env('FRONTEND_URL') . '/payment/cancel');
+        $transaction->delete();
+        return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/cancel');
     }
 
 
@@ -288,7 +281,7 @@ class PaymentController extends Controller
         $page = $request->page ?? 1;
         $offset = ($page - 1) * $perPage; 
         
-        $query = PaymentTransaction::with(['user:id,name,reg_id', 'student:id'])->latest();
+        $query = PaymentTransaction::with(['user:id,name,reg_id', 'student:id','paymentMethod:id,name'])->latest();
  
         if ($approve_status !== null) {
             $query->where('is_approved', $approve_status);
@@ -304,8 +297,7 @@ class PaymentController extends Controller
         $data = $query->skip($offset)
                     ->take($perPage)
                     ->get()
-                    ->map(function ($item) {
-                        $hijriService = new HijriDateService();
+                    ->map(function ($item) { 
                         return [
                             'id'                => @$item->id,
                             'name'              => @$item->user->name,
