@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use App\Helpers\HijriDateService;
 use App\Services\SSLPaymentService;
+use App\Models\PaymentAttempt;
 
 class PaymentController extends Controller
 {
@@ -98,7 +99,7 @@ class PaymentController extends Controller
             $amount = $payment->amount;
             $trx_id = 'TRX'.time().rand(1000,9999);
 
-            $transaction = PaymentTransaction::create([
+            $attempt = PaymentAttempt::create([
                 'user_id' => $payment->user_id,
                 'student_id' => $payment->student_id,
                 'payment_id' => $payment->id,
@@ -139,53 +140,65 @@ class PaymentController extends Controller
 
         DB::beginTransaction();
         try {
-            $transaction = PaymentTransaction::where('transaction_id', $tran_id)
+            $attempt = PaymentAttempt::where('transaction_id', $tran_id)
                                 ->lockForUpdate()
                                 ->first();
 
-            if (!$transaction) {
-                DB::rollBack();
-                return response('Transaction Not Found', 404);
+            // validation: Check if already in main transaction table (idempotency)
+            $existingTransaction = PaymentTransaction::where('transaction_id', $tran_id)->first();
+            if ($existingTransaction) {
+                 DB::commit();
+                 return response('Already Processed', 200);
             }
 
-            // Already processed
-            if ($transaction->status === 'Complete') {
-                DB::commit();
-                return response('Already Processed', 200);
+            if (!$attempt) {
+                DB::rollBack();
+                return response('Transaction Not Found', 404);
             }
 
             $service = new SSLPaymentService();
 
             // Validate payment with SSLCommerz
-            $isValid = $service->validatePayment($val_id, $tran_id, $transaction->amount);
+            $isValid = $service->validatePayment($val_id, $tran_id, $attempt->amount);
             if (!$isValid) {
-                $transaction->update(['status' => 'Failed']);
+                $attempt->update(['status' => 'Failed']);
                 DB::commit();
                 return response('Validation Failed', 400);
             }
 
-            // Update transaction
-            $transaction->update([
+            // Create Success Transaction
+            PaymentTransaction::create([
+                'user_id' => $attempt->user_id,
+                'student_id' => $attempt->student_id,
+                'payment_id' => $attempt->payment_id,
+                'payer_account' => $attempt->payer_account,
+                'transaction_id' => $attempt->transaction_id,
+                'payment_method_id' => $attempt->payment_method_id,
+                'amount' => $attempt->amount,
                 'status' => 'Complete',
                 'val_id' => $val_id,
                 'bank_tran_id' => $request->input('bank_tran_id'),
                 'card_type' => $request->input('card_type'),
                 'card_no' => substr($request->input('card_no',''), -4),
                 'is_approved' => true,
+                'approved_by' => null, // Auto approved
             ]);
+            
+            // Delete Attempt logic as requested
+            $attempt->delete();
 
             // Update main payment
-            $payment = Payment::find($transaction->payment_id);
+            $payment = Payment::find($attempt->payment_id);
             $payment->update([
-                'paid' => $transaction->amount,
+                'paid' => $attempt->amount,
                 'due' => 0,
             ]);
 
             // Update bank balance
-            $bank = PaymentMethod::find($transaction->payment_method_id);
+            $bank = PaymentMethod::find($attempt->payment_method_id);
             if ($bank) {
-                $bank->increment('income_in_hand', $transaction->amount);
-                $bank->increment('balance', $transaction->amount);
+                $bank->increment('income_in_hand', $attempt->amount);
+                $bank->increment('balance', $attempt->amount);
             }
 
             DB::commit();
@@ -213,45 +226,70 @@ class PaymentController extends Controller
         DB::beginTransaction();
 
         try {
-            $transaction = PaymentTransaction::where('transaction_id', $tran_id)->lockForUpdate()->first();
-
-            if (!$transaction || $transaction->status === 'Complete') {
+            // 1. Check if already succeeded in main table (Webhook might have done it)
+            $existingTransaction = PaymentTransaction::where('transaction_id', $tran_id)->first();
+            if ($existingTransaction && $existingTransaction->status === 'Complete') {
                 DB::commit();
                 return redirect(env('FRONTEND_URL') . '/student-dashboard/payment/success');
             }
 
+            // 2. Look for the attempt
+            $attempt = PaymentAttempt::where('transaction_id', $tran_id)->lockForUpdate()->first();
+
+            if (!$attempt) {
+                // If no attempt AND no success transaction, something is wrong
+                DB::rollBack();
+                return redirect(env('FRONTEND_URL') . '/student-dashboard/payment/fail');
+            }
+
             // Amount verification
-            if ((float)$amount !== (float)$transaction->amount) {
+            if ((float)$amount !== (float)$attempt->amount) {
                 throw new \Exception('Amount mismatch');
             }
 
-            $transaction->update([
-                'status'        => 'Complete',
-                'val_id'        => $val_id,
-                'bank_tran_id'  => $request->bank_tran_id,
-                'card_type'     => $request->card_type,
-                'card_no'       => substr($request->card_no, -4),
-                'is_approved'   => true,
+            // 3. Create Success Transaction
+            PaymentTransaction::create([
+                'user_id' => $attempt->user_id,
+                'student_id' => $attempt->student_id,
+                'payment_id' => $attempt->payment_id,
+                'payer_account' => $attempt->payer_account,
+                'transaction_id' => $attempt->transaction_id,
+                'payment_method_id' => $attempt->payment_method_id,
+                'amount' => $attempt->amount,
+                'status' => 'Complete',
+                'val_id' => $val_id,
+                'bank_tran_id' => $request->bank_tran_id,
+                'card_type' => $request->card_type,
+                'card_no' => substr($request->card_no, -4),
+                'is_approved' => true,
+                'approved_by' => null,
             ]);
 
-            $payment = Payment::find($transaction->payment_id);
+            // 4. Update Payment & Bank
+            $payment = Payment::find($attempt->payment_id);
             $payment->update([
-                'paid' => $transaction->amount,
+                'paid' => $attempt->amount,
                 'due'  => 0,
             ]);
 
-            $bank = PaymentMethod::find($transaction->payment_method_id);
+            $bank = PaymentMethod::find($attempt->payment_method_id);
             if ($bank) {
-                $bank->increment('income_in_hand', $transaction->amount);
-                $bank->increment('balance', $transaction->amount);
+                $bank->increment('income_in_hand', $attempt->amount);
+                $bank->increment('balance', $attempt->amount);
             }
+
+            // 5. Delete attempt
+            $attempt->delete();
 
             DB::commit();
             return redirect(env('FRONTEND_URL') . '/student-dashboard/payment/success');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            $transaction->delete();
+            // In case of error, we can mark attempt as failed or just leave it for retry/investigation
+             if (isset($attempt)) {
+                $attempt->update(['status' => 'Failed']);
+            }
             return redirect(env('FRONTEND_URL') . '/student-dashboard/payment/fail');
         }
     }
@@ -259,18 +297,18 @@ class PaymentController extends Controller
 
     public function paymentFail(Request $request)
     {
-        $transaction = PaymentTransaction::where('transaction_id', $request->tran_id)->first();
-        if ($transaction) {
-            $transaction->delete();
+        $attempt = PaymentAttempt::where('transaction_id', $request->tran_id)->first();
+        if ($attempt) {
+            $attempt->update(['status' => 'Failed']);
         }
         return redirect(env('FRONTEND_URL') . '/student-dashboard/payment/fail');
     }
 
     public function paymentCancel(Request $request)
     {
-        $transaction = PaymentTransaction::where('transaction_id', $request->tran_id)->first();
-        if ($transaction) {
-            $transaction->delete();
+        $attempt = PaymentAttempt::where('transaction_id', $request->tran_id)->first();
+        if ($attempt) {
+            $attempt->update(['status' => 'Cancelled']);
         }
         return redirect(env('FRONTEND_URL') . '/student-dashboard/payment/fail');
     }
