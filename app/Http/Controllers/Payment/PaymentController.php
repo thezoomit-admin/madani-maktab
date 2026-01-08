@@ -207,7 +207,7 @@ class PaymentController extends Controller
         $service = new \App\Services\SSLPaymentService();
 
         if (!$service->validatePayment($val_id)) {
-            return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/fail');
+            return redirect(env('FRONTEND_URL') . '/student-dashboard/payment/fail');
         }
 
         DB::beginTransaction();
@@ -217,7 +217,7 @@ class PaymentController extends Controller
 
             if (!$transaction || $transaction->status === 'Complete') {
                 DB::commit();
-                return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/success');
+                return redirect(env('FRONTEND_URL') . '/student-dashboard/payment/success');
             }
 
             // Amount verification
@@ -247,12 +247,12 @@ class PaymentController extends Controller
             }
 
             DB::commit();
-            return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/success');
+            return redirect(env('FRONTEND_URL') . '/student-dashboard/payment/success');
 
         } catch (\Exception $e) {
             DB::rollBack();
             $transaction->delete();
-            return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/fail');
+            return redirect(env('FRONTEND_URL') . '/student-dashboard/payment/fail');
         }
     }
 
@@ -263,7 +263,7 @@ class PaymentController extends Controller
         if ($transaction) {
             $transaction->delete();
         }
-        return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/fail');
+        return redirect(env('FRONTEND_URL') . '/student-dashboard/payment/fail');
     }
 
     public function paymentCancel(Request $request)
@@ -272,7 +272,7 @@ class PaymentController extends Controller
         if ($transaction) {
             $transaction->delete();
         }
-        return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/fail');
+        return redirect(env('FRONTEND_URL') . '/student-dashboard/payment/fail');
     }
 
 
