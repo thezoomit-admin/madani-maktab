@@ -260,15 +260,19 @@ class PaymentController extends Controller
     public function paymentFail(Request $request)
     {
         $transaction = PaymentTransaction::where('transaction_id', $request->tran_id)->first();
-        $transaction->delete();
+        if ($transaction) {
+            $transaction->delete();
+        }
         return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/fail');
     }
 
     public function paymentCancel(Request $request)
     {
         $transaction = PaymentTransaction::where('transaction_id', $request->tran_id)->first();
-        $transaction->delete();
-        return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/cancel');
+        if ($transaction) {
+            $transaction->delete();
+        }
+        return redirect(env('FRONTEND_URL') . 'student-dashboard/payment/fail');
     }
 
 
