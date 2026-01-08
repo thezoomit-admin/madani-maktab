@@ -76,6 +76,9 @@ class PaymentMethodController extends Controller
         }
     
         $paymentMethod = PaymentMethod::findOrFail($id);
+        if(!$paymentMethod->is_changeable){
+            return error_response(null, 403, "এই পেমেন্ট মেথডটি পরিবর্তনযোগ্য নয়");
+        }
     
         if ($request->hasFile('icon')) { 
             if ($paymentMethod->icon) {
@@ -102,6 +105,10 @@ class PaymentMethodController extends Controller
     public function destroy($id)
     {
         $paymentMethod = PaymentMethod::findOrFail($id);
+        if(!$paymentMethod->is_changeable){
+            return error_response(null, 403, "এই পেমেন্ট মেথড ডিলিটযোগ্য নয়");
+        }
+
         $payment_transaction = PaymentTransaction::where('payment_method_id', $id)->count();
         $office_transaction = OfficeTransaction::where('payment_method_id',$id)->count();
         

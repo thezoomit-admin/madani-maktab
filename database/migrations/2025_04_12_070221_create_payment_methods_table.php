@@ -18,7 +18,8 @@ return new class extends Migration
             $table->text('info')->nullable(); 
             $table->decimal('income_in_hand', 15, 2)->default(0); 
             $table->decimal('expense_in_hand', 15, 2)->default(0); 
-            $table->decimal('balance', 15, 2)->default(0);   
+            $table->decimal('balance', 15, 2)->default(0);
+            $table->boolean('is_changeable')->default(true);  
             $table->timestamps();
         });
     }

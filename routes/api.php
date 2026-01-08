@@ -103,6 +103,7 @@ Route::resource('dynamic-content',DynamicContentController::class);
 Route::post('payment/success', [PaymentController::class, 'paymentSuccess']);
 Route::post('payment/fail', [PaymentController::class, 'paymentFail']);
 Route::post('payment/cancel', [PaymentController::class, 'paymentCancel']);
+Route::post('/api/payment/ssl-webhook', [PaymentController::class, 'sslWebhook']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('registerd-students', RegisterStudentListController::class);

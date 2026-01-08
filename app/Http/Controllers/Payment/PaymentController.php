@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use App\Helpers\HijriDateService;
+use App\Services\SSLPaymentService;
 
 class PaymentController extends Controller
 {
@@ -78,142 +79,205 @@ class PaymentController extends Controller
         }
     }  
 
-    public function payOnline(Request $request)
+     public function payOnline(Request $request)
     {
         DB::beginTransaction();
         try {
-            $payment_id = $request->payment_id;
-            $payment = Payment::find($payment_id);
+            $payment = Payment::find($request->payment_id);
+            if (!$payment) return error_response(null, 404, 'পেমেন্ট আইডি সঠিক নয়।');
 
-            if (!$payment) {
-                return error_response(null, 404, 'পেমেন্ট আইডি সঠিক নয়।');
-            }  
+            // Ownership check
+            if ($payment->user_id !== Auth::id()) return error_response(null, 403, 'অননুমোদিত এক্সেস।');
 
-            $existingTransaction = PaymentTransaction::where('payment_id', $payment->id)
-                ->where('status', 'Complete')
-                ->first();
-
-            if ($existingTransaction) {
-                 return error_response(null, 400, 'পেমেন্ট ইতিমধ্যে সম্পন্ন হয়েছে।');
+            // Already paid?
+            if (PaymentTransaction::where('payment_id', $payment->id)->where('status','Complete')->exists()) {
+                return error_response(null, 400, 'পেমেন্ট ইতিমধ্যে সম্পন্ন হয়েছে।');
             }
 
-            $user = User::find(Auth::user()->id);
+            $user = Auth::user();
             $amount = $payment->amount;
-            
-            // Create Transaction
-            $trx_id = uniqid('TRX');
-            
-             PaymentTransaction::create([
+            $trx_id = 'TRX'.time().rand(1000,9999);
+
+            $transaction = PaymentTransaction::create([
                 'user_id' => $payment->user_id,
                 'student_id' => $payment->student_id,
                 'payment_id' => $payment->id,
-                'payer_account' => $user->phone, 
+                'payer_account' => $user->phone,
                 'transaction_id' => $trx_id,
                 'payment_method_id' => $request->payment_method_id ?? 1,
                 'amount' => $amount,
                 'status' => 'Pending',
                 'is_approved' => false,
-                'approved_by' => null,
             ]);
 
-            DB::commit(); 
-            
-            // Initiate via Service
-            $paymentData = [
-                'amount'  => $amount,
-                'trx_id'  => $trx_id,
+            $service = new SSLPaymentService();
+            $result = $service->initiatePayment([
+                'amount' => $amount,
+                'trx_id' => $trx_id,
                 'cus_name' => $user->name,
                 'cus_email' => $user->email,
                 'cus_phone' => $user->phone
-            ];
+            ]);
 
-            $service = new \App\Services\SSLPaymentService();
-            $result = $service->initiatePayment($paymentData);
-
-            if ($result['status'] == 'success') {
-                 return success_response(['url' => $result['url']], 'SSLCommerz পেমেন্ট পেইজে রিডাইরেক্ট করা হচ্ছে...');
-            } else {
-                 return error_response(null, 400, 'Payment Error: ' . $result['message']);
+            if ($result['status'] !== 'success') {
+                DB::rollBack();
+                return error_response(null, 400, $result['message']);
             }
+
+            DB::commit();
+            return success_response(['url'=>$result['url']], 'SSLCommerz পেমেন্ট পেইজে রিডাইরেক্ট করা হচ্ছে...');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return error_response(null, 500, 'Payment initiation failed');
+        }
+    }
+
+     public function sslWebhook(Request $request)
+    {
+        $tran_id = $request->input('tran_id');
+        $val_id  = $request->input('val_id');
+
+        DB::beginTransaction();
+        try {
+            $transaction = PaymentTransaction::where('transaction_id', $tran_id)
+                                ->lockForUpdate()
+                                ->first();
+
+            if (!$transaction) {
+                DB::rollBack();
+                return response('Transaction Not Found', 404);
+            }
+
+            // Already processed
+            if ($transaction->status === 'Complete') {
+                DB::commit();
+                return response('Already Processed', 200);
+            }
+
+            $service = new SSLPaymentService();
+
+            // Validate payment with SSLCommerz
+            $isValid = $service->validatePayment($val_id, $tran_id, $transaction->amount);
+            if (!$isValid) {
+                $transaction->update(['status' => 'Failed']);
+                DB::commit();
+                return response('Validation Failed', 400);
+            }
+
+            // Update transaction
+            $transaction->update([
+                'status' => 'Complete',
+                'val_id' => $val_id,
+                'bank_tran_id' => $request->input('bank_tran_id'),
+                'card_type' => $request->input('card_type'),
+                'card_no' => substr($request->input('card_no',''), -4),
+                'is_approved' => true,
+            ]);
+
+            // Update main payment
+            $payment = Payment::find($transaction->payment_id);
+            $payment->update([
+                'paid' => $transaction->amount,
+                'due' => 0,
+            ]);
+
+            // Update bank balance
+            $bank = PaymentMethod::find($transaction->payment_method_id);
+            if ($bank) {
+                $bank->increment('income_in_hand', $transaction->amount);
+                $bank->increment('balance', $transaction->amount);
+            }
+
+            DB::commit();
+            return response('Payment Completed', 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return error_response(null, 500, $e->getMessage());
+            \Log::error('SSL Webhook Error: '.$e->getMessage());
+            return response('Internal Error', 500);
         }
-    }  
+    }
 
-    public function paymentSuccess(Request $request) {
-        $tran_id = $request->input('tran_id');
-        $val_id = $request->input('val_id');
-        $amount = $request->input('amount');
-        
-        // Metadata from Gateway
-        $card_type = $request->input('card_type');
-        $bank_tran_id = $request->input('bank_tran_id');
-        $card_no = $request->input('card_no');
+    public function paymentSuccess(Request $request)
+    {
+        $tran_id = $request->tran_id;
+        $val_id  = $request->val_id;
+        $amount  = $request->amount;
 
         $service = new \App\Services\SSLPaymentService();
 
-        if ($service->validatePayment($val_id)) {
-             DB::beginTransaction();
-             try {
-                $transaction = PaymentTransaction::where('transaction_id', $tran_id)->first();
-                if ($transaction) {
-                    // Update Transaction
-                    $transaction->status = 'Complete';
-                    $transaction->val_id = $val_id;
-                    $transaction->bank_tran_id = $bank_tran_id;
-                    $transaction->card_type = $card_type;
-                    $transaction->card_no = $card_no;
-                    $transaction->is_approved = true;
-                    $transaction->save();
-
-                    // Update Main Payment
-                    $payment = Payment::find($transaction->payment_id);
-                    if ($payment) {
-                        $payment->paid = $amount;
-                        $payment->due = 0;
-                        $payment->save();
-                    }
-                    
-                    // Bank Balance Update
-                    $bank = PaymentMethod::find($transaction->payment_method_id); 
-                    if ($bank) {
-                        $bank->income_in_hand += $amount;
-                        $bank->balance += $amount;
-                        $bank->save();
-                    }
-
-                    DB::commit();
-                    return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/payment/success');
-                }
-             } catch (\Exception $e) {
-                 DB::rollBack();
-                 return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/payment/fail');
-             }
+        if (!$service->validatePayment($val_id)) {
+            return redirect(env('FRONTEND_URL') . '/payment/fail');
         }
-        return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/payment/fail');
+
+        DB::beginTransaction();
+
+        try {
+            $transaction = PaymentTransaction::where('transaction_id', $tran_id)->lockForUpdate()->first();
+
+            if (!$transaction || $transaction->status === 'Complete') {
+                DB::commit();
+                return redirect(env('FRONTEND_URL') . '/payment/success');
+            }
+
+            // Amount verification
+            if ((float)$amount !== (float)$transaction->amount) {
+                throw new \Exception('Amount mismatch');
+            }
+
+            $transaction->update([
+                'status'        => 'Complete',
+                'val_id'        => $val_id,
+                'bank_tran_id'  => $request->bank_tran_id,
+                'card_type'     => $request->card_type,
+                'card_no'       => substr($request->card_no, -4),
+                'is_approved'   => true,
+            ]);
+
+            $payment = Payment::find($transaction->payment_id);
+            $payment->update([
+                'paid' => $transaction->amount,
+                'due'  => 0,
+            ]);
+
+            $bank = PaymentMethod::find($transaction->payment_method_id);
+            if ($bank) {
+                $bank->increment('income_in_hand', $transaction->amount);
+                $bank->increment('balance', $transaction->amount);
+            }
+
+            DB::commit();
+            return redirect(env('FRONTEND_URL') . '/payment/success');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect(env('FRONTEND_URL') . '/payment/fail');
+        }
     }
 
-    public function paymentFail(Request $request) {
-        $tran_id = $request->input('tran_id');
-        $transaction = PaymentTransaction::where('transaction_id', $tran_id)->first();
-        if ($transaction) {
-            $transaction->status = 'Failed';
-            $transaction->save();
+
+    public function paymentFail(Request $request)
+    {
+        $transaction = PaymentTransaction::where('transaction_id', $request->tran_id)->first();
+
+        if ($transaction && $transaction->status === 'Pending') {
+            $transaction->update(['status' => 'Failed']);
         }
-        return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/payment/fail');
+
+        return redirect(env('FRONTEND_URL') . '/payment/fail');
     }
 
-    public function paymentCancel(Request $request) {
-        $tran_id = $request->input('tran_id');
-        $transaction = PaymentTransaction::where('transaction_id', $tran_id)->first();
-        if ($transaction) {
-            $transaction->status = 'Canceled';
-            $transaction->save();
+    public function paymentCancel(Request $request)
+    {
+        $transaction = PaymentTransaction::where('transaction_id', $request->tran_id)->first();
+
+        if ($transaction && $transaction->status === 'Pending') {
+            $transaction->update(['status' => 'Canceled']);
         }
-        return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/payment/cancel');
+
+        return redirect(env('FRONTEND_URL') . '/payment/cancel');
     }
+
 
 
     public function paymentList(Request $request)
