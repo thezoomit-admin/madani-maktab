@@ -118,7 +118,7 @@ class PaymentMethodController extends Controller
     
         if ($paymentMethod->icon) {
             $oldIconPath = public_path($paymentMethod->icon);
-            if (file_exists($oldIconPath)) {
+        if (file_exists($oldIconPath)) {
                 unlink($oldIconPath);
             }
         } 

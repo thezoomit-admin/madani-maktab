@@ -100,10 +100,7 @@ Route::get('student/{id}', [AdmissionStudentController::class,'student']);
 Route::get('student-register-last-stage', [AdmissionStudentController::class,'isCompleted']);
 Route::get('dashboard',DashboardController::class);
 Route::resource('dynamic-content',DynamicContentController::class);
-Route::post('payment/success', [PaymentController::class, 'paymentSuccess']);
-Route::post('payment/fail', [PaymentController::class, 'paymentFail']);
-Route::post('payment/cancel', [PaymentController::class, 'paymentCancel']);
-Route::post('/api/payment/ssl-webhook', [PaymentController::class, 'sslWebhook']);
+
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('registerd-students', RegisterStudentListController::class);
@@ -195,6 +192,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('payment-method',PaymentMethodController::class);
     Route::post('pay-now',[PaymentController::class,'payNow']);
     Route::post('pay-online',[PaymentController::class,'payOnline']);
+    Route::post('payment/success', [PaymentController::class, 'paymentSuccess']);
+    Route::post('payment/fail', [PaymentController::class, 'paymentFail']);
+    Route::post('payment/cancel', [PaymentController::class, 'paymentCancel']);
+    Route::post('/api/payment/ssl-webhook', [PaymentController::class, 'sslWebhook']);
     Route::get('payment-list',[PaymentController::class,'paymentList']);
     Route::get('approve-payment/{id}',[PaymentController::class,'approvePayment']);   
 
