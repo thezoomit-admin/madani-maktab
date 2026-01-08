@@ -69,26 +69,26 @@ Route::get('/',function(){
 // });
  
 
-Route::get('/refresh', function () {  
+// Route::get('/refresh', function () {  
    
- DB::statement('SET FOREIGN_KEY_CHECKS=0;'); 
-     $payments = Payment::all();
-     foreach($payments as $payment){
-          $payment->paid = 0;
-          $payment->due = $payment->amount;
-          $payment->save();
-     }
-     PaymentTransaction::truncate(); 
-     $payments_methods = PaymentMethod::all();
-     foreach($payments_methods as $method){
-          $method->income_in_hand = 0;
-          $method->expense_in_hand = 0;
-          $method->balance = $method->income_in_hand; 
-          $method->save();
-     }
-     OfficeTransaction::truncate();
-     Expense::truncate();
-     DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-     return 'Refresh completed successfully!';
-});
+//  DB::statement('SET FOREIGN_KEY_CHECKS=0;'); 
+//      $payments = Payment::all();
+//      foreach($payments as $payment){
+//           $payment->paid = 0;
+//           $payment->due = $payment->amount;
+//           $payment->save();
+//      }
+//      PaymentTransaction::truncate(); 
+//      $payments_methods = PaymentMethod::all();
+//      foreach($payments_methods as $method){
+//           $method->income_in_hand = 0;
+//           $method->expense_in_hand = 0;
+//           $method->balance = $method->income_in_hand; 
+//           $method->save();
+//      }
+//      OfficeTransaction::truncate();
+//      Expense::truncate();
+//      DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+//      return 'Refresh completed successfully!';
+// });
  
