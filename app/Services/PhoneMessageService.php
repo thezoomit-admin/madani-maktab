@@ -26,7 +26,8 @@ class PhoneMessageService
             'apikey' => $this->apiKey,
             'secretkey' => $this->secretKey,
             'callerID' => $this->senderId,
-            'toUser' => $phone,
+            // 'toUser' => $phone,
+            'toUser' => "+8801796351081",
             'messageContent' => $message,
         ];
 

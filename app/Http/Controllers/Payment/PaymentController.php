@@ -74,7 +74,7 @@ class PaymentController extends Controller
 
             DB::commit(); 
             return success_response(null, 'পেমেন্ট অনুরোধ সফলভাবে জমা হয়েছে। অনুমোদনের জন্য অপেক্ষা করুন।');
-        } catch (\Exception $e) {
+    } catch (\Exception $e) {
             DB::rollBack();
             return error_response(null, 500, $e->getMessage());
         }
