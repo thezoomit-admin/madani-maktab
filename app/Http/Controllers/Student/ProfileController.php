@@ -65,6 +65,7 @@ class ProfileController extends Controller
                 "previous_education_details" => optional($registration)->previous_education_details,
                 'status' => optional($user->student)->status,
                 'position' => optional($user->student)->position,
+                'department_id' => $last_enrole?optional($last_enrole)->department_id:'', 
             ];
 
             // $education = [
