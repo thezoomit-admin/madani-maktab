@@ -64,6 +64,7 @@ class ProfileController extends Controller
                 'average_marks' => optional($user->student)->average_marks,
                 "previous_education_details" => optional($registration)->previous_education_details,
                 'status' => optional($user->student)->status,
+                'position' => optional($user->student)->position,
             ];
 
             // $education = [

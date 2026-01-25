@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('jamaat')->nullable();
             $table->string('average_marks')->nullable();
             $table->tinyInteger('status')->default(0)->comment('1= Running, 2= Completed');
+            $table->string('position')->nullable();
             $table->timestamps();
         });
     }

@@ -34,6 +34,7 @@ class ProfileUpdateController extends Controller
             'jamaat' => 'nullable|string',
             'gender' => 'nullable|in:male,female,others',
             'status' => 'nullable|integer',
+            'position' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -56,7 +57,7 @@ class ProfileUpdateController extends Controller
         $student = Student::where('user_id', $id)->first();
         if ($student) {
             $student->fill($request->only([
-                'reg_id', 'jamaat', 'status'
+                'reg_id', 'jamaat', 'status','position'
             ]))->save();
 
             $enrole = Enrole::where('user_id', $user->id)->orderBy('id', 'desc')->first();
