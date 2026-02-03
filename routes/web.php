@@ -92,3 +92,48 @@ Route::get('/refresh', function () {
      return 'Refresh completed successfully!';
 });
  
+Route::get('/revert-last-step', function() {
+    $reg_ids = ['ম-121', 'ম-119', 'ম-114', 'ম-111', 'ম-101', 'ম-100', 'ম-099', 'ম-94', 'ম-92', 'ম-91', 'ম-90', 'ম-84', 'ম-83', 'ম-82', 'ম-81', 'ম-80', 'ম-75', 'ম-74', 'ম-69', 'ম-65', 'ম-59', 'ম-58', 'ম-34', 'ম-28', 'ম-53', 'ম-14'];
+
+    DB::beginTransaction();
+    try {
+        foreach($reg_ids as $id){
+            $student = StudentRegister::where('reg_id', $id)->first();
+            if($student){
+                $user = $student->user;
+                
+                if($user->answerFiles && count($user->answerFiles)>0){
+                    foreach($user->answerFiles as $file){
+                        $path = public_path($file->link);
+                        if(file_exists($path)){
+                            unlink($path);
+                        }
+                        $file->delete();
+                    }
+                }
+
+                // Delete User Family
+                if($user->userFamily){
+                    $user->userFamily->delete();
+                }
+
+                // Reset Admission Progress
+                if($user->admissionProgress){
+                    $user->admissionProgress->is_registration_complete = null;
+                    $user->admissionProgress->is_passed_age = null;
+                    $user->admissionProgress->save();
+                }
+
+                // Reset Note
+                $student->note = null;
+                $student->save();
+
+                echo $id." Reverted <br>"; 
+            }
+        }
+        DB::commit();
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return $e->getMessage();
+    }
+});
