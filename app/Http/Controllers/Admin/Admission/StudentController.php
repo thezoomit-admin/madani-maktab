@@ -37,6 +37,7 @@ class StudentController extends Controller
         $status = $request->status; 
         $department = $request->department;
         $year = $request->year;
+        $student_register_id = $request->student_register_id;
 
         if (!$year) {
             $active_month = HijriMonth::where('is_active', true)->first();
@@ -52,8 +53,11 @@ class StudentController extends Controller
                     $query->whereBetween('created_at', [$range['start_date'], $range['end_date']]);
                 }
             })
-            ->whereHas('studentRegister', function($q) use($department) {
+            ->whereHas('studentRegister', function($q) use($department, $student_register_id) {
                 $q->where('department_id', $department);
+                if($student_register_id){
+                    $q->where('reg_id', 'like', "%{$student_register_id}%");
+                }
             });
  
         if ($status != 'all') {
