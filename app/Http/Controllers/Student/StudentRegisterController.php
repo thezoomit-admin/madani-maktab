@@ -271,8 +271,6 @@ class StudentRegisterController extends Controller
             return error_response($e->getMessage(),500);
         }
     } 
- 
-
 }
 
 
