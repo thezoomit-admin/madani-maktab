@@ -49,7 +49,8 @@ Route::get('/',function(){
 Route::get('test-sms',function(){
         $message = "This is a test message from Maktab System.";
         $phone = "+8801796351081";
-        $response = PhoneMessageService::sendMessage($phone, $message);
+        $messageService = new PhoneMessageService;
+        $response = $messageService->sendMessage($phone, $message);  
         dd($response);
 });
 
