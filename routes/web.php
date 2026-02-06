@@ -46,6 +46,12 @@ Route::get('/sync-attendance', [AttendanceSyncController::class, 'sync']);
 Route::get('/',function(){
      dd("Success");
 });
+Route::get('test-sms',function(){
+        $message = "This is a test message from Maktab System.";
+        $phone = "+8801796351081";
+        $response = PhoneMessageService::sendMessage($phone, $message);
+        dd($response);
+})
 
 // Route::get('update-reg-id', function(){ 
 //      $startDate = Carbon::now()->subMonths(5); 
