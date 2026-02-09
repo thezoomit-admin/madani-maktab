@@ -19,6 +19,7 @@ use App\Models\Student;
 use App\Models\StudentRegister;
 use App\Models\TeacherComment;
 use App\Models\User;
+use App\Models\FeeSetting;
 use App\Services\AttendanceService;
 use App\Services\EnrollmentService;
 use Illuminate\Http\Request;
@@ -306,8 +307,24 @@ class StudentController extends Controller
             $session = $request->input('session');
             $fee_type = $request->input('fee_type');
             $fee = $request->input('fee', null);
-            $admission_fee = $request->input('admission_fee', 0);
             $roll_number = $request->input('roll_number', null);
+
+            // Fetch Standard Fees from Settings
+            $standard_monthly_fee = 0;
+            $setting_admission_fee = 0;
+
+            if ($department_id == Department::Maktab) {
+                $standard_monthly_fee = FeeSetting::where('key', 'maktab_monthly_fee')->value('value') ?? 0;
+                $setting_admission_fee = FeeSetting::where('key', 'maktab_admission_fee')->value('value') ?? 0;
+            } elseif ($department_id == Department::Kitab) {
+                $standard_monthly_fee = FeeSetting::where('key', 'kitab_monthly_fee')->value('value') ?? 0;
+                $setting_admission_fee = FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0;
+            }
+
+            // Admission Fee Logic
+            // If frontend sends null, use setting fee. Otherwise use input (even if 0).
+            $admission_fee_input = $request->input('admission_fee');
+            $admission_fee = is_null($admission_fee_input) ? $setting_admission_fee : $admission_fee_input;
 
             // Create new enrollment using service
             $newEnrole = EnrollmentService::createEnrollment([
@@ -318,6 +335,7 @@ class StudentController extends Controller
                 'roll_number' => $roll_number,
                 'fee_type' => $fee_type,
                 'fee' => $fee,
+                'standard_monthly_fee' => $standard_monthly_fee,
                 'admission_fee' => $admission_fee,
                 'status' => 1, // Running
             ]);

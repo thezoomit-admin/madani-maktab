@@ -201,6 +201,7 @@ class ExistingStudentController extends Controller
                 'roll_number' => $request->roll_number,
                 'fee_type' => $request->fee_type,
                 'fee' => $request->fee ?? null,
+                'standard_monthly_fee' => $monthly_fee,
                 'admission_fee' => $admission_fee,
                 'status' => 1,
             ]);

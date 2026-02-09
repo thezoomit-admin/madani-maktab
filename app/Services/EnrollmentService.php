@@ -12,34 +12,40 @@ use Illuminate\Support\Facades\Auth;
 class EnrollmentService
 {
     /**
-     * Calculate monthly fee based on fee type
+     * Calculate monthly fee based on fee type and settings
      * 
      * @param int $fee_type
-     * @param float|null $fee
+     * @param float|null $custom_fee (User input fee)
+     * @param float|null $standard_fee (Fee from settings)
      * @return array ['fee_type' => int, 'monthly_fee' => float, 'regular_monthly_fee' => float]
      */
-    public static function calculateFeeType($fee_type, $fee = null)
+    public static function calculateFeeType($fee_type, $custom_fee = null, $standard_fee = 0)
     {
-        $monthly_fee = $fee ?? 0;
-        $regular_monthly_fee = $fee ?? 0;
+        $monthly_fee = 0;
+        $regular_monthly_fee = 0;
         $final_fee_type = $fee_type;
+        $custom_fee = $custom_fee ?? 0;
+        $standard_fee = $standard_fee ?? 0;
 
-        if ($fee_type == FeeType::Half) {
-            $monthly_fee = $fee ?? 0;
-            $regular_monthly_fee = $fee ?? 0;
+        if ($fee_type == FeeType::General) {
+            $monthly_fee = $standard_fee;
+            $regular_monthly_fee = $standard_fee;
+        } elseif ($fee_type == FeeType::Half) {
+            $monthly_fee = $custom_fee;
+            $regular_monthly_fee = $custom_fee;
         } elseif ($fee_type == FeeType::Guest) {
             $monthly_fee = 0;
             $regular_monthly_fee = 0;
         } elseif ($fee_type == FeeType::HalfButThisMonthGeneral) {
-            $final_fee_type = FeeType::Half;
-            $regular_monthly_fee = $fee ?? 0;
+            $monthly_fee = $standard_fee;
+            $regular_monthly_fee = $custom_fee;
         } elseif ($fee_type == FeeType::GuestButThisMonthGeneral) {
-            $final_fee_type = FeeType::Guest;
+            $monthly_fee = $standard_fee;
             $regular_monthly_fee = 0;
         }
 
         return [
-            'fee_type' => $final_fee_type,
+            'fee_type' => $fee_type,
             'monthly_fee' => $monthly_fee,
             'regular_monthly_fee' => $regular_monthly_fee,
         ];
@@ -57,7 +63,8 @@ class EnrollmentService
      *   'roll_number' => int|null,
      *   'marks' => string|null,
      *   'fee_type' => int,
-     *   'fee' => float|null,
+     *   'fee' => float|null, (Custom Fee)
+     *   'standard_monthly_fee' => float|null, (Standard Fee from Settings)
      *   'status' => int (default: 1),
      *   'admission_fee' => float|null,
      *   'create_payments' => bool (default: true), // Whether to create payment records
@@ -79,7 +86,8 @@ class EnrollmentService
         // Calculate fee type
         $feeCalculation = self::calculateFeeType(
             $enrollmentData['fee_type'],
-            $enrollmentData['fee'] ?? null
+            $enrollmentData['fee'] ?? null,
+            $enrollmentData['standard_monthly_fee'] ?? 0
         );
 
         // Create enrollment
@@ -92,7 +100,7 @@ class EnrollmentService
             'roll_number' => $enrollmentData['roll_number'] ?? null,
             'marks' => $enrollmentData['marks'] ?? null,
             'fee_type' => $feeCalculation['fee_type'],
-            'fee' => $enrollmentData['fee'] ?? null,
+            'fee' => $enrollmentData['fee'] ?? null, // Storing what was passed (custom fee usually)
             'status' => $enrollmentData['status'] ?? 1,
         ]);
 
