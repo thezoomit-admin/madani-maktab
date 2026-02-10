@@ -272,8 +272,6 @@ class StudentController extends Controller
             'admission_fee' => 'nullable|numeric|min:0',
             'roll_number' => 'nullable|integer',
         ]);
-
-        dd($request->all());
         if ($validator->fails()) {
             return error_response($validator->errors(), 422, 'ভ্যালিডেশন ব্যর্থ হয়েছে।');
         }
