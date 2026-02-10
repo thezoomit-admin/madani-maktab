@@ -144,3 +144,50 @@ Route::get('/revert-last-step', function() {
         return $e->getMessage();
     }
 });
+
+Route::get('/fix-enrollments-1447', function () {
+    DB::beginTransaction();
+    try {
+        $year = 1447;
+        
+        // Find enrollments for the specified year
+        $enrolesToDelete = Enrole::where('year', $year)->get();
+        $count = $enrolesToDelete->count();
+        
+        if ($count === 0) {
+            return "No enrollments found for year $year.";
+        }
+
+        foreach ($enrolesToDelete as $enrole) {
+            $studentId = $enrole->student_id;
+            
+            // 1. Delete associated payments and transactions
+            $payments = Payment::where('enrole_id', $enrole->id)->get();
+            foreach ($payments as $payment) {
+                // Delete payment transactions linked to this payment
+                PaymentTransaction::where('payment_id', $payment->id)->delete();
+                $payment->delete();
+            }
+
+            // 2. Delete the enrollment itself
+            $enrole->delete();
+
+            // 3. Find the previous enrollment and set it to active (status 1)
+            $previousEnrole = Enrole::where('student_id', $studentId)
+                ->orderByDesc('id')
+                ->first(); // Since we just deleted the latest, this should be the previous one
+
+            if ($previousEnrole) {
+                $previousEnrole->status = 1; // Set to active/running
+                $previousEnrole->save();
+            }
+        }
+
+        DB::commit();
+        return "Successfully removed $count enrollments for year $year and reverted to previous active status.";
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return "Error: " . $e->getMessage();
+    }
+});
