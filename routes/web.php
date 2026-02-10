@@ -76,28 +76,23 @@ Route::get('test-sms',function(){
 // });
  
 
-Route::get('/refresh', function () {  
-   
- DB::statement('SET FOREIGN_KEY_CHECKS=0;'); 
-     $payments = Payment::all();
-     foreach($payments as $payment){
-          $payment->paid = 0;
-          $payment->due = $payment->amount;
-          $payment->save();
-     }
-     PaymentTransaction::truncate(); 
-     $payments_methods = PaymentMethod::all();
-     foreach($payments_methods as $method){
-          $method->income_in_hand = 0;
-          $method->expense_in_hand = 0;
-          $method->balance = $method->income_in_hand; 
-          $method->save();
-     }
-     OfficeTransaction::truncate();
-     Expense::truncate();
-     DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-     return 'Refresh completed successfully!';
+Route::get('/refresh', function () {
+    DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+    Payment::truncate(); 
+    PaymentTransaction::truncate();  
+    $payment_methods = PaymentMethod::all();
+    foreach ($payment_methods as $method) {
+        $method->income_in_hand = 0;
+        $method->expense_in_hand = 0;
+        $method->balance = 0;
+        $method->save();
+    }
+    OfficeTransaction::truncate();
+    Expense::truncate();
+    DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+    return 'Refresh completed successfully!';
 });
+
  
 Route::get('/revert-last-step', function() {
     $reg_ids = ['ম-091', 'ম-098'];
