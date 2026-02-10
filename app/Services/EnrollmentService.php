@@ -142,7 +142,7 @@ class EnrollmentService
         $updated_by = Auth::id();
 
         // Create Admission Fee Payment if provided
-        if ($admission_fee > 0) {
+        if ($admission_fee >= 0) {
             Payment::create([
                 'user_id' => $user_id,
                 'student_id' => $student_id,
