@@ -323,8 +323,11 @@ class StudentController extends Controller
 
             // Admission Fee Logic
             // If frontend sends null, use setting fee. Otherwise use input (even if 0).
-            $admission_fee_input = $request->input('admission_fee');
-            $admission_fee = is_null($admission_fee_input) ? $setting_admission_fee : $admission_fee_input;
+            if ($request->has('admission_fee') && !is_null($request->input('admission_fee'))) {
+                $admission_fee = $request->input('admission_fee');
+            } else {
+                $admission_fee = $setting_admission_fee;
+            }
 
             // Create new enrollment using service
             $newEnrole = EnrollmentService::createEnrollment([
