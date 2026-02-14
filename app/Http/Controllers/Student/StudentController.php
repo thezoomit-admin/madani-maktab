@@ -284,6 +284,17 @@ class StudentController extends Controller
                 return error_response(null, 404, 'স্টুডেন্ট খুঁজে পাওয়া যায়নি।');
             }
 
+            // Check if already enrolled in the current year
+            $active_month = HijriMonth::where('is_active', true)->first();
+            if ($active_month) {
+                $exists = Enrole::where('student_id', $id)
+                    ->where('year', $active_month->year)
+                    ->exists();
+                if ($exists) {
+                    return error_response(null, 422, 'এই শিক্ষার্থী ইতিমধ্যে ' . $active_month->year . ' সালে ভর্তি আছে।');
+                }
+            }
+
             // Get current active enrollment
             $currentEnrole = Enrole::where('student_id', $id)
                 ->where('status', 1)
@@ -343,8 +354,8 @@ class StudentController extends Controller
                 'status' => 1, // Running
             ]);
 
-            // Get active month for response
-            $active_month = HijriMonth::where('is_active', true)->first();
+            // Active month is already fetched above
+            // $active_month = HijriMonth::where('is_active', true)->first();
 
             // Get session names for response
             $currentDepartmentId = $currentEnrole->department_id;
