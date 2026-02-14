@@ -320,9 +320,10 @@ class StudentController extends Controller
                 $setting_admission_fee = FeeSetting::where('key', 'kitab_admission_fee')->value('value') ?? 0;
             }
 
-            // Admission Fee Logic
-            // If frontend sends null, use setting fee. Otherwise use input (even if 0).
-            if ($request->has('admission_fee') && !is_null($request->input('admission_fee'))) {
+            // Admission Fee Logic 
+            if ($fee_type == FeeType::General) {
+                $admission_fee = $setting_admission_fee;
+            } elseif ($request->has('admission_fee') && !is_null($request->input('admission_fee'))) {
                 $admission_fee = $request->input('admission_fee');
             } else {
                 $admission_fee = $setting_admission_fee;
