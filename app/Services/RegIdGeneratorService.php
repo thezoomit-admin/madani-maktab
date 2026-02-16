@@ -38,8 +38,8 @@ class RegIdGeneratorService
 
     /**
      * Generate Maktab registration ID
-     * Format: {year}{session}{sequence}
-     * Example: 47101, 47102, 47201, etc.
+     * Format: 0{year}{session}{sequence}
+     * Example: 047101, 047102, 047201, etc.
      *
      * @param string $year Last 2 digits of year (e.g., "47")
      * @param int $session Session number (1-5)
@@ -47,8 +47,8 @@ class RegIdGeneratorService
      */
     private function generateMaktabRegId(string $year, int $session): string
     {
-        $prefix = $year . $session; // e.g., "471" for year 47, session 1
-        $expectedLength = strlen($prefix) + 2; // Total length: prefix + 2 digits (e.g., 5 for "47101")
+        $prefix = '0' . $year . $session; // e.g., "0471" for year 47, session 1
+        $expectedLength = strlen($prefix) + 2; // Total length: prefix + 2 digits (e.g., 6 for "047101")
 
         // Find the last reg_id matching this pattern
         // Pattern: starts with prefix, total length matches
@@ -74,8 +74,8 @@ class RegIdGeneratorService
 
     /**
      * Generate Kitab registration ID
-     * Format: 0{year}{session}{sequence}
-     * Example: 047101, 047102, 047201, etc.
+     * Format: {year}{session}{sequence}
+     * Example: 47101, 47102, 47201, etc.
      *
      * @param string $year Last 2 digits of year (e.g., "47")
      * @param int $session Session number (0-7)
@@ -83,8 +83,8 @@ class RegIdGeneratorService
      */
     private function generateKitabRegId(string $year, int $session): string
     {
-        $prefix = '0' . $year . $session; // e.g., "0471" for year 47, session 1
-        $expectedLength = strlen($prefix) + 2; // Total length: prefix + 2 digits (e.g., 6 for "047101")
+        $prefix = $year . $session; // e.g., "471" for year 47, session 1
+        $expectedLength = strlen($prefix) + 2; // Total length: prefix + 2 digits (e.g., 5 for "47101")
 
         // Find the last reg_id matching this pattern
         // Pattern: starts with prefix, total length matches

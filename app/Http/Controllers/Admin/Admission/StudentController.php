@@ -171,13 +171,12 @@ class StudentController extends Controller
             $session = $request->session; // Session number from request
             $reg_id = $regIdGenerator->generate($department_id, $session);
 
-          
             $user->reg_id = $reg_id;
             $user->save();
 
             $student = Student::create([
                 'user_id' => $id,
-                'reg_id' => $reg_id,
+                'reg_id' => $reg_id, 
                 'jamaat' => $request->jamaat,
                 'average_marks' => 0,
                 'status' => 1
