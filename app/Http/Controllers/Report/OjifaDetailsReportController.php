@@ -29,6 +29,7 @@ class OjifaDetailsReportController extends Controller
         foreach ($monthKeys as $monthId) {
             $headerRow[$monthId] = $hijriMonths[$monthId];
         }
+        $headerRow['total'] = 'মোট';
 
         $datas = [
             'total' => array_merge([$headerRow], $totalData), // Header row included in total
@@ -97,6 +98,7 @@ class OjifaDetailsReportController extends Controller
         $feeTypes = FeeType::values(); 
 
         $totalRow = ["1" => 'মোট তালিবে ইলম'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $totalStudents = (clone $baseQuery)
                 ->whereIn('hijri_month_id', function ($query) use ($monthValue) {
@@ -107,11 +109,14 @@ class OjifaDetailsReportController extends Controller
                 ->distinct('student_id')
                 ->count('student_id');
             $totalRow[(string)$monthValue] = $totalStudents > 0 ? $totalStudents : '-';
+            $rowTotal += $totalStudents;
         }
+        $totalRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $totalData[] = $totalRow; 
 
         foreach ($feeTypes as $feeTypeId => $feeTypeLabel) {
             $row = ["1" => $feeTypeLabel];
+            $rowTotal = 0;
             foreach ($monthKeys as $monthValue) {
                 $studentCount = (clone $baseQuery)
                     ->where('fee_type', $feeTypeId)
@@ -123,7 +128,9 @@ class OjifaDetailsReportController extends Controller
                     ->distinct('student_id')
                     ->count('student_id');
                 $row[(string)$monthValue] = $studentCount > 0 ? $studentCount : '-';
+                $rowTotal += $studentCount;
             }
+            $row['total'] = $rowTotal > 0 ? $rowTotal : '-';
             $totalData[] = $row;
         }
 
@@ -140,6 +147,7 @@ class OjifaDetailsReportController extends Controller
         ];  
 
         $generalCollectorsRow = ["1" => 'সাধারণ আদায়কারী'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $count = (clone $baseQuery)
                 ->whereIn('fee_type', $generalFeeTypes)
@@ -151,10 +159,13 @@ class OjifaDetailsReportController extends Controller
                 ->distinct('student_id')
                 ->count('student_id');
             $generalCollectorsRow[(string)$monthValue] = $count > 0 ? $count : '-';
+            $rowTotal += $count;
         }
+        $generalCollectorsRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $generalData[] = $generalCollectorsRow; 
 
         $generalCollectedRow = ["1" => 'সাধারণ আদায় করেছে'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $count = (clone $baseQuery)
                 ->whereIn('fee_type', $generalFeeTypes)
@@ -167,10 +178,13 @@ class OjifaDetailsReportController extends Controller
                 ->distinct('student_id')
                 ->count('student_id');
             $generalCollectedRow[(string)$monthValue] = $count > 0 ? $count : '-';
+            $rowTotal += $count;
         }
+        $generalCollectedRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $generalData[] = $generalCollectedRow; 
 
         $generalPendingRow = ["1" => 'সাধারণ বাকি'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $count = (clone $baseQuery)
                 ->whereIn('fee_type', $generalFeeTypes)
@@ -183,10 +197,13 @@ class OjifaDetailsReportController extends Controller
                 ->distinct('student_id')
                 ->count('student_id');
             $generalPendingRow[(string)$monthValue] = $count > 0 ? $count : '-';
+            $rowTotal += $count;
         }
+        $generalPendingRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $generalData[] = $generalPendingRow; 
 
         $generalToBeCollectedRow = ["1" => 'সাধারণ আদায় হবে'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $total = (clone $baseQuery)
                 ->whereIn('fee_type', $generalFeeTypes)
@@ -197,10 +214,13 @@ class OjifaDetailsReportController extends Controller
                 })
                 ->sum('amount');
             $generalToBeCollectedRow[(string)$monthValue] = $total > 0 ? $total : '-';
+            $rowTotal += $total;
         }
+        $generalToBeCollectedRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $generalData[] = $generalToBeCollectedRow; 
 
         $generalTotalCollectedRow = ["1" => 'সাধারণ আদায় মোট'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $total = (clone $baseQuery)
                 ->whereIn('fee_type', $generalFeeTypes)
@@ -211,10 +231,13 @@ class OjifaDetailsReportController extends Controller
                 })
                 ->sum('paid');
             $generalTotalCollectedRow[(string)$monthValue] = $total > 0 ? $total : '-';
+            $rowTotal += $total;
         }
+        $generalTotalCollectedRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $generalData[] = $generalTotalCollectedRow; 
 
         $generalTotalPendingRow = ["1" => 'সাধারণ বাকি মোট'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $total = (clone $baseQuery)
                 ->whereIn('fee_type', $generalFeeTypes)
@@ -225,7 +248,9 @@ class OjifaDetailsReportController extends Controller
                 })
                 ->sum('due');
             $generalTotalPendingRow[(string)$monthValue] = $total > 0 ? $total : '-';
+            $rowTotal += $total;
         }
+        $generalTotalPendingRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $generalData[] = $generalTotalPendingRow; 
 
         return $generalData;
@@ -237,6 +262,7 @@ class OjifaDetailsReportController extends Controller
         $halfFeeTypes = [FeeType::Half]; 
 
         $halfCollectorsRow = ["1" => 'আংশিক আদায়কারী'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $count = (clone $baseQuery)
                 ->whereIn('fee_type', $halfFeeTypes)
@@ -248,10 +274,13 @@ class OjifaDetailsReportController extends Controller
                 ->distinct('student_id')
                 ->count('student_id');
             $halfCollectorsRow[(string)$monthValue] = $count > 0 ? $count : '-';
+            $rowTotal += $count;
         }
+        $halfCollectorsRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $halfData[] = $halfCollectorsRow; 
 
         $halfCollectedRow = ["1" => 'আংশিক আদায় করেছে'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $count = (clone $baseQuery)
                 ->whereIn('fee_type', $halfFeeTypes)
@@ -264,10 +293,13 @@ class OjifaDetailsReportController extends Controller
                 ->distinct('student_id')
                 ->count('student_id');
             $halfCollectedRow[(string)$monthValue] = $count > 0 ? $count : '-';
+            $rowTotal += $count;
         }
+        $halfCollectedRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $halfData[] = $halfCollectedRow; 
 
         $halfPendingRow = ["1" => 'আংশিক বাকি'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $count = (clone $baseQuery)
                 ->whereIn('fee_type', $halfFeeTypes)
@@ -280,10 +312,13 @@ class OjifaDetailsReportController extends Controller
                 ->distinct('student_id')
                 ->count('student_id');
             $halfPendingRow[(string)$monthValue] = $count > 0 ? $count : '-';
+            $rowTotal += $count;
         }
+        $halfPendingRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $halfData[] = $halfPendingRow; 
 
         $halfToBeCollectedRow = ["1" => 'আংশিক আদায় হবে'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $total = (clone $baseQuery)
                 ->whereIn('fee_type', $halfFeeTypes)
@@ -294,10 +329,13 @@ class OjifaDetailsReportController extends Controller
                 })
                 ->sum('amount');
             $halfToBeCollectedRow[(string)$monthValue] = $total > 0 ? $total : '-';
+            $rowTotal += $total;
         }
+        $halfToBeCollectedRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $halfData[] = $halfToBeCollectedRow;  
 
         $halfTotalCollectedRow = ["1" => 'আংশিক আদায় মোট'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $total = (clone $baseQuery)
                 ->whereIn('fee_type', $halfFeeTypes)
@@ -308,10 +346,13 @@ class OjifaDetailsReportController extends Controller
                 })
                 ->sum('paid');
             $halfTotalCollectedRow[(string)$monthValue] = $total > 0 ? $total : '-';
+            $rowTotal += $total;
         }
+        $halfTotalCollectedRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $halfData[] = $halfTotalCollectedRow; 
 
         $halfTotalPendingRow = ["1" => 'আংশিক বাকি মোট'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $total = (clone $baseQuery)
                 ->whereIn('fee_type', $halfFeeTypes)
@@ -322,7 +363,9 @@ class OjifaDetailsReportController extends Controller
                 })
                 ->sum('due');
             $halfTotalPendingRow[(string)$monthValue] = $total > 0 ? $total : '-';
+            $rowTotal += $total;
         }
+        $halfTotalPendingRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $halfData[] = $halfTotalPendingRow;
 
         return $halfData;
@@ -339,6 +382,7 @@ class OjifaDetailsReportController extends Controller
         ];
 
         $overallToBeCollectedRow = ["1" => 'মোট আদায় হবে'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $total = (clone $baseQuery)
                 ->whereIn('fee_type', $overallFeeTypes)
@@ -349,10 +393,13 @@ class OjifaDetailsReportController extends Controller
                 })
                 ->sum('amount');
             $overallToBeCollectedRow[(string)$monthValue] = $total > 0 ? $total : '-';
+            $rowTotal += $total;
         }
+        $overallToBeCollectedRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $overallData[] = $overallToBeCollectedRow;
 
         $overallTotalCollectedRow = ["1" => 'মোট আদায়'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $total = (clone $baseQuery)
                 ->whereIn('fee_type', $overallFeeTypes)
@@ -363,10 +410,13 @@ class OjifaDetailsReportController extends Controller
                 })
                 ->sum('paid');
             $overallTotalCollectedRow[(string)$monthValue] = $total > 0 ? $total : '-';
+            $rowTotal += $total;
         }
+        $overallTotalCollectedRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $overallData[] = $overallTotalCollectedRow;  
 
         $overallCollectorsRow = ["1" => 'আদায়কারী'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $count = (clone $baseQuery)
                 ->whereIn('fee_type', $overallFeeTypes)
@@ -378,10 +428,13 @@ class OjifaDetailsReportController extends Controller
                 ->distinct('student_id')
                 ->count('student_id');
             $overallCollectorsRow[(string)$monthValue] = $count > 0 ? $count : '-';
+            $rowTotal += $count;
         }
+        $overallCollectorsRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $overallData[] = $overallCollectorsRow;
 
         $overallCollectedRow = ["1" => 'আদায় করেছে'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $count = (clone $baseQuery)
                 ->whereIn('fee_type', $overallFeeTypes)
@@ -394,10 +447,13 @@ class OjifaDetailsReportController extends Controller
                 ->distinct('student_id')
                 ->count('student_id');
             $overallCollectedRow[(string)$monthValue] = $count > 0 ? $count : '-';
+            $rowTotal += $count;
         }
+        $overallCollectedRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $overallData[] = $overallCollectedRow; 
 
         $overallPendingRow = ["1" => 'আদায়কারী বাকি'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $count = (clone $baseQuery)
                 ->whereIn('fee_type', $overallFeeTypes)
@@ -410,10 +466,13 @@ class OjifaDetailsReportController extends Controller
                 ->distinct('student_id')
                 ->count('student_id');
             $overallPendingRow[(string)$monthValue] = $count > 0 ? $count : '-';
+            $rowTotal += $count;
         }
+        $overallPendingRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $overallData[] = $overallPendingRow; 
 
         $overallTotalPendingRow = ["1" => 'মোট আদায় বাকি'];
+        $rowTotal = 0;
         foreach ($monthKeys as $monthValue) {
             $total = (clone $baseQuery)
                 ->whereIn('fee_type', $overallFeeTypes)
@@ -424,7 +483,9 @@ class OjifaDetailsReportController extends Controller
                 })
                 ->sum('due');
             $overallTotalPendingRow[(string)$monthValue] = $total > 0 ? $total : '-';
+            $rowTotal += $total;
         }
+        $overallTotalPendingRow['total'] = $rowTotal > 0 ? $rowTotal : '-';
         $overallData[] = $overallTotalPendingRow; 
 
         return $overallData;
