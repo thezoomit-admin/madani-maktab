@@ -42,8 +42,18 @@ class HijriMonthController extends Controller
         $years = $query->orderByDesc('year')
             ->limit(10)
             ->pluck('year');
+
+        $activeYear = HijriMonth::where('is_active', 1)->value('year');
     
-        return success_response($years);
+        return response()->json([
+            'success' => true,
+            'message' => 'Success',
+            'data' => $years,
+            'active_year' => $activeYear,
+            'errors' => null,
+            'timestamp' => now()->toIso8601String(),
+            'request_id' => request()->header('X-Request-ID') ?: uniqid(),
+        ]);
     }
     
 
