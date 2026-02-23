@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('admission_progress_statuses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->boolean('is_passed_age')->nullable();
+            $table->boolean('is_interested')->default(true)->nullable();
+            $table->boolean('is_passed_age')->nullable(); 
             $table->boolean('is_send_step_2_link')->nullable();
             $table->boolean('is_registration_complete')->nullable();
             $table->boolean('is_interview_scheduled')->nullable();

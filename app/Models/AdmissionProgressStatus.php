@@ -11,6 +11,7 @@ class AdmissionProgressStatus extends Model
     protected $fillable = [
         'user_id',
         'is_passed_age',
+        'is_interested',
         'is_send_step_2_link',
         'is_registration_complete',
         'is_interview_scheduled',

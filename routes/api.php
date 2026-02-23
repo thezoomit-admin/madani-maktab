@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\Admission\ProfilePrintStatusController;
 use App\Http\Controllers\Admin\Admission\RegisterStudentListController;
 use App\Http\Controllers\Admin\Admission\SendRegistrationNumberController;
 use App\Http\Controllers\Admin\Admission\StudentController as AdmissionStudentController;
+use App\Http\Controllers\Admin\Admission\DecisionChangeController;
 use App\Http\Controllers\Admin\Admission\TrialStudentListController;
 use App\Http\Controllers\Admin\Employee\EmployeeController;
 use App\Http\Controllers\Admin\Employee\RoleController;
@@ -142,6 +143,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('pre-trial-schedule', [PreAdmissionTrialController::class,'schedule']);
     Route::post('pre-trial-attend',[PreAdmissionTrialController::class,'attend']);
     Route::post('pre-trial-result',[PreAdmissionTrialController::class,'result']);
+
+    Route::post('not-interested',[DecisionChangeController::class,'notInterested']);
+    Route::post('interested',[DecisionChangeController::class,'interested']);
     
     Route::delete('delete-registerd-students/{id}', [RegisterStudentListController::class,'delete']);
 

@@ -89,112 +89,112 @@ Route::get('test-sms',function(){
 // });
  
 
-Route::get('/refresh', function () {
-    DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-    Payment::truncate(); 
-    PaymentTransaction::truncate();  
-    $payment_methods = PaymentMethod::all();
-    foreach ($payment_methods as $method) {
-        $method->income_in_hand = 0;
-        $method->expense_in_hand = 0;
-        $method->balance = 0;
-        $method->save();
-    }
-    OfficeTransaction::truncate();
-    Expense::truncate();
-    DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-    return 'Refresh completed successfully!';
-});
+// Route::get('/refresh', function () {
+//     DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+//     Payment::truncate(); 
+//     PaymentTransaction::truncate();  
+//     $payment_methods = PaymentMethod::all();
+//     foreach ($payment_methods as $method) {
+//         $method->income_in_hand = 0;
+//         $method->expense_in_hand = 0;
+//         $method->balance = 0;
+//         $method->save();
+//     }
+//     OfficeTransaction::truncate();
+//     Expense::truncate();
+//     DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+//     return 'Refresh completed successfully!';
+// });
 
  
-Route::get('/revert-last-step', function() {
-    $reg_ids = ['ম-059'];
-    DB::beginTransaction();
-    try {
-        foreach($reg_ids as $id){
-            $student = StudentRegister::where('reg_id', $id)->first();
-            if($student){
-                $user = $student->user;
+// Route::get('/revert-last-step', function() {
+//     $reg_ids = ['ম-059'];
+//     DB::beginTransaction();
+//     try {
+//         foreach($reg_ids as $id){
+//             $student = StudentRegister::where('reg_id', $id)->first();
+//             if($student){
+//                 $user = $student->user;
                 
-                if($user->answerFiles && count($user->answerFiles)>0){
-                    foreach($user->answerFiles as $file){
-                        $path = public_path($file->link);
-                        if(file_exists($path)){
-                            unlink($path);
-                        }
-                        $file->delete();
-                    }
-                }
+//                 if($user->answerFiles && count($user->answerFiles)>0){
+//                     foreach($user->answerFiles as $file){
+//                         $path = public_path($file->link);
+//                         if(file_exists($path)){
+//                             unlink($path);
+//                         }
+//                         $file->delete();
+//                     }
+//                 }
 
-                // Delete User Family
-                if($user->userFamily){
-                    $user->userFamily->delete();
-                }
+//                 // Delete User Family
+//                 if($user->userFamily){
+//                     $user->userFamily->delete();
+//                 }
 
-                // Reset Admission Progress
-                if($user->admissionProgress){
-                    $user->admissionProgress->is_registration_complete = null;
-                    $user->admissionProgress->is_passed_age = null;
-                    $user->admissionProgress->save();
-                }
+//                 // Reset Admission Progress
+//                 if($user->admissionProgress){
+//                     $user->admissionProgress->is_registration_complete = null;
+//                     $user->admissionProgress->is_passed_age = null;
+//                     $user->admissionProgress->save();
+//                 }
 
-                // Reset Note
-                $student->note = null;
-                $student->save();
+//                 // Reset Note
+//                 $student->note = null;
+//                 $student->save();
 
-                echo $id." Reverted <br>"; 
-            }
-        }
-        DB::commit();
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return $e->getMessage();
-    }
-});
+//                 echo $id." Reverted <br>"; 
+//             }
+//         }
+//         DB::commit();
+//     } catch (\Exception $e) {
+//         DB::rollBack();
+//         return $e->getMessage();
+//     }
+// });
 
-Route::get('/fix-enrollments-1447', function () {
-    DB::beginTransaction();
-    try {
-        $year = 1447;
+// Route::get('/fix-enrollments-1447', function () {
+//     DB::beginTransaction();
+//     try {
+//         $year = 1447;
         
-        // Find enrollments for the specified year
-        $enrolesToDelete = Enrole::where('year', $year)->get();
-        $count = $enrolesToDelete->count();
+//         // Find enrollments for the specified year
+//         $enrolesToDelete = Enrole::where('year', $year)->get();
+//         $count = $enrolesToDelete->count();
         
-        if ($count === 0) {
-            return "No enrollments found for year $year.";
-        }
+//         if ($count === 0) {
+//             return "No enrollments found for year $year.";
+//         }
 
-        foreach ($enrolesToDelete as $enrole) {
-            $studentId = $enrole->student_id;
+//         foreach ($enrolesToDelete as $enrole) {
+//             $studentId = $enrole->student_id;
             
-            // 1. Delete associated payments and transactions
-            $payments = Payment::where('enrole_id', $enrole->id)->get();
-            foreach ($payments as $payment) {
-                // Delete payment transactions linked to this payment
-                PaymentTransaction::where('payment_id', $payment->id)->delete();
-                $payment->delete();
-            }
+//             // 1. Delete associated payments and transactions
+//             $payments = Payment::where('enrole_id', $enrole->id)->get();
+//             foreach ($payments as $payment) {
+//                 // Delete payment transactions linked to this payment
+//                 PaymentTransaction::where('payment_id', $payment->id)->delete();
+//                 $payment->delete();
+//             }
 
-            // 2. Delete the enrollment itself
-            $enrole->delete();
+//             // 2. Delete the enrollment itself
+//             $enrole->delete();
 
-            // 3. Find the previous enrollment and set it to active (status 1)
-            $previousEnrole = Enrole::where('student_id', $studentId)
-                ->orderByDesc('id')
-                ->first(); // Since we just deleted the latest, this should be the previous one
+//             // 3. Find the previous enrollment and set it to active (status 1)
+//             $previousEnrole = Enrole::where('student_id', $studentId)
+//                 ->orderByDesc('id')
+//                 ->first(); // Since we just deleted the latest, this should be the previous one
 
-            if ($previousEnrole) {
-                $previousEnrole->status = 1; // Set to active/running
-                $previousEnrole->save();
-            }
-        }
+//             if ($previousEnrole) {
+//                 $previousEnrole->status = 1; // Set to active/running
+//                 $previousEnrole->save();
+//             }
+//         }
 
-        DB::commit();
-        return "Successfully removed $count enrollments for year $year and reverted to previous active status.";
+//         DB::commit();
+//         return "Successfully removed $count enrollments for year $year and reverted to previous active status.";
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return "Error: " . $e->getMessage();
-    }
-});
+//     } catch (\Exception $e) {
+//         DB::rollBack();
+//         return "Error: " . $e->getMessage();
+//     }
+// });

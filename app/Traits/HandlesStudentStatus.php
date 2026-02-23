@@ -7,59 +7,76 @@ trait HandlesStudentStatus
     private function statusRules()
     {
         return [
+            'not_interested' => [
+                'is_interested' => false,
+            ],
             'normal_failed_message_send' => [
                 'is_passed_age' => false,
                 'is_send_fail_message' => true,
+                'is_interested' => true,
             ],
             'normal_failed_message_not_send' => [
                 'is_passed_age' => false,
                 'is_send_fail_message' => null,
+                'is_interested' => true,
             ],
             'message_not_sent' => [
                 'is_passed_age' => true,
                 'is_send_step_2_link' => null,
+                'is_interested' => true,
             ],
             'message_sent' => [
                 'is_send_step_2_link' => true,
                 'is_registration_complete' => null,
+                'is_interested' => true,
             ],
             'second_step_completed' => [
                 'is_registration_complete' => true,
                 'is_interview_scheduled' => null,
                 'is_passed_age' => true,
+                'is_interested' => true,
             ],
             'exam_message_sent' => [
                 'is_interview_scheduled' => true,
                 'is_first_exam_completed' => null,
+                'is_interested' => true,
             ],
             'first_exam_completed' => [
                 'is_first_exam_completed' => true,
                 'is_passed_interview' => null,
+                'is_interested' => true,
             ],
             'passed' => [
                 'is_passed_interview' => true,
                 'is_invited_for_trial' => null,
+                'is_interested' => true,
             ],
             'failed' => [ 
                 'is_passed_interview' => false,
+                'is_interested' => true,
             ],
             'invited' => [
                 'is_invited_for_trial' => true,
                 'is_present_in_madrasa' => null,
+                'is_interested' => true,
             ],
             'present_in_madrasa' => [
                 'is_present_in_madrasa' => true,
                 'is_passed_trial' => null,
+                'is_interested' => true,
             ],
             'observation_passed' => [
                 'is_passed_trial' => true,
                 'is_admission_completed' => null,
+                'is_interested' => true,
             ],
             'observation_failed' => [
                 'is_passed_trial' => false,
+                'is_interested' => true,
             ],
-            'admission_completed' => [
+            'admission_completed' => [ 
                 'is_admission_completed' => true,
+                'is_interested' => true,
             ],
         ];
     }
