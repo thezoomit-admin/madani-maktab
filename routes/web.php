@@ -46,6 +46,12 @@ Route::get('/sync-attendance', [AttendanceSyncController::class, 'sync']);
 Route::get('/',function(){
      dd("Success");
 });
+
+Route::get('get-link/{reg_id}',function($reg_id){
+     $user_id = StudentRegister::where('reg_id', $reg_id)->first()->user_id;
+     return "https://mimalmadinah.com/admission-form/step-3?user_id=".$user_id;
+});
+
 Route::get('test-sms',function(){
         $message = "This is a test message from Maktab System.";
         $phone = "+8801796351081";
