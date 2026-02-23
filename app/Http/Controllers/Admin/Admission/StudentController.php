@@ -337,6 +337,56 @@ class StudentController extends Controller
         }
     }
 
-    
+
+    public function revertLastStep(Request $request)
+    {
+        $user_id = $request->user_id;
+        
+        DB::beginTransaction();
+        try {
+            $user = User::find($user_id);
+            
+            if(!$user){
+                 return error_response(null, 404, "User not found");
+            }
+            
+            // Delete Answer Files
+            if($user->answerFiles && count($user->answerFiles)>0){
+                foreach($user->answerFiles as $file){
+                    $path = public_path($file->link);
+                    if(file_exists($path)){
+                        unlink($path);
+                    }
+                    $file->delete();
+                }
+            }
+
+            // Delete User Family
+            if($user->userFamily){
+                $user->userFamily->delete();
+            }
+
+            // Reset Admission Progress
+            if($user->admissionProgress){
+                $user->admissionProgress->is_registration_complete = null;
+                $user->admissionProgress->is_passed_age = null;
+                $user->admissionProgress->save();
+            }
+
+            // Reset Student Register Note
+            if($user->studentRegister){
+                 $user->studentRegister->note = null;
+                 $user->studentRegister->save();
+            }
+
+            DB::commit();
+            return success_response(null, "Reverted successfully");
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return error_response($e->getMessage(), 500);
+        }
+    }
+
 
 }

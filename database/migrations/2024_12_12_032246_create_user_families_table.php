@@ -26,7 +26,7 @@ return new class extends Migration
             $table->integer('years_at_inst')->nullable(); 
             $table->string('reason_diff_edu', 2048)->nullable();
 
-            $table->string('separation_experience')->nullable();
+            $table->text('separation_experience')->nullable();
             $table->boolean('is_organize_items')->nullable()->default(false);  
             $table->boolean('is_wash_clothes')->nullable()->default(false);  
             $table->boolean('is_join_meal')->nullable()->default(false);  
