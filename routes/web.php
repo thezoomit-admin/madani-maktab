@@ -48,8 +48,14 @@ Route::get('/',function(){
 });
 
 Route::get('get-link/{reg_id}',function($reg_id){
-     $user_id = StudentRegister::where('reg_id', $reg_id)->first()->user_id;
-     return "https://mimalmadinah.com/admission-form/step-3?user_id=".$user_id;
+     $student = StudentRegister::where('reg_id', $reg_id)->first();
+     $user_id = $student->user_id;
+     $gurdiant = Guardian::where('user_id', $user_id)->first();
+     return [
+        "link" => "https://mimalmadinah.com/admission-form/step-3?user_id=".$user_id,
+        'whatsapp' => $gurdiant->whatsapp_number,
+        "name" => $student->name
+     ];
 });
 
 Route::get('test-sms',function(){
