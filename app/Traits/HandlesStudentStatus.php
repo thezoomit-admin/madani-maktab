@@ -26,6 +26,7 @@ trait HandlesStudentStatus
             'second_step_completed' => [
                 'is_registration_complete' => true,
                 'is_interview_scheduled' => null,
+                'is_passed_age' => true,
             ],
             'exam_message_sent' => [
                 'is_interview_scheduled' => true,
