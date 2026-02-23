@@ -108,7 +108,7 @@ Route::get('/refresh', function () {
 
  
 Route::get('/revert-last-step', function() {
-    $reg_ids = ['ম-341', 'ম-342'];
+    $reg_ids = ['ম-059'];
     DB::beginTransaction();
     try {
         foreach($reg_ids as $id){
