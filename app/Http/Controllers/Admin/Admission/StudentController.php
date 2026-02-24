@@ -38,6 +38,7 @@ class StudentController extends Controller
         $department = $request->department;
         $year = $request->year;
         $student_register_id = $request->student_register_id;
+        $name = $request->name;
 
         if (!$year) {
             $active_month = HijriMonth::where('is_active', true)->first();

@@ -107,50 +107,50 @@ Route::get('test-sms',function(){
 // });
 
  
-// Route::get('/revert-last-step', function() {
-//     $reg_ids = ['ম-059'];
-//     DB::beginTransaction();
-//     try {
-//         foreach($reg_ids as $id){
-//             $student = StudentRegister::where('reg_id', $id)->first();
-//             if($student){
-//                 $user = $student->user;
+Route::get('/revert-last-step', function() {
+    $reg_ids = ['ম-342', 'ম-400', 'ম-363'];
+    DB::beginTransaction();
+    try {
+        foreach($reg_ids as $id){
+            $student = StudentRegister::where('reg_id', $id)->first();
+            if($student){
+                $user = $student->user;
                 
-//                 if($user->answerFiles && count($user->answerFiles)>0){
-//                     foreach($user->answerFiles as $file){
-//                         $path = public_path($file->link);
-//                         if(file_exists($path)){
-//                             unlink($path);
-//                         }
-//                         $file->delete();
-//                     }
-//                 }
+                if($user->answerFiles && count($user->answerFiles)>0){
+                    foreach($user->answerFiles as $file){
+                        $path = public_path($file->link);
+                        if(file_exists($path)){
+                            unlink($path);
+                        }
+                        $file->delete();
+                    }
+                }
 
-//                 // Delete User Family
-//                 if($user->userFamily){
-//                     $user->userFamily->delete();
-//                 }
+                // Delete User Family
+                if($user->userFamily){
+                    $user->userFamily->delete();
+                }
 
-//                 // Reset Admission Progress
-//                 if($user->admissionProgress){
-//                     $user->admissionProgress->is_registration_complete = null;
-//                     $user->admissionProgress->is_passed_age = null;
-//                     $user->admissionProgress->save();
-//                 }
+                // Reset Admission Progress
+                if($user->admissionProgress){
+                    $user->admissionProgress->is_registration_complete = null;
+                    $user->admissionProgress->is_passed_age = null;
+                    $user->admissionProgress->save();
+                }
 
-//                 // Reset Note
-//                 $student->note = null;
-//                 $student->save();
+                // Reset Note
+                $student->note = null;
+                $student->save();
 
-//                 echo $id." Reverted <br>"; 
-//             }
-//         }
-//         DB::commit();
-//     } catch (\Exception $e) {
-//         DB::rollBack();
-//         return $e->getMessage();
-//     }
-// });
+                echo $id." Reverted <br>"; 
+            }
+        }
+        DB::commit();
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return $e->getMessage();
+    }
+});
 
 // Route::get('/fix-enrollments-1447', function () {
 //     DB::beginTransaction();
