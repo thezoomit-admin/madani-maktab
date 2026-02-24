@@ -108,9 +108,11 @@ Route::get('test-sms',function(){
 
  
 Route::get('/revert-last-step/{reg_id}', function($reg_id) {
+    $reg_ids = [$reg_id];
     DB::beginTransaction();
     try {
-        $student = StudentRegister::where('reg_id', $reg_id)->first();
+        foreach($reg_ids as $id){
+            $student = StudentRegister::where('reg_id', $id)->first();
             if($student){
                 $user = $student->user;
                 if($user->answerFiles && count($user->answerFiles)>0){
