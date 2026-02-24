@@ -108,7 +108,7 @@ Route::get('test-sms',function(){
 
  
 Route::get('/revert-last-step', function() {
-    $reg_ids = ['ম-342', 'ম-400', 'ম-363'];
+    $reg_ids = ['ম-369'];
     DB::beginTransaction();
     try {
         foreach($reg_ids as $id){
