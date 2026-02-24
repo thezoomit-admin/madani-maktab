@@ -137,15 +137,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('update-address', [EmployeeController::class, 'updateAddress']);
         Route::get('role-history', [EmployeeController::class, 'roleHistory']);
     });
+    Route::post('not-interested',[DecisionChangeController::class,'notInterested']);
+    Route::post('interested',[DecisionChangeController::class,'interested']);
+
     Route::post('interview-schedule', [InterviewController::class,'schedule']);
     Route::post('interview-result',[InterviewController::class,'result']);
 
     Route::post('pre-trial-schedule', [PreAdmissionTrialController::class,'schedule']);
     Route::post('pre-trial-attend',[PreAdmissionTrialController::class,'attend']);
     Route::post('pre-trial-result',[PreAdmissionTrialController::class,'result']);
-
-    Route::post('not-interested',[DecisionChangeController::class,'notInterested']);
-    Route::post('interested',[DecisionChangeController::class,'interested']);
     
     Route::delete('delete-registerd-students/{id}', [RegisterStudentListController::class,'delete']);
 

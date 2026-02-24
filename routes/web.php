@@ -107,15 +107,12 @@ Route::get('test-sms',function(){
 // });
 
  
-Route::get('/revert-last-step', function() {
-    $reg_ids = ['ম-369'];
+Route::get('/revert-last-step/{reg_id}', function($reg_id) {
     DB::beginTransaction();
     try {
-        foreach($reg_ids as $id){
-            $student = StudentRegister::where('reg_id', $id)->first();
+        $student = StudentRegister::where('reg_id', $reg_id)->first();
             if($student){
                 $user = $student->user;
-                
                 if($user->answerFiles && count($user->answerFiles)>0){
                     foreach($user->answerFiles as $file){
                         $path = public_path($file->link);
