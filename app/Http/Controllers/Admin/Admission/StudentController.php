@@ -37,7 +37,7 @@ class StudentController extends Controller
         $status = $request->status; 
         $department = $request->department;
         $year = $request->year;
-        $student_register_id = $request->student_register_id;
+        $student_register_id = $request->reg_id;
         $name = $request->name;
 
         if (!$year) {
@@ -48,6 +48,9 @@ class StudentController extends Controller
         }  
 
         $data = User::where('user_type','student')
+            ->when($name, function ($query) use ($name) {
+                $query->where('name', 'like', "%{$name}%");
+            })
             ->when($year, function ($query) use ($year) {
                 $range = HijriMonth::getYearRange($year);
                 if ($range) {
