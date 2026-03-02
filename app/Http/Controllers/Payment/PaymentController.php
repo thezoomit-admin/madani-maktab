@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Http;
 use App\Helpers\HijriDateService;
 use App\Services\SSLPaymentService;
 use App\Models\PaymentAttempt;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
@@ -206,7 +207,7 @@ class PaymentController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('SSL Webhook Error: '.$e->getMessage());
+            Log::error('SSL Webhook Error: '.$e->getMessage());
             return response('Internal Error', 500);
         }
     }
@@ -317,16 +318,20 @@ class PaymentController extends Controller
 
     public function paymentList(Request $request)
     {
-        $approve_status = $request->approve_status;  
+        $approve_status = $request->approve_status;
         $reg_id = $request->reg_id;  
         $perPage = $request->per_page ?? 20;
         $page = $request->page ?? 1;
         $offset = ($page - 1) * $perPage; 
         
         $query = PaymentTransaction::with(['user:id,name,reg_id', 'student:id','paymentMethod:id,name'])->latest();
- 
-        if ($approve_status !== null) {
-            $query->where('is_approved', $approve_status);
+
+        // URL theke approve_status=true/false string ase, DB e is_approved 0/1 — normalize korte hobe
+        if ($approve_status !== null && $approve_status !== '') {
+            $approved = filter_var($approve_status, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            if ($approved !== null) {
+                $query->where('is_approved', $approved);
+            }
         }  
 
         if ($reg_id) {
