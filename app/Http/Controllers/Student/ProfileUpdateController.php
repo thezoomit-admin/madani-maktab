@@ -35,6 +35,13 @@ class ProfileUpdateController extends Controller
             'gender' => 'nullable|in:male,female,others',
             'status' => 'nullable|integer',
             'position' => 'nullable|string',
+        ], [
+            'name.required' => 'নাম আবশ্যক।',
+            'name.max' => 'নাম সর্বোচ্চ ২৫৫ অক্ষর হতে পারবে।',
+            'profile_image.image' => 'প্রোফাইল ছবি অবশ্যই ইমেজ ফাইল হতে হবে।',
+            'profile_image.max' => 'প্রোফাইল ছবির সাইজ সর্বোচ্চ ২ মেগাবাইট।',
+            'blood_group.in' => 'রক্তের গ্রুপ সঠিক নয়।',
+            'gender.in' => 'লিঙ্গ সঠিক নয়।',
         ]);
 
         if ($validator->fails()) {
@@ -93,6 +100,11 @@ class ProfileUpdateController extends Controller
             'is_bangla_handwriting_clear'  => 'nullable|boolean',
             'note'                         => 'nullable|string',
             'handwriting_image'            => 'nullable|image|max:2048',
+        ], [
+            'department_id.required' => 'বিভাগ নির্বাচন আবশ্যক।',
+            'department_id.integer' => 'বিভাগ সঠিক নয়।',
+            'handwriting_image.image' => 'হাতের লেখার ছবি অবশ্যই ইমেজ ফাইল হতে হবে।',
+            'handwriting_image.max' => 'ছবির সাইজ সর্বোচ্চ ২ মেগাবাইট।',
         ]);
 
         if ($validator->fails()) {
@@ -125,7 +137,7 @@ class ProfileUpdateController extends Controller
             'upazila_thana'       => 'required|string|max:255',
             'district'            => 'required|string|max:255',
             'division'            => 'required|string|max:255',
- 
+
             'same_address'                 => 'nullable|boolean',
             'temporary_house_or_state'    => 'required_if:same_address,false|string|max:255',
             'temporary_village_or_area'   => 'required_if:same_address,false|string|max:255',
@@ -133,6 +145,19 @@ class ProfileUpdateController extends Controller
             'temporary_upazila_thana'     => 'required_if:same_address,false|string|max:255',
             'temporary_district'          => 'required_if:same_address,false|string|max:255',
             'temporary_division'          => 'required_if:same_address,false|string|max:255',
+        ], [
+            'house_or_state.required' => 'বাড়ি/রাজ্য আবশ্যক।',
+            'village_or_area.required' => 'গ্রাম/এলাকা আবশ্যক।',
+            'post_office.required' => 'ডাকঘর আবশ্যক।',
+            'upazila_thana.required' => 'উপজেলা/থানা আবশ্যক।',
+            'district.required' => 'জেলা আবশ্যক।',
+            'division.required' => 'বিভাগ আবশ্যক।',
+            'temporary_house_or_state.required_if' => 'অস্থায়ী ঠিকানার বাড়ি/রাজ্য আবশ্যক।',
+            'temporary_village_or_area.required_if' => 'অস্থায়ী ঠিকানার গ্রাম/এলাকা আবশ্যক।',
+            'temporary_post_office.required_if' => 'অস্থায়ী ঠিকানার ডাকঘর আবশ্যক।',
+            'temporary_upazila_thana.required_if' => 'অস্থায়ী ঠিকানার উপজেলা/থানা আবশ্যক।',
+            'temporary_district.required_if' => 'অস্থায়ী ঠিকানার জেলা আবশ্যক।',
+            'temporary_division.required_if' => 'অস্থায়ী ঠিকানার বিভাগ আবশ্যক।',
         ]);
 
         if ($validator->fails()) {
@@ -180,9 +205,9 @@ class ProfileUpdateController extends Controller
     public function updateGuardian(Request $request, $id)
     {
         $guardian = Guardian::firstOrNew(['user_id'=>$id]);
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'guardian_name'              => 'required|string|max:255',
-            'email'                      => 'nullable',
+            'email'                      => 'nullable|email',
             'guardian_relation'          => 'required|string|max:100',
             'guardian_occupation_details'=> 'required|string',
             'guardian_education'         => 'required|string',
@@ -190,13 +215,28 @@ class ProfileUpdateController extends Controller
             'child_education'            => 'nullable|array',
             'contact_number_1'           => 'nullable|string|max:15',
             'contact_number_2'           => 'nullable|string|max:15',
-            'whatsapp_number'            => 'nullable|string|max:15', 
+            'whatsapp_number'            => 'nullable|string|max:15',
             'father_name'                => 'nullable|string|max:255',
+        ], [
+            'guardian_name.required' => 'অভিভাবকের নাম আবশ্যক।',
+            'guardian_name.max' => 'অভিভাবকের নাম সর্বোচ্চ ২৫৫ অক্ষর।',
+            'email.email' => 'সঠিক ইমেইল ঠিকানা দিন।',
+            'guardian_relation.required' => 'সম্পর্ক আবশ্যক।',
+            'guardian_relation.max' => 'সম্পর্ক সর্বোচ্চ ১০০ অক্ষর।',
+            'guardian_occupation_details.required' => 'পেশার বিবরণ আবশ্যক।',
+            'guardian_education.required' => 'শিক্ষাগত যোগ্যতা আবশ্যক।',
+            'contact_number_1.max' => 'যোগাযোগ নম্বর ১ সর্বোচ্চ ১৫ অঙ্ক।',
+            'contact_number_2.max' => 'যোগাযোগ নম্বর ২ সর্বোচ্চ ১৫ অঙ্ক।',
+            'whatsapp_number.max' => 'হোয়াটসঅ্যাপ নম্বর সর্বোচ্চ ১৫ অঙ্ক।',
         ]);
-        
+        if ($validator->fails()) {
+            return error_response($validator->errors()->first(), 422);
+        }
+
         $user = User::find($id);
-        if($user){
+        if ($user && $request->has('email')) {
             $user->email = $request->email;
+            $user->save();
         }
 
         $guardian->fill($request->except(['father_name','child_education']));
@@ -221,8 +261,7 @@ class ProfileUpdateController extends Controller
     public function updateFamily(Request $request, $id)
     {
         $family = UserFamily::firstOrNew(['user_id'=>$id]);
-
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'deeni_steps'          => 'sometimes|string',
             'follow_porada'        => 'sometimes|string',
             'shariah_compliant'    => 'sometimes|string',
@@ -241,7 +280,17 @@ class ProfileUpdateController extends Controller
             'is_clean_after_bath'  => 'sometimes|boolean',
             'health_issue_details' => 'sometimes|string',
             'is_bath_before_sleep' => 'sometimes|boolean',
+        ], [
+            'years_at_inst.integer' => 'ইনস্টিটিউশনে থাকার বছর পূর্ণ সংখ্যা হতে হবে।',
+            'is_organize_items.boolean' => 'অসংগত মান।',
+            'is_wash_clothes.boolean' => 'অসংগত মান।',
+            'is_join_meal.boolean' => 'অসংগত মান।',
+            'is_clean_after_bath.boolean' => 'অসংগত মান।',
+            'is_bath_before_sleep.boolean' => 'অসংগত মান।',
         ]);
+        if ($validator->fails()) {
+            return error_response($validator->errors()->first(), 422);
+        }
 
         $family->fill($request->all())->save();
 
@@ -253,7 +302,9 @@ class ProfileUpdateController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
             'file' => 'required',
-        ]);  
+        ], [
+            'file.required' => 'ফাইল আবশ্যক।',
+        ]);
 
         if ($validator->fails()) {
             return error_response($validator->errors()->first(), 422);

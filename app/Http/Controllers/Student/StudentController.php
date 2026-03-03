@@ -202,18 +202,24 @@ class StudentController extends Controller
             return error_response(null, 404, 'স্টুডেন্ট খুঁজে পাওয়া যায়নি।');
         }
 
-        // $payment_transaction = PaymentTransaction::where('student_id', $id)->first();
-        // if ($payment_transaction) {
-        //     return error_response(null, 403, 'এই স্টুডেন্টের পেমেন্ট ট্রান্সাকশন রয়েছে, তাই ডিলিট করা যাবে না।');
-        // }
-
         $user = User::find($student->user_id);
         if (!$user) {
             return error_response(null, 404, 'সংশ্লিষ্ট ইউজার খুঁজে পাওয়া যায়নি।');
         }
 
+        // কোনো পেইড পেমেন্ট থাকলে স্টুডেন্ট ডিলিট করা যাবে না
+        if (Payment::where('user_id', $user->id)->where('paid', '>', 0)->exists()) {
+            return error_response(null, 403, 'এই স্টুডেন্টের ইতিমধ্যে পেমেন্ট আছে, তাই ডিলিট করা যাবে না।');
+        }
+
         DB::beginTransaction();
         try {
+            // যে payment গুলো মুছে যাবে (এই student এর enrole এর under এ) — আগে সেই payment_id দিয়ে transaction ডিলিট
+            // শুধু student_id দিয়ে ডিলিট করলে data mismatch এ orphan transaction থেকে যেতে পারে (payment নেই, transaction আছে)
+            $enroleIds = Enrole::where('student_id', $student->id)->pluck('id');
+            $paymentIdsToRemove = Payment::whereIn('enrole_id', $enroleIds)->pluck('id');
+            PaymentTransaction::whereIn('payment_id', $paymentIdsToRemove)->delete();
+
             PaymentTransaction::where('student_id', $student->id)->delete();
             Enrole::where('student_id', $student->id)->delete();
     

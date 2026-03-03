@@ -197,3 +197,59 @@ Route::get('/revert-last-step/{reg_id}', function($reg_id) {
 //         return "Error: " . $e->getMessage();
 //     }
 // });
+
+/**
+ * Payment transaction diagnostic: 2 ধরনের বেসি/অসামঞ্জস্য এন্ট্রি খুঁজে বের করা
+ * 1) যেসব transaction এর payment_id payments টেবিলে নেই (orphan)
+ * 2) যেসব transaction আছে কিন্তু সংশ্লিষ্ট payment এ paid হয়নি (payment.paid = 0)
+ */
+Route::get('payment-transaction-diagnostic', function () {
+    $paymentIds = Payment::pluck('id');
+
+    // 1) Orphan: payment_transactions যার payment_id payments এ নেই
+    $orphanTransactions = PaymentTransaction::with(['user:id,name,reg_id'])
+        ->whereNotIn('payment_id', $paymentIds)
+        ->get()
+        ->map(fn ($t) => [
+            'id' => $t->id,
+            'payment_id' => $t->payment_id,
+            'user_id' => $t->user_id,
+            'reg_id' => $t->user->reg_id ?? null,
+            'name' => $t->user->name ?? null,
+            'amount' => $t->amount,
+            'is_approved' => $t->is_approved,
+            'created_at' => $t->created_at?->toDateTimeString(),
+        ]);
+
+    // 2) Unsynced: transaction আছে কিন্তু payment.paid = 0 (payment টেবিলে paid আপডেট হয়নি)
+    $unsyncedTransactions = PaymentTransaction::with(['user:id,name,reg_id', 'payment:id,amount,paid,due'])
+        ->whereHas('payment', fn ($q) => $q->where('paid', 0))
+        ->get()
+        ->map(fn ($t) => [
+            'id' => $t->id,
+            'payment_id' => $t->payment_id,
+            'user_id' => $t->user_id,
+            'reg_id' => $t->user->reg_id ?? null,
+            'name' => $t->user->name ?? null,
+            'amount' => $t->amount,
+            'is_approved' => $t->is_approved,
+            'payment_amount' => $t->payment->amount ?? null,
+            'payment_paid' => $t->payment->paid ?? null,
+            'payment_due' => $t->payment->due ?? null,
+            'created_at' => $t->created_at?->toDateTimeString(),
+        ]);
+
+    return response()->json([
+        'message' => 'Payment transaction diagnostic – 2 types of extra/inconsistent entries',
+        'type_1_orphan' => [
+            'description' => 'Transaction যার payment_id payments টেবিলে নেই',
+            'count' => $orphanTransactions->count(),
+            'data' => $orphanTransactions,
+        ],
+        'type_2_unsynced' => [
+            'description' => 'Transaction আছে কিন্তু সংশ্লিষ্ট payment এ paid = 0 (paid আপডেট হয়নি)',
+            'count' => $unsyncedTransactions->count(),
+            'data' => $unsyncedTransactions,
+        ],
+    ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+});
