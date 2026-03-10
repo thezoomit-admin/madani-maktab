@@ -11,7 +11,7 @@ class DecisionChangeController extends Controller
 {
     public function notInterested(Request $request){
         $candidate_id = $request->candidate_id;
-        $progress = AdmissionProgressStatus::where('candidate_id', $candidate_id)->first();
+        $progress = AdmissionProgressStatus::where('user_id', $candidate_id)->first();
         if($progress){
             $progress->is_passed_age = false;
             $progress->save();
@@ -24,7 +24,7 @@ class DecisionChangeController extends Controller
     }
     public function interested(Request $request){
         $candidate_id = $request->candidate_id;
-        $progress = AdmissionProgressStatus::where('candidate_id', $candidate_id)->first();
+        $progress = AdmissionProgressStatus::where('user_id', $candidate_id)->first();
         if($progress){
             $progress->is_passed_age = true;
             $progress->save();
