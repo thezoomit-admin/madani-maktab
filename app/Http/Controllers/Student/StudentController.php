@@ -180,7 +180,7 @@ class StudentController extends Controller
                     'average_marks' => $student->average_marks,
                     'name' => $user->name ?? null,
                     'father_name' => optional($user->studentRegister)->father_name,
-                    'age' => $user->age ?? null,
+                    'age' => $user->age ? (floor($user->age / 12) . ' বছর ' . ($user->age % 12) . ' মাস') : null,
                     'phone' => $user->phone ?? null,
                     'profile_image' => $user->profile_image,
                     'blood_group' => $user->blood_group ?? null,
