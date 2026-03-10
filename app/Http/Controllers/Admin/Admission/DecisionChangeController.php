@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin\Admission;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdmissionProgressStatus;
+use App\Models\StudentRegister;
 use Illuminate\Http\Request;
 
 class DecisionChangeController extends Controller
