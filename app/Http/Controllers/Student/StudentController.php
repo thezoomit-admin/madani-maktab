@@ -40,7 +40,13 @@ class StudentController extends Controller
             $session = $request->input('session');
 
             // 🟢 মূল query
-            $query = Student::with(['user:id,name,reg_id,phone,profile_image,blood_group,is_present', 'enroles'])
+            $query = Student::with([
+                'user:id,name,reg_id,phone,profile_image,blood_group,is_present,age',
+                'user.studentRegister:user_id,father_name',
+                'user.guardian:user_id,guardian_relation,guardian_occupation_details,guardian_education,contact_number_1,whatsapp_number',
+                'user.address',
+                'enroles',
+            ])
                 ->addSelect([
                     'latest_enrole_id' => Enrole::select('id')
                         ->whereColumn('student_id', 'students.id')
@@ -173,6 +179,8 @@ class StudentController extends Controller
                     'jamaat' => $student->jamaat,
                     'average_marks' => $student->average_marks,
                     'name' => $user->name ?? null,
+                    'father_name' => optional($user->studentRegister)->father_name,
+                    'age' => $user->age ?? null,
                     'phone' => $user->phone ?? null,
                     'profile_image' => $user->profile_image,
                     'blood_group' => $user->blood_group ?? null,
@@ -182,6 +190,12 @@ class StudentController extends Controller
                     'status' => $enrole->status ?? null,
                     'year' => $enrole->year ?? null,
                     'is_present' => $user->is_present ?? false,
+                    'address' => $user->address ?? null,
+                    'guardian_relation' => optional($user->guardian)->guardian_relation,
+                    'occupation' => optional($user->guardian)->guardian_occupation_details,
+                    'education' => optional($user->guardian)->guardian_education,
+                    'contact_number' => optional($user->guardian)->contact_number_1,
+                    'whatsapp_number' => optional($user->guardian)->whatsapp_number,
                 ];
             })->values();
 
