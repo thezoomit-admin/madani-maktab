@@ -62,6 +62,7 @@ class ProfileController extends Controller
                 'blood_group' => $user->blood_group,
                 'jamaat' => optional($user->student)->jamaat,
                 'average_marks' => optional($user->student)->average_marks,
+                'moral_score' => optional($user->student)->moral_score,
                 "previous_education_details" => optional($registration)->previous_education_details,
                 'status' => optional($user->student)->status,
                 'position' => optional($user->student)->position,

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -r \"echo date\\('Y_m_d_His'\\);\")",
+      "Bash(findstr /s \"income_in_hand\\\\|expense_in_hand\" app\\\\*.php app\\\\Http\\\\*.php app\\\\Http\\\\Controllers\\\\*.php)",
+      "Bash(findstr /v vendor)",
+      "Bash(python3 -c ' *)",
+      "Bash(del \"e:\\\\madani-maktab\\\\database\\\\migrations\\\\2026_05_04_102613_migrate_fee_type_4_5_to_standard_values.php\")"
+    ]
+  }
+}

@@ -59,13 +59,13 @@ class HijriMonthController extends Controller
 
     public function index(Request $request)
     {
-        $query = HijriMonth::query()->latest();
+        $query = HijriMonth::query()->orderBy('year', 'desc')->orderBy('month', 'desc');
 
         if ($request->filled('year')) {
             $query->where('year', $request->input('year'));
         }
         if ($request->input('select2') == true) {
-            $results = $query->limit(12)
+            $results = $query->limit(11)
                 ->get()
                 ->map(function ($item) use ($request) {
                     return [

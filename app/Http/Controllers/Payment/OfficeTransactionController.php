@@ -72,12 +72,23 @@ class OfficeTransactionController extends Controller
             ->where('type', 1)
             ->select('id', 'payment_method_id', 'description', 'amount', 'image','created_at');
 
-        $perPage = $request->input('per_page', 10);  
-        $page = $request->input('page', 1);  
-        $total = $query->count();  
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
+        $total = $query->count();
 
-        $results = $query->skip(($page - 1) * $perPage)   
-                        ->take($perPage)  
+        $summary = OfficeTransaction::with('paymentMethod')
+            ->where('type', 1)
+            ->selectRaw('payment_method_id, SUM(amount) as total')
+            ->groupBy('payment_method_id')
+            ->get()
+            ->map(fn($item) => [
+                'payment_method' => $item->paymentMethod->name ?? null,
+                'payment_method_icon' => $item->paymentMethod->icon ?? null,
+                'total' => $item->total,
+            ]);
+
+        $results = $query->skip(($page - 1) * $perPage)
+                        ->take($perPage)
                         ->get()
                         ->map(function ($item) {
                             return [
@@ -91,6 +102,7 @@ class OfficeTransactionController extends Controller
                         });
 
         return success_response([
+            'summary' => $summary,
             'data' => $results,
             'pagination' => [
                 'total' => $total,

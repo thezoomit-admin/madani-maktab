@@ -6,6 +6,7 @@ use App\Helpers\HijriDateService;
 use App\Http\Controllers\Controller;
 use App\Models\Expense;
 use App\Models\ExpensePayment;
+use App\Models\OfficeTransaction;
 use App\Models\PaymentMethod;
 use App\Models\Vendor;
 use App\Traits\HandlesImageUpload;
@@ -55,7 +56,8 @@ class ExpenseController extends Controller
                 ->latest();
 
             // Count total before pagination
-            $total = $query->count();  
+            $total = $query->count();
+            $totalExpenseAmount = (clone $query)->sum('total_amount');
 
             // Apply pagination
             $results = $query->skip(($page - 1) * $perPage)
@@ -83,8 +85,18 @@ class ExpenseController extends Controller
                     ];
                 });
 
+            $totalCollected = OfficeTransaction::where('type', 2)->sum('amount');
+            $remainingInHand = PaymentMethod::sum('expense_in_hand');
+            $totalSpent = $totalCollected - $remainingInHand;
+
             // Success response
             return success_response([
+                'summary' => [
+                    'total_collected'     => $totalCollected,
+                    'total_spent'         => $totalSpent,
+                    'remaining'           => $remainingInHand,
+                    'total_expense_amount' => $totalExpenseAmount,
+                ],
                 'data' => $results,
                 'pagination' => [
                     'total' => $total,

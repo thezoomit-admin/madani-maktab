@@ -35,6 +35,7 @@ class ProfileUpdateController extends Controller
             'gender' => 'nullable|in:male,female,others',
             'status' => 'nullable|integer',
             'position' => 'nullable|string',
+            'moral_score' => 'nullable|string',
         ], [
             'name.required' => 'নাম আবশ্যক।',
             'name.max' => 'নাম সর্বোচ্চ ২৫৫ অক্ষর হতে পারবে।',
@@ -64,7 +65,7 @@ class ProfileUpdateController extends Controller
         $student = Student::where('user_id', $id)->first();
         if ($student) {
             $student->fill($request->only([
-                'reg_id', 'jamaat', 'status','position'
+                'reg_id', 'jamaat', 'status', 'position', 'moral_score'
             ]))->save();
 
             $enrole = Enrole::where('user_id', $user->id)->orderBy('id', 'desc')->first();

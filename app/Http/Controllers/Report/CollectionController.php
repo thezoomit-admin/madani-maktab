@@ -72,6 +72,10 @@ class CollectionController extends Controller
         $page = $request->input('page', 1);
         $total = $query->count();
 
+        $totalCollected = OfficeTransaction::where('type', 2)->sum('amount');
+        $remainingInHand = PaymentMethod::sum('expense_in_hand');
+        $totalSpent = $totalCollected - $remainingInHand;
+
         $results = $query->skip(($page - 1) * $perPage)
             ->take($perPage)
             ->get()
@@ -87,6 +91,11 @@ class CollectionController extends Controller
             });
 
         return success_response([
+            'summary' => [
+                'total_collected' => $totalCollected,
+                'total_spent'     => $totalSpent,
+                'remaining'       => $remainingInHand,
+            ],
             'data' => $results,
             'pagination' => [
                 'total' => $total,
@@ -94,7 +103,7 @@ class CollectionController extends Controller
                 'current_page' => (int)$page,
                 'last_page' => ceil($total / $perPage),
             ],
-        ], 'জমার তালিকা সফলভাবে পাওয়া গেছে।');
+        ], 'জমার তালিকা সফলভাবে পাওয়া গেছে।');
     }
 
 }

@@ -318,29 +318,36 @@ class PaymentController extends Controller
 
     public function paymentList(Request $request)
     {
-        $approve_status = $request->approve_status;
-        $reg_id = $request->reg_id;  
-        $perPage = $request->per_page ?? 20;
-        $page = $request->page ?? 1;
-        $offset = ($page - 1) * $perPage; 
-        
-        $query = PaymentTransaction::with(['user:id,name,reg_id', 'student:id','paymentMethod:id,name'])->latest();
+        $reg_id       = $request->reg_id;
+        $methodId     = $request->payment_method_id;
+        $dateFrom     = $request->date_from;
+        $dateTo       = $request->date_to;
+        $perPage      = $request->per_page ?? 20;
+        $page         = $request->page ?? 1;
+        $offset       = ($page - 1) * $perPage;
 
-        // URL theke approve_status=true/false string ase, DB e is_approved 0/1 — normalize korte hobe
-        if ($approve_status !== null && $approve_status !== '') {
-            $approved = filter_var($approve_status, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-            if ($approved !== null) {
-                $query->where('is_approved', $approved);
-            }
-        }  
+        $query = PaymentTransaction::with(['user:id,name,reg_id', 'student:id', 'paymentMethod:id,name'])->latest();
 
         if ($reg_id) {
-            $query->whereHas('user', function ($query) use ($reg_id) {
-                $query->where('reg_id', $reg_id);
+            $query->whereHas('user', function ($q) use ($reg_id) {
+                $q->where('reg_id', $reg_id);
             });
+        }
+
+        if ($methodId) {
+            $query->where('payment_method_id', $methodId);
+        }
+
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
         }
  
         $total = $query->count();
+        $total_amount = (clone $query)->sum('amount');
         $data = $query->skip($offset)
                     ->take($perPage)
                     ->get()
@@ -353,13 +360,15 @@ class PaymentController extends Controller
                             'payer_account'     => @$item->payer_account,
                             'amount'            => $item->amount,
                             'image'             => $item->image,
-                            'date'              => app(HijriDateService::class)->getHijri($item->created_at), 
+                            'date'              => app(HijriDateService::class)->getHijri($item->created_at),
+                            'date_english'      => $item->created_at->format('d/m/Y'),
                             'is_approved'       => $item->is_approved,
                         ];
                     });
 
         // Return the response with paginated data
         return success_response([
+            'total_amount' => $total_amount,
             'data' => $data,
             'pagination' => [
                 'total' => $total,

@@ -113,16 +113,21 @@ class StudentController extends Controller
                         });
                     }
                 })
-                ->whereHas('user', function ($query) use ($request) { 
+                ->whereHas('user', function ($query) use ($request) {
                     if ($request->filled('name')) {
                         $query->where('name', 'like', '%' . $request->input('name') . '%');
-                    } 
+                    }
                     if ($request->has('reg_id')) {
                         $regId = trim((string) $request->input('reg_id')); // string cast + trim
                         $query->where('reg_id', $regId);
-                    } 
+                    }
                     if ($request->filled('blood_group')) {
                         $query->where('blood_group', $request->input('blood_group'));
+                    }
+                    if ($request->filled('district')) {
+                        $query->whereHas('address', function ($q) use ($request) {
+                            $q->where('district', 'like', '%' . $request->input('district') . '%');
+                        });
                     }
                 })
                 
