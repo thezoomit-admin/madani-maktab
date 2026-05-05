@@ -30,7 +30,6 @@ class HijriMonthController extends Controller
     public function year_list(Request $request)
     {
         $keyword = $request->input('keyword');
-    
         $query = HijriMonth::query()
             ->select('year')
             ->distinct();
@@ -65,7 +64,7 @@ class HijriMonthController extends Controller
             $query->where('year', $request->input('year'));
         }
         if ($request->input('select2') == true) {
-            $results = $query->limit(11)
+            $results = $query->limit(20)
                 ->get()
                 ->map(function ($item) use ($request) {
                     return [
