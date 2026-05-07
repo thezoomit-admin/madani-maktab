@@ -66,6 +66,10 @@ class HijriMonthController extends Controller
         if ($request->input('select2') == true) {
             $results = $query->limit(20)
                 ->get()
+                ->sortBy(function ($item) {
+                    return $item->year * 100 + $item->month;
+                })
+                ->values()
                 ->map(function ($item) use ($request) {
                     return [
                         'id' => $item->id,
