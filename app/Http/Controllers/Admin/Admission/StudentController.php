@@ -27,7 +27,7 @@ use App\Traits\PaginateTrait;
 use App\Traits\HandlesStudentStatus;
 use App\Services\RegIdGeneratorService;
 use App\Services\EnrollmentService;
-
+use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
@@ -147,6 +147,17 @@ class StudentController extends Controller
 
     public function admission(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'fee_type'        => 'required|integer|in:1,2,3',
+            'admission_fee'   => 'nullable|numeric|min:0',
+            'first_month_fee' => 'required_if:fee_type,2,3|nullable|numeric|min:0',
+            'fee'             => 'required_if:fee_type,2|nullable|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return error_response($validator->errors(), 422, 'ভ্যালিডেশন ব্যর্থ হয়েছে।');
+        }
+
         $id = $request->id;  
         DB::beginTransaction();
         try {  
@@ -202,6 +213,7 @@ class StudentController extends Controller
                 'standard_monthly_fee' => $monthly_fee,
                 'admission_fee' => $admission_fee,
                 'status' => 1,
+                'first_month_fee'    => $request->first_month_fee ?? null,
             ]);
 
             $user->admissionProgress->is_admission_completed=1;
@@ -326,11 +338,12 @@ class StudentController extends Controller
                 'department_id' => $department_id,
                 'session' => $request->session,
                 'roll_number' => $request->roll_number,
-                'fee_type' => $request->fee_type,
-                'fee' => $request->fee ?? null,
+                'fee_type'        => $request->fee_type,
+                'fee'             => $request->fee ?? null,
+                'first_month_fee' => $request->first_month_fee ?? null,
                 'standard_monthly_fee' => $monthly_fee,
-                'admission_fee' => $admission_fee,
-                'status' => 1,
+                'admission_fee'   => $admission_fee,
+                'status'          => 1,
             ]);
 
             DB::commit();

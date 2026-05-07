@@ -140,7 +140,7 @@ class StudentController extends Controller
                         $query->where('year', $year);
                     }
                 })
-                ->select('id', 'user_id', 'jamaat', 'average_marks', 'status')
+                ->select('id', 'user_id', 'jamaat', 'average_marks', 'moral_score', 'status')
                 ->orderBy('id', 'desc');
 
             // 🟢 Pagination
@@ -183,6 +183,7 @@ class StudentController extends Controller
                     'reg_id' => $user->reg_id ?? null,
                     'jamaat' => $student->jamaat,
                     'average_marks' => $student->average_marks,
+                    'moral_score' => $student->moral_score,
                     'name' => $user->name ?? null,
                     'father_name' => optional($user->studentRegister)->father_name,
                     'age' => $user->age ? (floor($user->age / 12) . ' বছর ' . ($user->age % 12) . ' মাস') : null,
@@ -287,16 +288,19 @@ class StudentController extends Controller
      */
     public function enroleStudent($id, Request $request)
     {
-        // Validate required fields
+         
         $validator = Validator::make($request->all(), [
-            'department_id' => 'required|integer|in:1,2',
-            'session' => 'required|integer',
-            'marks' => 'nullable|string',
-            'fee_type' => 'required|integer',
-            'fee' => 'nullable|numeric',
-            'admission_fee' => 'nullable|numeric|min:0',
-            'roll_number' => 'nullable|integer',
+            'department_id'   => 'required|integer|in:1,2',
+            'session'         => 'required|integer',
+            'marks'           => 'nullable|string',
+            'fee_type'        => 'required|integer|in:1,2,3',
+            'roll_number'     => 'nullable|integer',
+            'admission_fee'   => 'nullable|numeric|min:0',
+            'first_month_fee' => 'required_if:fee_type,2,3|nullable|numeric|min:0',
+            'fee'             => 'required_if:fee_type,2|nullable|numeric|min:0',
         ]);
+
+
         if ($validator->fails()) {
             return error_response($validator->errors(), 422, 'ভ্যালিডেশন ব্যর্থ হয়েছে।');
         }
@@ -341,7 +345,7 @@ class StudentController extends Controller
             $department_id = $request->input('department_id');
             $session = $request->input('session');
             $fee_type = $request->input('fee_type');
-            $fee = $request->input('fee', null);
+            $fee = $request->input('fee', null); 
             $roll_number = $request->input('roll_number', null);
 
             // Fetch Standard Fees from Settings
@@ -374,6 +378,7 @@ class StudentController extends Controller
                 'roll_number' => $roll_number,
                 'fee_type' => $fee_type,
                 'fee' => $fee,
+                'first_month_fee'    => $request->first_month_fee ?? null,
                 'standard_monthly_fee' => $standard_monthly_fee,
                 'admission_fee' => $admission_fee,
                 'status' => 1, // Running

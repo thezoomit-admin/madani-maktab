@@ -53,9 +53,10 @@ class DirectAdmissionRequest extends FormRequest
             // ENROLLMENT INFORMATION 
             'roll_number' => 'required|string|max:255',
             'session' => 'required|string|max:255',
-            'fee_type' => 'required|integer|in:1,2,3,4,5',
-            'fee' => 'nullable|numeric|min:0',
-            'admission_fee' => 'nullable|numeric|min:0',
+            'fee_type'        => 'required|integer|in:1,2,3',
+            'admission_fee'   => 'nullable|numeric|min:0',
+            'first_month_fee' => 'required_if:fee_type,2,3|nullable|numeric|min:0',
+            'fee'             => 'required_if:fee_type,2|nullable|numeric|min:0',
         ];
     }
 

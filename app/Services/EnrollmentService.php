@@ -19,7 +19,7 @@ class EnrollmentService
      * @param float|null $standard_fee (Fee from settings)
      * @return array ['fee_type' => int, 'monthly_fee' => float, 'regular_monthly_fee' => float]
      */
-    public static function calculateFeeType($fee_type, $custom_fee = null, $standard_fee = 0)
+    public static function calculateFeeType($fee_type, $custom_fee = null, $standard_fee = 0, $first_month_fee = null)
     {
         $monthly_fee = 0;
         $regular_monthly_fee = 0;
@@ -27,20 +27,15 @@ class EnrollmentService
         $custom_fee = $custom_fee ?? 0;
         $standard_fee = $standard_fee ?? 0;
 
+        
         if ($fee_type == FeeType::General) {
             $monthly_fee = $standard_fee;
             $regular_monthly_fee = $standard_fee;
         } elseif ($fee_type == FeeType::Half) {
-            $monthly_fee = $custom_fee;
+            $monthly_fee = $first_month_fee ?? 0;
             $regular_monthly_fee = $custom_fee;
         } elseif ($fee_type == FeeType::Guest) {
-            $monthly_fee = 0;
-            $regular_monthly_fee = 0;
-        } elseif ($fee_type == FeeType::HalfButThisMonthGeneral) {
-            $monthly_fee = $standard_fee;
-            $regular_monthly_fee = $custom_fee;
-        } elseif ($fee_type == FeeType::GuestButThisMonthGeneral) {
-            $monthly_fee = $standard_fee;
+            $monthly_fee = $first_month_fee ?? 0;
             $regular_monthly_fee = 0;
         }
 
@@ -87,7 +82,8 @@ class EnrollmentService
         $feeCalculation = self::calculateFeeType(
             $enrollmentData['fee_type'],
             $enrollmentData['fee'] ?? null,
-            $enrollmentData['standard_monthly_fee'] ?? 0
+            $enrollmentData['standard_monthly_fee'] ?? 0,
+            $enrollmentData['first_month_fee'] ?? null
         );
 
         // Create enrollment
@@ -142,7 +138,7 @@ class EnrollmentService
         $updated_by = Auth::id();
 
         // Create Admission Fee Payment if provided
-        if ($admission_fee >= 0) {
+        if ($admission_fee > 0) {
             Payment::create([
                 'user_id' => $user_id,
                 'student_id' => $student_id,
@@ -172,22 +168,24 @@ class EnrollmentService
             'updated_by' => $updated_by,
         ]);
 
-        // Create Monthly Fee Payments for future months
-        $future_months = HijriMonth::where('id', '>', $active_month->id)->get();
-        foreach ($future_months as $month) {
-            Payment::create([
-                'user_id' => $user_id,
-                'student_id' => $student_id,
-                'enrole_id' => $enrole->id,
-                'hijri_month_id' => $month->id,
-                'reason' => FeeReason::MONTHLY,
-                'year' => $enrole->year,
-                'fee_type' => $fee_type,
-                'amount' => $regular_monthly_fee,
-                'due' => $regular_monthly_fee,
-                'created_by' => $created_by,
-                'updated_by' => $updated_by,
-            ]);
+        // Create Monthly Fee Payments for future months (Guest এর জন্য তৈরি হবে না)
+        if ($fee_type != FeeType::Guest) {
+            $future_months = HijriMonth::where('id', '>', $active_month->id)->get();
+            foreach ($future_months as $month) {
+                Payment::create([
+                    'user_id' => $user_id,
+                    'student_id' => $student_id,
+                    'enrole_id' => $enrole->id,
+                    'hijri_month_id' => $month->id,
+                    'reason' => FeeReason::MONTHLY,
+                    'year' => $enrole->year,
+                    'fee_type' => $fee_type,
+                    'amount' => $regular_monthly_fee,
+                    'due' => $regular_monthly_fee,
+                    'created_by' => $created_by,
+                    'updated_by' => $updated_by,
+                ]);
+            }
         }
     }
 }

@@ -142,8 +142,8 @@ class OjifaDetailsReportController extends Controller
         $generalData = [];
         $generalFeeTypes = [
             FeeType::General,
-            FeeType::HalfButThisMonthGeneral,
-            FeeType::GuestButThisMonthGeneral,
+            // FeeType::HalfButThisMonthGeneral,
+            // FeeType::GuestButThisMonthGeneral,
         ];  
 
         $generalCollectorsRow = ["1" => 'সাধারণ আদায়কারী'];
@@ -377,8 +377,8 @@ class OjifaDetailsReportController extends Controller
         $overallFeeTypes = [
             FeeType::General,
             FeeType::Half,
-            FeeType::HalfButThisMonthGeneral,
-            FeeType::GuestButThisMonthGeneral,
+            // FeeType::HalfButThisMonthGeneral,
+            // FeeType::GuestButThisMonthGeneral,
         ];
 
         $overallToBeCollectedRow = ["1" => 'মোট আদায় হবে'];
