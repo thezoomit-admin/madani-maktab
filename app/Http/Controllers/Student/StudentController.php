@@ -147,7 +147,7 @@ class StudentController extends Controller
                         $query->where('year', $year);
                     }
                 })
-                ->orderByRaw('CAST(latest_roll_number AS UNSIGNED) ASC');
+                ->orderByRaw('ISNULL(latest_roll_number) ASC, CAST(latest_roll_number AS UNSIGNED) ASC');
 
             // 🟢 Pagination
             $paginated = $this->paginateQuery($query, $request);
