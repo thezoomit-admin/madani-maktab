@@ -53,18 +53,6 @@ class StudentController extends Controller
                         ->whereColumn('student_id', 'students.id')
                         ->orderByDesc('id')
                         ->limit(1),
-                    'latest_department_id' => Enrole::select('department_id')
-                        ->whereColumn('student_id', 'students.id')
-                        ->when($year, fn($q) => $q->where('year', $year))
-                        ->when(!$year, fn($q) => $q->where('status', 1))
-                        ->orderByDesc('id')
-                        ->limit(1),
-                    'latest_session' => Enrole::select('session')
-                        ->whereColumn('student_id', 'students.id')
-                        ->when($year, fn($q) => $q->where('year', $year))
-                        ->when(!$year, fn($q) => $q->where('status', 1))
-                        ->orderByDesc('id')
-                        ->limit(1),
                     'latest_roll_number' => Enrole::select('roll_number')
                         ->whereColumn('student_id', 'students.id')
                         ->when($year, fn($q) => $q->where('year', $year))
@@ -159,8 +147,6 @@ class StudentController extends Controller
                         $query->where('year', $year);
                     }
                 })
-                ->orderBy('latest_department_id', 'asc')
-                ->orderBy('latest_session', 'asc')
                 ->orderByRaw('CAST(latest_roll_number AS UNSIGNED) ASC');
 
             // 🟢 Pagination
