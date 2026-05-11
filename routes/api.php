@@ -29,6 +29,7 @@ use App\Http\Controllers\Common\SessionController;
 use App\Http\Controllers\Common\UnionApiController;
 use App\Http\Controllers\Common\UpazilaApiController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RootDashboardController;
 use App\Http\Controllers\Payment\BalanceController;
 use App\Http\Controllers\Payment\OfficeTransactionController;
 use App\Http\Controllers\Payment\PaymentController;
@@ -100,6 +101,7 @@ Route::get('student/{id}', [AdmissionStudentController::class,'student']);
 //Student Registration
 Route::get('student-register-last-stage', [AdmissionStudentController::class,'isCompleted']);
 Route::get('dashboard',DashboardController::class);
+Route::get('root/dashboard',RootDashboardController::class);
 Route::resource('dynamic-content',DynamicContentController::class);
 
 
