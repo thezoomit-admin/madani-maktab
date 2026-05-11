@@ -57,7 +57,12 @@ class ExpenseController extends Controller
 
             // Count total before pagination
             $total = $query->count();
-            $totalExpenseAmount = (clone $query)->sum('total_amount');
+            $totalExpenseAmount = Expense::whereBetween('created_at', [$startDate, $endDate])
+                ->when($request->filled('expense_category_id'), fn($q) => $q->where('expense_category_id', $request->expense_category_id))
+                ->when($request->filled('expense_sub_category_id'), fn($q) => $q->where('expense_sub_category_id', $request->expense_sub_category_id))
+                ->when($request->filled('vendor_id'), fn($q) => $q->where('vendor_id', $request->vendor_id))
+                ->when($request->filled('keyword'), fn($q) => $q->where('description', $request->keyword))
+                ->sum('total_amount');
 
             // Apply pagination
             $results = $query->skip(($page - 1) * $perPage)
