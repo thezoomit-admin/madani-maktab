@@ -158,7 +158,7 @@ class StudentController extends Controller
                         $query->where('year', $year);
                     }
                 })
-                ->select('id', 'user_id', 'jamaat', 'average_marks', 'moral_score', 'status')
+                ->select('id', 'user_id', 'jamaat', 'average_marks', 'moral_score', 'status', 'latest_department_id', 'latest_session', 'latest_roll_number')
                 ->orderBy('latest_department_id', 'asc')
                 ->orderBy('latest_session', 'asc')
                 ->orderByRaw('CAST(latest_roll_number AS UNSIGNED) ASC');
