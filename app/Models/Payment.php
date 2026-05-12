@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Payment extends Model
 {
-    use HasFactory; 
+    use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'student_id', 
+        'student_id',
         'enrole_id',
         'hijri_month_id',
         'reason',
@@ -19,10 +20,18 @@ class Payment extends Model
         'amount',
         'paid',
         'due',
+        'status',
         'fee_type',
         'created_by',
         'updated_by',
-    ]; 
+    ];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('active', function (Builder $builder) {
+            $builder->where('payments.status', 1);
+        });
+    } 
 
     public function student()
     {

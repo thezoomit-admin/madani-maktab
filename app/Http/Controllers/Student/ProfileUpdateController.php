@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\AnswerFile;
 use App\Models\Guardian;
+use App\Models\HijriMonth;
+use App\Models\Payment;
 use App\Models\StudentRegister;
 use App\Models\Student;
 use App\Models\Enrole;
@@ -54,6 +56,33 @@ class ProfileUpdateController extends Controller
             if ($profileImageUrl) {
                 $user->profile_image = $profileImageUrl;
                 $user->save();
+            }
+        }
+
+        $status = $request->input('status', 0);
+        if ($status == 0) {
+            $activeMonth = HijriMonth::getActiveMonth();
+            if ($activeMonth) {
+                $enrole = Enrole::where('user_id', $id)
+                    ->where('status', 1)
+                    ->orderBy('id', 'desc')
+                    ->first();
+
+                if ($enrole) {
+                    if ($request->is_pay_this_month) {
+                        // current month রাখো, পরের মাসগুলো disable
+                        Payment::withoutGlobalScope('active')
+                            ->where('enrole_id', $enrole->id)
+                            ->where('hijri_month_id', '>', $activeMonth->id)
+                            ->update(['status' => 0]);
+                    } else {
+                        // current month সহ পরের সব disable
+                        Payment::withoutGlobalScope('active')
+                            ->where('enrole_id', $enrole->id)
+                            ->where('hijri_month_id', '>=', $activeMonth->id)
+                            ->update(['status' => 0]);
+                    }
+                }
             }
         }
 
