@@ -84,6 +84,17 @@ class ProfileUpdateController extends Controller
                     }
                 }
             }
+        } elseif ($status == 1 || $status == 2) {
+            $enrole = Enrole::where('user_id', $id)
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if ($enrole) {
+                Payment::withoutGlobalScope('active')
+                    ->where('enrole_id', $enrole->id)
+                    ->where('status', 0)
+                    ->update(['status' => 1]);
+            }
         }
 
 
