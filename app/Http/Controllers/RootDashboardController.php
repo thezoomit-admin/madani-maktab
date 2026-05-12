@@ -106,7 +106,10 @@ class RootDashboardController extends Controller
             ])->sum('total_amount');
         }
 
-        $totalDue = Payment::sum('due');
+        $totalDue = 0;
+        if ($activeMonth) {
+            $totalDue = Payment::where('hijri_month_id', $activeMonth->id)->sum('due');
+        }
 
         return [
             'collected_this_month' => (float) $collectedThisMonth,
